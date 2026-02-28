@@ -1,0 +1,8 @@
+node_modules/
+.next/
+.env.local
+.vercel/
+qa-screenshots/
+tsconfig.tsbuildinfo
+tailwindcss-postcss-4.2.1.tgz
+*.tgz

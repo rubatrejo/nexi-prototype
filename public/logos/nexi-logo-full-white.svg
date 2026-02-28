@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288.935" height="121.75" viewBox="0 0 288.935 121.75">
+  <g id="NEXI-Logo" transform="translate(-53.3 -26.837)">
+    <g id="Group_8702" data-name="Group 8702" transform="translate(53.3 26.837)">
+      <circle fill="#ffffff" id="Ellipse_788" data-name="Ellipse 788" cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/>
+      <g id="Group_8700" data-name="Group 8700" transform="translate(263.791 3.055)">
+        <rect fill="#ffffff" id="Rectangle_5458" data-name="Rectangle 5458" width="25.144" height="46.812" transform="translate(0 71.883)"/>
+        <rect fill="#ffffff" id="Rectangle_5459" data-name="Rectangle 5459" width="25.144" height="46.738"/>
+      </g>
+      <path fill="#ffffff" id="Path_7844" data-name="Path 7844" d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/>
+      <path fill="#ffffff" id="Path_7845" data-name="Path 7845" d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/>
+      <g id="Group_8701" data-name="Group 8701" transform="translate(165.47 3.055)">
+        <path fill="#ffffff" id="Path_7846" data-name="Path 7846" d="M613.2,296.595,595.234,261.8,577.3,296.595" transform="translate(-549.013 -177.974)" fill="none"/>
+        <path fill="#ffffff" id="Path_7847" data-name="Path 7847" d="M577.3,35.1l17.934,28.953L613.2,35.1" transform="translate(-549.013 -35.1)" fill="none"/>
+        <path fill="#ffffff" id="Path_7848" data-name="Path 7848" d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/>
+      </g>
+    </g>
+  </g>
+</svg>

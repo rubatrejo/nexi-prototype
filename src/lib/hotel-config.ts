@@ -1,0 +1,348 @@
+/**
+ * NEXI Hotel Configuration
+ * ========================
+ * Single source of truth for all hotel-specific data.
+ * When onboarding a new client, duplicate this file and update values.
+ * In production, the CMS generates this configuration dynamically.
+ */
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface HotelBrand {
+  name: string;
+  tagline: string;
+  logo: string;        // Primary logo (for light backgrounds)
+  logoWhite: string;   // White logo (for dark backgrounds / photo overlays)
+  icon: string;        // Square icon (favicon, app icon)
+  iconWhite: string;
+  poweredBy: string;   // "Powered by" badge
+  poweredByWhite: string;
+}
+
+export interface HotelColors {
+  primary: string;
+  primaryHover: string;
+  primaryLight: string;
+  primaryGlow: string;
+  amber: string;
+  amberLight: string;
+  success: string;
+  error: string;
+  warning: string;
+  purple: string;
+  // Light mode
+  light: {
+    bg: string;
+    bgCard: string;
+    bgElevated: string;
+    text: string;
+    textSecondary: string;
+    textTertiary: string;
+    border: string;
+    borderHover: string;
+  };
+  // Dark mode
+  dark: {
+    bg: string;
+    bgCard: string;
+    bgElevated: string;
+    text: string;
+    textSecondary: string;
+    textTertiary: string;
+    border: string;
+    borderHover: string;
+  };
+}
+
+export interface HotelFonts {
+  display: string;     // Headlines, hero text
+  body: string;        // Body copy, UI elements
+  mono?: string;       // Code, data displays
+}
+
+export interface HotelModule {
+  id: string;
+  label: string;
+  icon: string;
+  entryScreen: string;
+  enabled: boolean;
+  color: string;
+}
+
+export interface RoomType {
+  id: string;
+  name: string;
+  description: string;
+  maxGuests: number;
+  bedType: string;
+  sizeSqFt: number;
+  baseRate: number;
+  currency: string;
+  image: string;
+  tag?: string;
+}
+
+export interface UpgradeOption {
+  id: string;
+  title: string;
+  description: string;
+  price: string;
+  image: string;
+}
+
+export interface HotelImages {
+  // Hero / backgrounds
+  heroExterior: string;
+  heroLobby: string;
+  heroPool: string;
+  heroSpa: string;
+  heroRestaurant: string;
+  // Room backgrounds
+  roomDeluxe: string;
+  roomSuite: string;
+  roomPresidential: string;
+  // General backgrounds (used across screens)
+  backgrounds: string[];
+  // Food & beverage
+  foodGeneric: string;
+  // Fallback
+  placeholder: string;
+}
+
+export interface GuestDefaults {
+  /** Default name shown ONLY in demo mode. Real guest name comes from onboarding/PMS. */
+  demoName: string;
+  demoRoom: string;
+  demoReservationId: string;
+  demoCheckIn: string;
+  demoCheckOut: string;
+  demoRoomType: string;
+}
+
+export interface HotelInfo {
+  address: string;
+  phone: string;
+  email: string;
+  wifi: {
+    networkName: string;
+    password: string;
+    instructions: string;
+  };
+  checkInTime: string;
+  checkOutTime: string;
+  lateCheckOutDeadline: string;
+  earlyCheckInTime: string;
+  currency: string;
+  timezone: string;
+}
+
+export interface HotelConfig {
+  brand: HotelBrand;
+  colors: HotelColors;
+  fonts: HotelFonts;
+  modules: HotelModule[];
+  rooms: RoomType[];
+  upgrades: UpgradeOption[];
+  images: HotelImages;
+  guestDefaults: GuestDefaults;
+  info: HotelInfo;
+  inactivity: {
+    warningAfterMs: number;   // Show "Are you still there?" (default 90s)
+    resetAfterMs: number;     // Reset to idle after warning (default 30s)
+  };
+  orientation: "landscape" | "portrait";
+}
+
+// ---------------------------------------------------------------------------
+// NEXI Demo Hotel Configuration
+// ---------------------------------------------------------------------------
+
+export const hotelConfig: HotelConfig = {
+  brand: {
+    name: "NEXI Demo Hotel",
+    tagline: "Your Stay, Your Way",
+    logo: "/logos/nexi-logo-full.svg",
+    logoWhite: "/logos/nexi-logo-full.svg",
+    icon: "/logos/nexi-icon.svg",
+    iconWhite: "/logos/nexi-icon-white.svg",
+    poweredBy: "/logos/powered-by-trueomni.svg",
+    poweredByWhite: "/logos/powered-by-trueomni-white.svg",
+  },
+
+  colors: {
+    primary: "#1288FF",
+    primaryHover: "#0B6FD4",
+    primaryLight: "rgba(18,136,255,0.08)",
+    primaryGlow: "rgba(18,136,255,0.25)",
+    amber: "#D4960A",
+    amberLight: "rgba(212,150,10,0.08)",
+    success: "#16A34A",
+    error: "#DC2626",
+    warning: "#D4960A",
+    purple: "#8B5CF6",
+    light: {
+      bg: "#F5F5F0",
+      bgCard: "#FFFFFF",
+      bgElevated: "#FFFFFF",
+      text: "#1A1A1A",
+      textSecondary: "#6B7280",
+      textTertiary: "#9CA3AF",
+      border: "#E8E8E3",
+      borderHover: "#D1D1CC",
+    },
+    dark: {
+      bg: "#0C0C0E",
+      bgCard: "#1A1A1F",
+      bgElevated: "#222228",
+      text: "#F0F0F0",
+      textSecondary: "#8E93A4",
+      textTertiary: "#5A5E6E",
+      border: "#2A2A30",
+      borderHover: "#3A3A42",
+    },
+  },
+
+  fonts: {
+    display: "Mona Sans",
+    body: "Inter",
+    mono: "JetBrains Mono",
+  },
+
+  modules: [
+    { id: "check-in",       label: "Check In",        icon: "log-in",         entryScreen: "CKI-01",  enabled: true,  color: "var(--primary)" },
+    { id: "check-out",      label: "Check Out",       icon: "log-out",        entryScreen: "CKO-01",  enabled: true,  color: "var(--error)" },
+    { id: "booking",        label: "Booking",         icon: "calendar-plus",  entryScreen: "BKG-01",  enabled: true,  color: "var(--purple)" },
+    { id: "room-service",   label: "Room Service",    icon: "concierge-bell", entryScreen: "RSV-01",  enabled: true,  color: "var(--primary)" },
+    { id: "wayfinding",     label: "Wayfinding",      icon: "map-pin",        entryScreen: "WAY-01",  enabled: true,  color: "var(--amber)" },
+    { id: "events",         label: "Events",          icon: "calendar",       entryScreen: "EVT-01",  enabled: true,  color: "var(--purple)" },
+    { id: "explore",        label: "Explore",         icon: "compass",        entryScreen: "LST-01",  enabled: true,  color: "var(--success)" },
+    { id: "wifi",           label: "Wi-Fi",           icon: "wifi",           entryScreen: "WIF-01",  enabled: true,  color: "var(--primary)" },
+    { id: "faq",            label: "FAQ",             icon: "help-circle",    entryScreen: "FAQ-01",  enabled: true,  color: "var(--text-secondary)" },
+    { id: "upsells",        label: "Upsells",         icon: "gift",           entryScreen: "UPS-01",  enabled: true,  color: "var(--amber)" },
+    { id: "ads",            label: "Advertisements",  icon: "megaphone",      entryScreen: "ADS-01",  enabled: true,  color: "var(--orange)" },
+    { id: "payments",       label: "TruePay",         icon: "credit-card",    entryScreen: "PAY-01",  enabled: true,  color: "var(--success)" },
+    { id: "late-checkout",  label: "Late Check-out",  icon: "clock",          entryScreen: "LCO-01",  enabled: true,  color: "var(--purple)" },
+    { id: "early-checkin",  label: "Early Check-in",  icon: "sunrise",        entryScreen: "ECI-01",  enabled: true,  color: "var(--amber)" },
+    { id: "duplicate-key",  label: "Duplicate Key",   icon: "key",            entryScreen: "DKY-01",  enabled: true,  color: "var(--amber)" },
+    { id: "ai-avatar",      label: "AI Concierge",    icon: "bot",            entryScreen: "AVT-01",  enabled: true,  color: "var(--primary)" },
+  ],
+
+  rooms: [
+    {
+      id: "deluxe-king",
+      name: "Deluxe King",
+      description: "Spacious room with king bed, city view, and premium amenities",
+      maxGuests: 2,
+      bedType: "King",
+      sizeSqFt: 420,
+      baseRate: 189,
+      currency: "USD",
+      image: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+      tag: "Best Value",
+    },
+    {
+      id: "ocean-suite",
+      name: "Ocean Suite",
+      description: "Elegant suite with separate living area and ocean views",
+      maxGuests: 3,
+      bedType: "King + Sofa",
+      sizeSqFt: 680,
+      baseRate: 329,
+      currency: "USD",
+      image: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+      tag: "Popular",
+    },
+    {
+      id: "presidential-suite",
+      name: "Presidential Suite",
+      description: "Ultimate luxury with panoramic views, dining area, and butler service",
+      maxGuests: 4,
+      bedType: "King + Twin",
+      sizeSqFt: 1200,
+      baseRate: 599,
+      currency: "USD",
+      image: "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
+      tag: "Premium",
+    },
+  ],
+
+  upgrades: [
+    {
+      id: "suite-upgrade",
+      title: "Suite Upgrade",
+      description: "Upgrade to a spacious suite with separate living area",
+      price: "$89/night",
+      image: "/images/unsplash/photo-1590490360182-c33d57733427.jpg",
+    },
+    {
+      id: "breakfast-package",
+      title: "Breakfast Package",
+      description: "Full breakfast buffet for your entire stay",
+      price: "$35/person",
+      image: "/images/unsplash/photo-1504674900247-0877df9cc836.jpg",
+    },
+    {
+      id: "spa-access",
+      title: "Spa Access",
+      description: "Unlimited access to spa, sauna, and wellness center",
+      price: "$45",
+      image: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
+    },
+  ],
+
+  images: {
+    heroExterior: "/images/unsplash/photo-1566073771259-6a8506099945.jpg",
+    heroLobby: "/images/unsplash/photo-1551882547-ff40c63fe5fa.jpg",
+    heroPool: "/images/unsplash/photo-1507525428034-b723cf961d3e.jpg",
+    heroSpa: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
+    heroRestaurant: "/images/unsplash/photo-1517248135467-4c7edcad34c4.jpg",
+    roomDeluxe: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+    roomSuite: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+    roomPresidential: "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
+    backgrounds: [
+      "/images/unsplash/photo-1566073771259-6a8506099945.jpg",
+      "/images/unsplash/photo-1542314831-068cd1dbfeeb.jpg",
+      "/images/unsplash/photo-1571896349842-33c89424de2d.jpg",
+      "/images/unsplash/photo-1520250497591-112f2f40a3f4.jpg",
+      "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+      "/images/unsplash/photo-1590490360182-c33d57733427.jpg",
+    ],
+    foodGeneric: "/images/unsplash/photo-1504674900247-0877df9cc836.jpg",
+    placeholder: "/logos/nexi-icon.svg",
+  },
+
+  guestDefaults: {
+    demoName: "Guest",
+    demoRoom: "1247",
+    demoReservationId: "RES-2026-48291",
+    demoCheckIn: "Feb 22, 2026",
+    demoCheckOut: "Feb 25, 2026",
+    demoRoomType: "Deluxe King",
+  },
+
+  info: {
+    address: "100 Ocean Drive, Miami Beach, FL 33139",
+    phone: "+1 (305) 555-0100",
+    email: "front.desk@nexidemo.com",
+    wifi: {
+      networkName: "NEXI-Guest",
+      password: "Room + Last Name (e.g., 1247Mitchell)",
+      instructions: "Connect to the network, enter your room number and last name as password.",
+    },
+    checkInTime: "3:00 PM",
+    checkOutTime: "11:00 AM",
+    lateCheckOutDeadline: "2:00 PM",
+    earlyCheckInTime: "12:00 PM",
+    currency: "USD",
+    timezone: "America/New_York",
+  },
+
+  inactivity: {
+    warningAfterMs: 90_000,
+    resetAfterMs: 30_000,
+  },
+
+  orientation: "landscape",
+};
