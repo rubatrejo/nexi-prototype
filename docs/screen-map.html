@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXI — Complete Screen Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:#0a0a0a; color:#e0e0e0; }
+
+  .progress-bar { position:fixed; top:0; left:0; height:2px; z-index:100; background:linear-gradient(90deg,#818cf8,#2dd4bf); }
+
+  /* Sidebar */
+  .sidebar { position:fixed; left:0; top:0; width:240px; height:100vh; border-right:1px solid rgba(255,255,255,0.04); background:#0a0a0a; z-index:50; overflow-y:auto; padding-top:24px; }
+  .sidebar a { display:block; padding:6px 20px; font-size:13px; color:#666; text-decoration:none; transition:all 0.2s; border-left:2px solid transparent; }
+  .sidebar a:hover, .sidebar a.active { color:#e0e0e0; border-left-color:#818cf8; }
+  .sidebar .cat { padding:6px 20px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#818cf8; text-transform:uppercase; letter-spacing:1px; margin-top:16px; }
+
+  .main { margin-left:240px; max-width:960px; padding:40px 48px; }
+
+  .section { scroll-margin-top:40px; margin-bottom:64px; }
+  .section-num { font-family:'IBM Plex Mono',monospace; font-size:11px; color:#818cf8; letter-spacing:1px; }
+  .section-title { font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:600; color:#fafafa; margin-top:4px; }
+  .module-title { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:600; color:#ccc; margin-bottom:8px; }
+  .divider { height:1px; background:rgba(255,255,255,0.06); margin:12px 0; }
+
+  /* Flow */
+  .flow { display:flex; flex-direction:column; gap:2px; margin:16px 0; }
+  .flow-step { display:flex; align-items:flex-start; gap:12px; padding:10px 16px; background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; transition:border-color 0.2s; }
+  .flow-step:hover { border-color:rgba(129,140,248,0.2); }
+  .flow-num { font-family:'IBM Plex Mono',monospace; font-size:11px; color:#818cf8; min-width:28px; padding-top:2px; }
+  .flow-content { flex:1; }
+  .flow-title { font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:500; color:#e0e0e0; }
+  .flow-desc { font-size:12px; color:#888; margin-top:2px; line-height:1.5; }
+  .flow-branch { margin-left:40px; border-left:2px solid rgba(129,140,248,0.15); padding-left:16px; margin-top:4px; margin-bottom:4px; }
+  .flow-branch-label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#fbbf24; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+
+  /* Tags */
+  .tag { display:inline-block; padding:2px 8px; border-radius:100px; font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:500; margin-right:4px; }
+  .tag-screen { background:rgba(129,140,248,0.1); color:#818cf8; }
+  .tag-modal { background:rgba(251,191,36,0.1); color:#fbbf24; }
+  .tag-overlay { background:rgba(45,212,191,0.1); color:#2dd4bf; }
+  .tag-error { background:rgba(239,68,68,0.1); color:#ef4444; }
+  .tag-hw { background:rgba(168,85,247,0.1); color:#a855f7; }
+
+  /* Stats */
+  .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:24px 0; }
+  .stat-card { background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px; text-align:center; }
+  .stat-num { font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; color:#fafafa; }
+  .stat-label { font-family:'IBM Plex Mono',monospace; font-size:10px; color:#666; text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+
+  /* Approval */
+  .approval { display:flex; align-items:center; gap:8px; padding:8px 16px; background:rgba(129,140,248,0.04); border:1px solid rgba(129,140,248,0.1); border-radius:8px; cursor:pointer; margin-top:16px; }
+  .approval:has(input:checked) { background:rgba(45,212,191,0.06); border-color:rgba(45,212,191,0.2); }
+  .approval input { accent-color:#2dd4bf; }
+  .approval span { font-size:13px; color:#888; }
+  .approval:has(input:checked) span { color:#2dd4bf; }
+
+  /* Note */
+  .note { padding:12px 16px; border-radius:8px; font-size:13px; line-height:1.6; }
+  .note-info { background:rgba(129,140,248,0.05); border:1px solid rgba(129,140,248,0.1); color:#aaa; }
+  .note-warn { background:rgba(251,191,36,0.05); border:1px solid rgba(251,191,36,0.12); color:#aaa; }
+
+  /* Hardware ref */
+  .hw-ref { display:flex; align-items:center; gap:6px; font-size:11px; color:#a855f7; font-family:'IBM Plex Mono',monospace; margin:4px 0; }
+
+  @media (max-width:768px) {
+    .sidebar { display:none; }
+    .main { margin-left:0; padding:24px 16px; }
+    .stat-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress" style="width:0%"></div>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div style="padding:0 20px 16px;">
+    <p style="font-family:'IBM Plex Mono'; font-size:10px; color:rgba(255,255,255,0.2); text-transform:uppercase; letter-spacing:2px;">NEXI</p>
+    <p style="font-family:'Space Grotesk'; font-size:14px; color:#e0e0e0; margin-top:4px;">Screen Map v1.0</p>
+  </div>
+
+  <div class="cat">Overview</div>
+  <a href="#overview">Product Summary</a>
+  <a href="#stats">Screen Count</a>
+  <a href="#hardware">Hardware Reference</a>
+
+  <div class="cat">Global</div>
+  <a href="#idle">Idle / Screensaver</a>
+  <a href="#onboarding">Onboarding</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#global-ui">Global UI Elements</a>
+
+  <div class="cat">Core Flows</div>
+  <a href="#checkin">Check-in</a>
+  <a href="#checkout">Check-out</a>
+  <a href="#booking">Booking (Walk-in)</a>
+
+  <div class="cat">Services</div>
+  <a href="#roomservice">Room Service</a>
+  <a href="#wayfinding">Wayfinding</a>
+  <a href="#events">Events</a>
+  <a href="#listings">Listings</a>
+  <a href="#wifi">Wi-Fi</a>
+  <a href="#faq">FAQ</a>
+
+  <div class="cat">Revenue</div>
+  <a href="#upsells">Upsells & Upgrades</a>
+  <a href="#ads">Ads System</a>
+  <a href="#truepay">TruePay</a>
+
+  <div class="cat">Special</div>
+  <a href="#avatar">AI Avatar</a>
+  <a href="#duplicate-key">Duplicate Key</a>
+  <a href="#early-checkin">Early Check-in</a>
+  <a href="#late-checkout">Late Check-out</a>
+
+  <div class="cat">System</div>
+  <a href="#errors">Error States</a>
+  <a href="#inactivity">Inactivity Timer</a>
+  <a href="#staff">Staff Override</a>
+  <a href="#receipt">Receipt / Confirmation</a>
+
+  <div style="padding:20px; margin-top:16px;">
+    <div id="approval-count" style="font-family:'IBM Plex Mono'; font-size:11px; color:rgba(255,255,255,0.3);">0 / 20 approved</div>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- HEADER -->
+  <header style="margin-bottom:48px;">
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+      <span class="tag tag-screen">Draft v1.0</span>
+      <span style="color:rgba(255,255,255,0.15); font-size:12px;">|</span>
+      <span style="font-family:'IBM Plex Mono'; font-size:11px; color:rgba(255,255,255,0.2);">2026-02-22</span>
+    </div>
+    <h1 style="font-family:'Space Grotesk'; font-size:40px; font-weight:700; color:#fafafa; line-height:1.1;">
+      NEXI — Complete Screen Map
+    </h1>
+    <p style="color:#888; margin-top:12px; max-width:600px; line-height:1.6;">
+      Hotel self check-in kiosk. Every screen, every state, every flow. This document maps the entire product before a single pixel is designed.
+    </p>
+    <div style="display:flex; gap:6px; margin-top:12px; flex-wrap:wrap;">
+      <span class="tag tag-screen">Screen</span>
+      <span class="tag tag-modal">Modal</span>
+      <span class="tag tag-overlay">Overlay</span>
+      <span class="tag tag-error">Error State</span>
+      <span class="tag tag-hw">Hardware Action</span>
+    </div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <section class="section" id="overview">
+    <span class="section-num">00</span>
+    <h2 class="section-title">Product Summary</h2>
+    <div class="divider"></div>
+    <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px;">
+        <p style="font-family:'IBM Plex Mono'; font-size:10px; color:#818cf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Product</p>
+        <p style="font-size:14px; color:#ccc;">NEXI — Hotel Self Check-in Kiosk</p>
+        <p style="font-size:12px; color:#666; margin-top:4px;">by TrueOmni</p>
+      </div>
+      <div style="background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px;">
+        <p style="font-family:'IBM Plex Mono'; font-size:10px; color:#818cf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Screens</p>
+        <p style="font-size:14px; color:#ccc;">Horizontal 1920x1080 + Vertical 1080x1920</p>
+        <p style="font-size:12px; color:#666; margin-top:4px;">Responsive between both orientations</p>
+      </div>
+      <div style="background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px;">
+        <p style="font-family:'IBM Plex Mono'; font-size:10px; color:#818cf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Stack</p>
+        <p style="font-size:14px; color:#ccc;">Blazor + CMS Backend</p>
+        <p style="font-size:12px; color:#666; margin-top:4px;">ADA compliance Phase 2</p>
+      </div>
+      <div style="background:#111113; border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px;">
+        <p style="font-family:'IBM Plex Mono'; font-size:10px; color:#818cf8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Language</p>
+        <p style="font-size:14px; color:#ccc;">English V1, multi-language later</p>
+        <p style="font-size:12px; color:#666; margin-top:4px;">Language selector in UI (future)</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section" id="stats">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Screen Count</h2>
+    <div class="divider"></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">78</div><div class="stat-label">Total Screens</div></div>
+      <div class="stat-card"><div class="stat-num">16</div><div class="stat-label">Modules</div></div>
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Error States</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Ad Types</div></div>
+    </div>
+    <div class="note note-info" style="margin-top:12px;">These numbers will grow as we detail edge cases. This is the V1 foundation.</div>
+  </section>
+
+  <!-- HARDWARE -->
+  <section class="section" id="hardware">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Hardware Reference</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Camera</div><div class="flow-desc">Integrated above the screen. Used for facial recognition match with ID. Also houses microphone.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Touchscreen</div><div class="flow-desc">Main display. Landscape 1920x1080 or Portrait 1080x1920. Tilted ~15-20 degrees for ergonomics.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">TruePay Terminal</div><div class="flow-desc">Payment terminal mounted on the right side. Chip, NFC/contactless, PIN pad. Verifone/Ingenico style.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">ID / Passport Scanner</div><div class="flow-desc">Horizontal slot below the screen on the front column face. Scans ID cards and passports.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Key Card Dispenser</div><div class="flow-desc">Below the ID scanner. Dispenses programmed key cards for room access.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Speaker</div><div class="flow-desc">Rear-mounted. For AI Avatar voice responses, audio feedback, and accessibility.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Glass Shelf</div><div class="flow-desc">Waist-height shelf extending both sides. For personal belongings during interaction.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-hw">HW</span></div><div class="flow-content"><div class="flow-title">Staff Override Button</div><div class="flow-desc">Physical button on the rear bottom of the kiosk. Triggers admin access.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Hardware Reference</span></label>
+  </section>
+
+  <!-- IDLE -->
+  <section class="section" id="idle">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Idle / Screensaver</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-screen">S</span></div><div class="flow-content"><div class="flow-title">IDL-01 — Screensaver</div><div class="flow-desc">Full-screen video loop uploaded by hotel via CMS. Cinematic content — hotel exterior, lobby, pool, rooms. Overlaid: "Touch to begin" call-to-action. NEXI logo + "made by TrueOmni" badge. Hotel logo. Time/date. Touch anywhere → Onboarding.</div></div></div>
+    </div>
+    <div class="note note-info">The video is the first impression. It must feel premium. The CTA needs to be visible but not obtrusive — bottom center, subtle pulse animation.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Idle</span></label>
+  </section>
+
+  <!-- ONBOARDING -->
+  <section class="section" id="onboarding">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Onboarding</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-screen">S</span></div><div class="flow-content"><div class="flow-title">ONB-01 — Welcome</div><div class="flow-desc">Hotel branding prominent. "Welcome to [Hotel Name]". Brief intro: "I'm NEXI, your self-service concierge." Skip button available. Auto-advance after 4s.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-screen">S</span></div><div class="flow-content"><div class="flow-title">ONB-02 — What You Can Do</div><div class="flow-desc">Visual overview of available modules: Check-in, Check-out, Room Service, Wayfinding, etc. Icon + label for each. "Let's get started" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-screen">S</span></div><div class="flow-content"><div class="flow-title">ONB-03 — Language Selection (Future)</div><div class="flow-desc">V2: Language picker grid with flags. V1: Skip, English only.</div></div></div>
+    </div>
+    <div class="note note-warn">Onboarding should be skippable. Repeat visitors will want to jump straight to dashboard. Consider: after first use, skip onboarding if guest is recognized.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Onboarding</span></label>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="section" id="dashboard">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Dashboard</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0; line-height:1.6;">The root of everything. All modules accessible from here. Check-in and Check-out have highest visual hierarchy. AI Avatar chat bubble is persistent here.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-screen">S</span></div><div class="flow-content"><div class="flow-title">DSH-01 — Main Dashboard</div><div class="flow-desc">
+        <strong>Header:</strong> Hotel logo, time/date, language toggle (future), accessibility icon (wheelchair).<br>
+        <strong>Hero CTAs:</strong> CHECK-IN (primary, large) + CHECK-OUT (secondary, large). These dominate the screen.<br>
+        <strong>Module grid:</strong> Booking, Room Service, Wayfinding, Events, Listings, Wi-Fi, FAQ, Upsells/Upgrades. Each as card with icon + label.<br>
+        <strong>AI Avatar:</strong> Chat bubble floating bottom-right. Tap to open avatar conversation.<br>
+        <strong>Footer:</strong> "made by TrueOmni" + NEXI logo.<br>
+        <strong>Ads:</strong> Banner ad zone (if hotel configured) — header or inline position.
+      </div></div></div>
+    </div>
+    <div class="note note-info">Module grid is dynamic — hotel enables/disables modules via CMS. If hotel has no spa, no spa card. If no events feed, no events card. The grid adapts.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Dashboard</span></label>
+  </section>
+
+  <!-- GLOBAL UI -->
+  <section class="section" id="global-ui">
+    <span class="section-num">06</span>
+    <h2 class="section-title">Global UI Elements</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-01 — Top Navigation Bar</div><div class="flow-desc">Persistent on all screens (except idle). Hotel logo left, time/date center, back button, home button, accessibility icon, language toggle (future).</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-02 — Progress Indicator</div><div class="flow-desc">Step indicator for multi-step flows (check-in, booking, etc.). Shows current step + total steps. E.g. "Step 3 of 7".</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-03 — Back / Home Buttons</div><div class="flow-desc">Back arrow (previous screen) + Home icon (back to dashboard) always accessible in nav bar. Confirmation modal if mid-flow: "Are you sure? Your progress will be lost."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-modal">M</span></div><div class="flow-content"><div class="flow-title">GBL-04 — Exit Flow Confirmation</div><div class="flow-desc">Modal: "Are you sure you want to exit? Your progress will not be saved." Buttons: Continue / Exit to Dashboard.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-05 — Loading / Processing</div><div class="flow-desc">Full-screen or inline loading state with animation. Used during: payment processing, ID verification, key card programming, data fetch. Branded animation (NEXI logo pulse or custom).</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-06 — Success State</div><div class="flow-desc">Check mark animation + success message. Used after: payment complete, check-in complete, booking confirmed. Auto-advances after 3s or on touch.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-overlay">O</span></div><div class="flow-content"><div class="flow-title">GBL-07 — Keyboard (On-Screen)</div><div class="flow-desc">Virtual keyboard for text input. Used for: reservation code entry, name entry, search. Full QWERTY with number row. Large touch targets for kiosk use.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Global UI</span></label>
+  </section>
+
+  <!-- CHECK-IN -->
+  <section class="section" id="checkin">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Check-in Flow</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">The star flow. ~3 minutes end to end. 13 screens + branches.</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">CKI-01 — Identification Method</div><div class="flow-desc"><span class="tag tag-screen">S</span> Two options: "Scan QR from your app" (camera activates) OR "Enter reservation code" (keyboard). Guest picks one.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">02a</div><div class="flow-content"><div class="flow-title">CKI-02a — QR Scan</div><div class="flow-desc"><span class="tag tag-screen">S</span> Camera viewfinder active. "Hold your QR code to the camera." Visual guide frame. Auto-detects and advances. <span class="tag tag-hw">HW</span> Camera active.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">02b</div><div class="flow-content"><div class="flow-title">CKI-02b — Manual Entry</div><div class="flow-desc"><span class="tag tag-screen">S</span> On-screen keyboard. Two fields: Reservation Code + Last Name. "Find My Reservation" button.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">CKI-03 — Reservation Summary</div><div class="flow-desc"><span class="tag tag-screen">S</span> Shows: Guest name, check-in/check-out dates, room type, number of guests, any pre-paid amount. "Confirm &amp; Continue" button.</div></div></div>
+
+      <div class="flow-branch">
+        <div class="flow-branch-label">Branch: Room not ready</div>
+        <div class="flow-step"><div class="flow-num">03b</div><div class="flow-content"><div class="flow-title">CKI-03b — Early Arrival</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Your room is being prepared." Two options: "Store my luggage &amp; notify me when ready" (free) or "Early check-in for $XX" (if available). See <a href="#early-checkin" style="color:#818cf8;">Early Check-in module</a>.</div></div></div>
+      </div>
+
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-content"><div class="flow-title">CKI-04 — ID Scan Instruction</div><div class="flow-desc"><span class="tag tag-screen">S</span> Animation showing where to place ID/passport on the scanner below. "Place your ID face-down on the scanner below." Arrow pointing down to physical scanner. <span class="tag tag-hw">HW</span> Scanner activates.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">05</div><div class="flow-content"><div class="flow-title">CKI-05 — ID Scanning</div><div class="flow-desc"><span class="tag tag-overlay">O</span> Processing animation. "Reading your document..." Progress indicator.</div></div></div>
+
+      <div class="flow-branch">
+        <div class="flow-branch-label">Branch: Scan error</div>
+        <div class="flow-step"><div class="flow-num">05e</div><div class="flow-content"><div class="flow-title">CKI-05e — ID Scan Error</div><div class="flow-desc"><span class="tag tag-error">E</span> "We couldn't read your document. Please try again." Instructions to flip/reposition. Attempt counter (1/3, 2/3). After 3rd fail: "Request Assistance" button appears. <span class="tag tag-hw">HW</span> Scanner retries.</div></div></div>
+      </div>
+
+      <div class="flow-step"><div class="flow-num">06</div><div class="flow-content"><div class="flow-title">CKI-06 — Facial Recognition</div><div class="flow-desc"><span class="tag tag-screen">S</span> Camera feed showing guest's face with alignment guide (oval frame). "Look at the camera above." Auto-captures when face is centered. <span class="tag tag-hw">HW</span> Camera captures.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">07</div><div class="flow-content"><div class="flow-title">CKI-07 — Identity Verified</div><div class="flow-desc"><span class="tag tag-overlay">O</span> Success state: "Identity verified" with check animation. Shows ID photo vs. camera photo side by side briefly. Auto-advances.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">08</div><div class="flow-content"><div class="flow-title">CKI-08 — Terms &amp; Agreement</div><div class="flow-desc"><span class="tag tag-screen">S</span> Hotel policies summary (scrollable). Digital signature area (finger draw on touch screen). "I agree &amp; continue" button.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">09</div><div class="flow-content"><div class="flow-title">CKI-09 — Upsell Opportunity</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Upgrade your stay?" Room upgrade options with photos, price difference. Late check-out option. "No thanks" + "Upgrade" buttons. See <a href="#upsells" style="color:#818cf8;">Upsells module</a>.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">10</div><div class="flow-content"><div class="flow-title">CKI-10 — Payment</div><div class="flow-desc"><span class="tag tag-screen">S</span> If balance due: Itemized charges summary. Total amount. "Pay now" CTA pointing to TruePay terminal on the right. "Tap, insert, or swipe your card on the terminal." <span class="tag tag-hw">HW</span> TruePay activates. See <a href="#truepay" style="color:#818cf8;">TruePay module</a>.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">11</div><div class="flow-content"><div class="flow-title">CKI-11 — Additional Guests</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Are there additional guests?" Yes/No. If yes: additional guest scans ID only (no facial). Each gets their own key card. Titular authorizes. Loop for each guest.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">12</div><div class="flow-content"><div class="flow-title">CKI-12 — Key Card Dispensing</div><div class="flow-desc"><span class="tag tag-screen">S</span> Animation showing key card being dispensed below. "Your key card is ready! Please take it from the slot below." Room number displayed prominently. <span class="tag tag-hw">HW</span> Dispenser activates. Repeat per guest.</div></div></div>
+
+      <div class="flow-step"><div class="flow-num">13</div><div class="flow-content"><div class="flow-title">CKI-13 — Confirmation &amp; Welcome</div><div class="flow-desc"><span class="tag tag-screen">S</span> "You're all set!" Room number large. Floor/wing info. Mini map to room (or "Where is my room?" CTA → Wayfinding). Receipt options: Email / Phone / QR. "Enjoy your stay" + "Back to Home" buttons. Wi-Fi credentials shown.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Check-in Flow</span></label>
+  </section>
+
+  <!-- CHECK-OUT -->
+  <section class="section" id="checkout">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Check-out Flow</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">CKO-01 — Identification</div><div class="flow-desc"><span class="tag tag-screen">S</span> Same as check-in: QR scan or reservation code + last name.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">CKO-02 — Stay Summary &amp; Charges</div><div class="flow-desc"><span class="tag tag-screen">S</span> Itemized list: room charges, room service, minibar, late fees, etc. Total balance. "Pay &amp; Check Out" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">CKO-03 — Payment</div><div class="flow-desc"><span class="tag tag-screen">S</span> TruePay payment flow (if balance &gt; 0). Same pattern as check-in payment. <span class="tag tag-hw">HW</span> TruePay.</div></div></div>
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-content"><div class="flow-title">CKO-04 — Return Key</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Please insert your key card in the slot below." Animation pointing to dispenser slot. <span class="tag tag-hw">HW</span> Key slot accepts return. Or: "Keep your key card as a souvenir" (if hotel allows).</div></div></div>
+      <div class="flow-step"><div class="flow-num">05</div><div class="flow-content"><div class="flow-title">CKO-05 — Satisfaction Survey</div><div class="flow-desc"><span class="tag tag-screen">S</span> Quick 3-question survey. 1) Overall rating (1-5 stars or emoji scale). 2) "What did you enjoy most?" (multiple choice). 3) "Anything we can improve?" (optional text). "Submit" or "Skip" buttons.</div></div></div>
+      <div class="flow-step"><div class="flow-num">06</div><div class="flow-content"><div class="flow-title">CKO-06 — Farewell &amp; Upsell</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Thank you for staying with us!" + "Book your next stay and save 15%" CTA (optional, hotel configured). Receipt options: Email / Phone / QR. "Done" button → idle.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Check-out Flow</span></label>
+  </section>
+
+  <!-- BOOKING -->
+  <section class="section" id="booking">
+    <span class="section-num">09</span>
+    <h2 class="section-title">Booking (Walk-in)</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">For guests without a reservation who walk in and want to book + check in on the spot.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">BKG-01 — Date Selection</div><div class="flow-desc"><span class="tag tag-screen">S</span> Calendar picker. Check-in date + Check-out date. Number of nights auto-calculated. "Next" button.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">BKG-02 — Guest Count</div><div class="flow-desc"><span class="tag tag-screen">S</span> Adults + Children counters (+ / - buttons). "Search Availability" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">BKG-03 — Room Selection</div><div class="flow-desc"><span class="tag tag-screen">S</span> Available rooms as cards: room photo, type name, amenities icons, price per night, total. Filter/sort options. "Select" button per room.</div></div></div>
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-content"><div class="flow-title">BKG-04 — Room Detail</div><div class="flow-desc"><span class="tag tag-screen">S</span> Photo gallery of selected room. Full amenity list. Bed configuration. Floor/view info. "Book This Room" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num">05</div><div class="flow-content"><div class="flow-title">BKG-05 — Upsells</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Enhance your stay." Breakfast package, parking, late checkout, room upgrade. Each with price. Add/skip.</div></div></div>
+      <div class="flow-step"><div class="flow-num">06</div><div class="flow-content"><div class="flow-title">BKG-06 — Booking Summary</div><div class="flow-desc"><span class="tag tag-screen">S</span> Full summary: dates, room, guests, add-ons, total price. "Confirm &amp; Pay" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num">07</div><div class="flow-content"><div class="flow-title">BKG-07 — Payment</div><div class="flow-desc"><span class="tag tag-screen">S</span> TruePay flow. <span class="tag tag-hw">HW</span> Terminal activates.</div></div></div>
+      <div class="flow-step"><div class="flow-num">08</div><div class="flow-content"><div class="flow-title">BKG-08 — Booking Confirmed</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Booking confirmed!" Reservation number displayed. "Proceed to Check-in" CTA → starts check-in flow. Or "Done" → dashboard.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Booking Flow</span></label>
+  </section>
+
+  <!-- ROOM SERVICE -->
+  <section class="section" id="roomservice">
+    <span class="section-num">10</span>
+    <h2 class="section-title">Room Service</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">RSV-01 — Guest Identification</div><div class="flow-desc"><span class="tag tag-screen">S</span> QR scan or reservation code to identify guest and room number.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">RSV-02 — Menu Categories</div><div class="flow-desc"><span class="tag tag-screen">S</span> Category grid: Breakfast, Lunch, Dinner, Snacks, Beverages, Desserts. Photos per category. Managed via CMS by hotel.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">RSV-03 — Menu Items</div><div class="flow-desc"><span class="tag tag-screen">S</span> Item list within category: photo, name, description, price, dietary tags (vegan, GF, etc.). "Add to order" button. Quantity selector.</div></div></div>
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-content"><div class="flow-title">RSV-04 — Item Detail</div><div class="flow-desc"><span class="tag tag-screen">S</span> Full photo, detailed description, ingredients, allergen info, customization options (e.g. "No onions"). "Add to Order" CTA.</div></div></div>
+      <div class="flow-step"><div class="flow-num">05</div><div class="flow-content"><div class="flow-title">RSV-05 — Cart / Order Review</div><div class="flow-desc"><span class="tag tag-screen">S</span> All items, quantities, prices. Edit/remove. Subtotal + tax + service fee. Special instructions text field.</div></div></div>
+      <div class="flow-step"><div class="flow-num">06</div><div class="flow-content"><div class="flow-title">RSV-06 — Delivery Schedule</div><div class="flow-desc"><span class="tag tag-screen">S</span> "When would you like your order?" Two options: "As soon as possible" (with estimated time) OR "Schedule" (date/time picker within stay dates).</div></div></div>
+      <div class="flow-step"><div class="flow-num">07</div><div class="flow-content"><div class="flow-title">RSV-07 — Payment Method</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Pay now" (TruePay) OR "Charge to room [XXX]". <span class="tag tag-hw">HW</span> TruePay if paying now.</div></div></div>
+      <div class="flow-step"><div class="flow-num">08</div><div class="flow-content"><div class="flow-title">RSV-08 — Order Confirmation</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Order placed!" Order number, estimated delivery time, room number. Receipt options. "Back to Dashboard" CTA.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Room Service</span></label>
+  </section>
+
+  <!-- WAYFINDING -->
+  <section class="section" id="wayfinding">
+    <span class="section-num">11</span>
+    <h2 class="section-title">Wayfinding</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">WAY-01 — Destination Selection</div><div class="flow-desc"><span class="tag tag-screen">S</span> Grid of POIs: My Room (requires ID), Pool, Restaurant, Gym, Spa, Meeting Rooms, Lobby, Parking, etc. Search bar. Each with icon + name. Hotel configures via CMS.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">WAY-02 — Interactive Route Map</div><div class="flow-desc"><span class="tag tag-screen">S</span> Floor plan map. Blue dot = kiosk location. Animated path from kiosk to destination. Floor transitions if multi-story (elevator/stairs indicator). Estimated walk time. Zoom/pan touchable. "Get new directions" button.</div></div></div>
+    </div>
+    <div class="note note-info">The "My Room" option requires guest to identify first (QR or code) to know their room number. Other destinations are open to anyone.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Wayfinding</span></label>
+  </section>
+
+  <!-- EVENTS -->
+  <section class="section" id="events">
+    <span class="section-num">12</span>
+    <h2 class="section-title">Events</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">EVT-01 — Events Feed</div><div class="flow-desc"><span class="tag tag-screen">S</span> Scrollable list/cards of upcoming events. Photo, title, date/time, location, brief description. Pulled from hotel API/CMS feed. Filter by date or category.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">EVT-02 — Event Detail</div><div class="flow-desc"><span class="tag tag-screen">S</span> Full event info: large photo, description, time, location, dress code, price (if applicable). "Get Directions" CTA → Wayfinding. "Add to my schedule" (optional, if guest is identified).</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Events</span></label>
+  </section>
+
+  <!-- LISTINGS -->
+  <section class="section" id="listings">
+    <span class="section-num">13</span>
+    <h2 class="section-title">Listings (Local Directory)</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">LST-01 — List View</div><div class="flow-desc"><span class="tag tag-screen">S</span> Cards of local businesses: restaurants, tours, transport, pharmacies, attractions. Photo, name, category, distance, rating. Filter by category. Toggle to map view.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">LST-02 — Map View</div><div class="flow-desc"><span class="tag tag-screen">S</span> Map centered on hotel with pins for nearby businesses. Tap pin → quick info card. Toggle to list view.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">LST-03 — Business Detail</div><div class="flow-desc"><span class="tag tag-screen">S</span> Photos, description, address, hours, phone, website QR code. Distance from hotel. "Get Directions" (external map QR to scan with phone).</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Listings</span></label>
+  </section>
+
+  <!-- WI-FI -->
+  <section class="section" id="wifi">
+    <span class="section-num">14</span>
+    <h2 class="section-title">Wi-Fi</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">WIF-01 — Wi-Fi Credentials</div><div class="flow-desc"><span class="tag tag-screen">S</span> Network name displayed large. Password displayed large (with show/hide toggle). QR code to auto-connect (scan with phone camera). Manual instructions for laptop users. "Back to Dashboard" CTA.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Wi-Fi</span></label>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <span class="section-num">15</span>
+    <h2 class="section-title">FAQ</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">FAQ-01 — FAQ List</div><div class="flow-desc"><span class="tag tag-screen">S</span> Accordion-style Q&amp;A. Categories: Check-in/out, Room, Amenities, Policies, Payment, General. Tap question to expand answer. Hotel manages content via CMS. "Still need help?" → AI Avatar or "Request Assistance" button.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve FAQ</span></label>
+  </section>
+
+  <!-- UPSELLS -->
+  <section class="section" id="upsells">
+    <span class="section-num">16</span>
+    <h2 class="section-title">Upsells &amp; Upgrades</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">Appears within check-in flow and as standalone module from dashboard.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">UPS-01 — Available Upgrades</div><div class="flow-desc"><span class="tag tag-screen">S</span> Room upgrade cards: current room vs upgrade. Photo comparison, amenity differences, price delta. "Upgrade for +$XX/night" CTA per option.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">UPS-02 — Add-on Services</div><div class="flow-desc"><span class="tag tag-screen">S</span> Breakfast package, parking, airport transfer, late check-out, early check-in, welcome package. Toggle add/remove. Running total.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">UPS-03 — Confirmation &amp; Pay</div><div class="flow-desc"><span class="tag tag-screen">S</span> Summary of selected upgrades/add-ons. Total additional charge. Pay now or charge to room. <span class="tag tag-hw">HW</span> TruePay if paying now.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Upsells</span></label>
+  </section>
+
+  <!-- ADS -->
+  <section class="section" id="ads">
+    <span class="section-num">17</span>
+    <h2 class="section-title">Ads System</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">3 ad types. Hotel configures per screen via CMS. Uploads .jpg assets.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">ADS-01 — Banner Ad</div><div class="flow-desc"><span class="tag tag-overlay">O</span> Horizontal strip. Positioned inline within a screen (between sections). Non-intrusive. Tappable → deeper info or external QR.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">ADS-02 — Header Ad</div><div class="flow-desc"><span class="tag tag-overlay">O</span> Top of screen bar. Slim. Hotel promo, event highlight, or sponsor. Auto-rotates if multiple configured.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">ADS-03 — Popup Ad</div><div class="flow-desc"><span class="tag tag-modal">M</span> Modal overlay. Appears between flows (hotel configures which screen triggers it). "X" close button. Dismissible. Shows promotional image — hotel event, local business partner, seasonal offer.</div></div></div>
+    </div>
+    <div class="note note-warn">Popup ads should NEVER appear during critical flows (payment, ID scan, key dispensing). Only on dashboard or between module transitions.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Ads</span></label>
+  </section>
+
+  <!-- TRUEPAY -->
+  <section class="section" id="truepay">
+    <span class="section-num">18</span>
+    <h2 class="section-title">TruePay (Payment)</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">Shared payment flow used across all modules.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">PAY-01 — Payment Screen</div><div class="flow-desc"><span class="tag tag-screen">S</span> Amount summary. "Please use the payment terminal on your right." Animation/arrow pointing to TruePay hardware. Accepted methods: tap, insert, swipe. <span class="tag tag-hw">HW</span> Terminal activates.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">PAY-02 — Processing</div><div class="flow-desc"><span class="tag tag-overlay">O</span> "Processing payment..." Animated loader. Do not touch/remove card message.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">PAY-03 — Success</div><div class="flow-desc"><span class="tag tag-overlay">O</span> "Payment successful!" Check animation. Amount confirmed. Auto-advances to next step in flow.</div></div></div>
+
+      <div class="flow-branch">
+        <div class="flow-branch-label">Branch: Payment failed</div>
+        <div class="flow-step"><div class="flow-num">03e</div><div class="flow-content"><div class="flow-title">PAY-03e — Payment Failed</div><div class="flow-desc"><span class="tag tag-error">E</span> "Payment declined. Please try another card." Retry button. After 3 attempts: "Request Assistance" button. Option to charge to room (if identified guest).</div></div></div>
+      </div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve TruePay</span></label>
+  </section>
+
+  <!-- AI AVATAR -->
+  <section class="section" id="avatar">
+    <span class="section-num">19</span>
+    <h2 class="section-title">AI Avatar</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">HeyGen Interactive Avatar. Voice + video. Knows all hotel data. Chat bubble on dashboard, full-screen on open.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">AVT-01 — Chat Bubble</div><div class="flow-desc"><span class="tag tag-overlay">O</span> Floating bubble on dashboard bottom-right. Avatar thumbnail + "Need help?" label. Subtle idle animation (breathing, blinking). Tap to expand.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">AVT-02 — Avatar Conversation</div><div class="flow-desc"><span class="tag tag-screen">S</span> Large video feed of AI avatar (HeyGen streaming). Avatar speaks and listens. Guest talks via microphone. Conversation transcript shown as chat bubbles alongside video. Quick action buttons: "Check-in help", "Find my room", "Room service", "Wi-Fi". "Close" button to minimize back to bubble. <span class="tag tag-hw">HW</span> Mic + Speaker active.</div></div></div>
+    </div>
+    <div class="note note-info">Avatar knowledge base loaded with: hotel FAQ, amenities, hours, room types, local recommendations, check-in/out policies, event schedule. Updated via CMS sync.</div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve AI Avatar</span></label>
+  </section>
+
+  <!-- DUPLICATE KEY -->
+  <section class="section" id="duplicate-key">
+    <span class="section-num">20</span>
+    <h2 class="section-title">Duplicate Key</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">DKY-01 — Identification</div><div class="flow-desc"><span class="tag tag-screen">S</span> Guest identifies via QR or reservation code.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">DKY-02 — Deactivation Notice</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Your previous key card will be deactivated." Confirmation required: "Continue" / "Cancel". No cost.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">DKY-03 — New Key Dispensed</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Your new key card is ready!" Animation pointing to dispenser. Room number displayed. <span class="tag tag-hw">HW</span> Dispenser activates.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Duplicate Key</span></label>
+  </section>
+
+  <!-- EARLY CHECK-IN -->
+  <section class="section" id="early-checkin">
+    <span class="section-num">21</span>
+    <h2 class="section-title">Early Check-in (Room Not Ready)</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">ECI-01 — Room Not Ready</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Your room is being prepared. Estimated ready time: [X:XX PM]." Two options below:</div></div></div>
+      <div class="flow-step"><div class="flow-num">02a</div><div class="flow-content"><div class="flow-title">ECI-02a — Luggage Storage</div><div class="flow-desc"><span class="tag tag-screen">S</span> "We'll store your luggage and notify you when your room is ready." Guest enters phone number or email for notification. Free of charge. Confirmation screen.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02b</div><div class="flow-content"><div class="flow-title">ECI-02b — Pay for Early Check-in</div><div class="flow-desc"><span class="tag tag-screen">S</span> "Early check-in available for $XX." Subject to availability. If available: pay via TruePay → proceeds to normal check-in (ID, facial, key). If not available: option grayed out with "Not available at this time."</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Early Check-in</span></label>
+  </section>
+
+  <!-- LATE CHECKOUT -->
+  <section class="section" id="late-checkout">
+    <span class="section-num">22</span>
+    <h2 class="section-title">Late Check-out</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">LCO-01 — Late Check-out Offer</div><div class="flow-desc"><span class="tag tag-screen">S</span> Appears during check-in flow (CKI-09) or as standalone from upsells. "Extend your check-out to [X PM] for $XX." Standard check-out time shown. Pay now or charge to room.</div></div></div>
+    </div>
+  </section>
+
+  <!-- ERRORS -->
+  <section class="section" id="errors">
+    <span class="section-num">23</span>
+    <h2 class="section-title">Error States</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-01 — ID Scan Failed (retry)</div><div class="flow-desc">"We couldn't read your document. Please reposition and try again." Attempt counter. After 3: help button.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-02 — Facial Match Failed</div><div class="flow-desc">"We couldn't verify your identity. Please try again." Lighting/position tips. After 3: help button.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-03 — Payment Declined</div><div class="flow-desc">"Payment was declined. Try another card or request assistance."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-04 — Reservation Not Found</div><div class="flow-desc">"We couldn't find a reservation with that information. Please check and try again." Option to try different method or request help.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-05 — Key Dispenser Error</div><div class="flow-desc">"There was an issue dispensing your key card. Please wait..." Auto-retry. If persists: "Please see the front desk for your key card. Your check-in is complete."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-06 — Network Error</div><div class="flow-desc">"Connection issue. Please wait a moment..." Auto-retry with countdown. If persists: "Please see the front desk for assistance."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-07 — No Availability (Booking)</div><div class="flow-desc">"No rooms available for your selected dates. Please try different dates or see the front desk."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-08 — QR Code Invalid</div><div class="flow-desc">"We couldn't read this QR code. Please try again or enter your reservation code manually."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-09 — Payment Terminal Offline</div><div class="flow-desc">"Payment terminal is temporarily unavailable. Please see the front desk." Or "Charge to room" option if guest is identified.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-10 — Camera Error</div><div class="flow-desc">"Camera is temporarily unavailable." Skip facial verification and proceed (with staff notification). Or request assistance.</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-11 — Room Service Unavailable</div><div class="flow-desc">"Room service is currently unavailable. Please try again later or contact the front desk."</div></div></div>
+      <div class="flow-step"><div class="flow-num"><span class="tag tag-error">E</span></div><div class="flow-content"><div class="flow-title">ERR-12 — Generic Error</div><div class="flow-desc">"Something went wrong. Please try again." Retry + Request Assistance buttons. Fallback for uncategorized errors.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Error States</span></label>
+  </section>
+
+  <!-- INACTIVITY -->
+  <section class="section" id="inactivity">
+    <span class="section-num">24</span>
+    <h2 class="section-title">Inactivity Timer</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">INA-01 — Warning Modal</div><div class="flow-desc"><span class="tag tag-modal">M</span> Triggers at 45 seconds of inactivity. "Are you still there?" Circular countdown timer (15 seconds). Two buttons: "End Session" + "I'm Still Here". If timer hits 0 → session ends, returns to idle screensaver. All guest data cleared.</div></div></div>
+    </div>
+  </section>
+
+  <!-- STAFF OVERRIDE -->
+  <section class="section" id="staff">
+    <span class="section-num">25</span>
+    <h2 class="section-title">Staff Override</h2>
+    <div class="divider"></div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">STF-01 — Secret Access</div><div class="flow-desc"><span class="tag tag-overlay">O</span> 5 rapid taps on NEXI logo (anywhere it appears). Opens PIN entry. Or triggered by physical button on rear of kiosk.</div></div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-content"><div class="flow-title">STF-02 — PIN Entry</div><div class="flow-desc"><span class="tag tag-screen">S</span> 6-digit PIN keypad. 3 failed attempts → lockout for 5 minutes.</div></div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-content"><div class="flow-title">STF-03 — Admin Panel</div><div class="flow-desc"><span class="tag tag-screen">S</span> Simple dashboard: Restart session, Hardware status (green/red indicators for scanner, camera, dispenser, terminal, network), Maintenance mode toggle, Recent error log, Software version, "Exit Admin" button.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Staff Override</span></label>
+  </section>
+
+  <!-- RECEIPT -->
+  <section class="section" id="receipt">
+    <span class="section-num">26</span>
+    <h2 class="section-title">Receipt / Confirmation Delivery</h2>
+    <div class="divider"></div>
+    <p style="font-size:13px; color:#888; margin:12px 0;">Shared component used after check-in, check-out, booking, room service, payment.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-content"><div class="flow-title">RCT-01 — Delivery Options</div><div class="flow-desc"><span class="tag tag-screen">S</span> Three options: "Send to my email" (enter/confirm email) | "Send to my phone" (enter/confirm phone number) | "Show QR code" (scan to download). Guest picks one. "Skip" option available.</div></div></div>
+    </div>
+    <label class="approval"><input type="checkbox" onchange="updateCount()"><span>Approve Receipt</span></label>
+  </section>
+
+  <!-- SUMMARY -->
+  <section style="margin-top:64px; margin-bottom:48px;">
+    <div style="padding:32px; border-radius:16px; background:linear-gradient(135deg, rgba(129,140,248,0.06), rgba(45,212,191,0.04)); border:1px solid rgba(129,140,248,0.12);">
+      <p style="font-family:'IBM Plex Mono'; font-size:11px; color:#818cf8; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Next Step</p>
+      <h3 style="font-family:'Space Grotesk'; font-size:24px; font-weight:600; color:#fafafa;">Approve all sections, then we define the visual style.</h3>
+      <p style="color:#888; font-size:14px; margin-top:8px; max-width:500px; line-height:1.6;">
+        Once the screen map is locked, we move to: visual direction (style exploration), then wireframes, then high-fidelity UI. One step at a time.
+      </p>
+      <div style="margin-top:16px;">
+        <div id="final-status" style="font-family:'IBM Plex Mono'; font-size:13px; color:rgba(255,255,255,0.3);">Waiting for approvals...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prepared by -->
+  <footer style="padding:32px 0; text-align:center;">
+    <p style="font-size:12px; color:rgba(255,255,255,0.15);">Prepared by Ruben Ramirez, Sr. UX/UI Designer — NEXI Screen Map v1.0</p>
+  </footer>
+
+</div>
+
+<script>
+  // Scroll progress
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  });
+
+  // Sidebar active state
+  const sideLinks = document.querySelectorAll('.sidebar a');
+  const allSections = document.querySelectorAll('.section');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        sideLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  allSections.forEach(s => obs.observe(s));
+
+  // Approval counter
+  function updateCount() {
+    const checks = document.querySelectorAll('.approval input[type="checkbox"]');
+    const checked = [...checks].filter(c => c.checked).length;
+    document.getElementById('approval-count').textContent = `${checked} / ${checks.length} approved`;
+    const f = document.getElementById('final-status');
+    if (checked === checks.length) {
+      f.textContent = 'All sections approved. Ready for visual design.';
+      f.style.color = '#2dd4bf';
+    } else {
+      f.textContent = `${checks.length - checked} sections pending...`;
+      f.style.color = 'rgba(255,255,255,0.3)';
+    }
+  }
+</script>
+
+</body>
+</html>

@@ -88,12 +88,13 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
       <div
         data-theme={theme}
         style={{
-          width: "53vw",
-          maxWidth: "1015px",
+          width: "52vw",
+          maxWidth: "980px",
           aspectRatio: "16/9",
           borderRadius: "12px",
           overflow: "hidden",
           position: "relative",
+          zoom: 1.4,
           boxShadow: "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
           background: "var(--bg)",
           flexShrink: 0,

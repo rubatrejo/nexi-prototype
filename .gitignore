@@ -1,8 +1,31 @@
+# dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# build
 .next/
+out/
+build/
+
+# env
+.env
 .env.local
-.vercel/
-qa-screenshots/
-tsconfig.tsbuildinfo
-tailwindcss-postcss-4.2.1.tgz
-*.tgz
+.env.production.local
+.env.development.local
+
+# vercel
+.vercel
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# GSD
+.gsd/
+
+# IDE
+.idea/
+.vscode/
+*.swp

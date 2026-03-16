@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opciones de Estilo — Visit Phoenix Trip Planner by TrueOmni</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #0a0a0a; color: white; }
+
+  /* HEADER */
+  .header {
+    padding: 40px 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .header-overline {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  .header p {
+    color: rgba(255,255,255,0.5);
+    margin-top: 8px;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+
+  /* OPTION SECTION */
+  .option {
+    padding: 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .option-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+  .option-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.15);
+    line-height: 1;
+    min-width: 60px;
+  }
+  .option-info h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .option-info .subtitle {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+  .option-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  /* PREVIEW CONTAINER */
+  .preview {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+
+  /* SPEC ROW */
+  .spec-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+  .spec-card {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .spec-card-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+  .spec-card-value {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* COLOR SWATCHES */
+  .swatches {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ======================= OPTION A: CINEMATIC EDITORIAL ======================= */
+  .preview-a {
+    background: #0a0a0a;
+    position: relative;
+  }
+  .preview-a .hero {
+    position: relative;
+    height: 420px;
+    background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%),
+                url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1400&q=80') center/cover;
+  }
+  .preview-a .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  .preview-a .nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .preview-a .logo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .preview-a .logo span { font-size: 11px; display: block; letter-spacing: 2px; opacity: 0.6; }
+  .preview-a .nav-links {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+  }
+  .preview-a .hero-content {
+    position: absolute;
+    bottom: 48px;
+    left: 32px;
+    z-index: 2;
+  }
+  .preview-a .hero-overline {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+  }
+  .preview-a .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 44px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.1;
+    color: white;
+    max-width: 500px;
+  }
+  .preview-a .hero-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 12px;
+    max-width: 400px;
+  }
+  .preview-a .cta-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 32px;
+    background: white;
+    color: #0a0a0a;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+  }
+  .preview-a .cards-section {
+    padding: 32px;
+    display: flex;
+    gap: 16px;
+  }
+  .preview-a .card {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #141414;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .preview-a .card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  .preview-a .card-body {
+    padding: 16px;
+  }
+  .preview-a .card-cat {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 6px;
+  }
+  .preview-a .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .preview-a .card-meta {
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ======================= OPTION B: DESERT WARM ======================= */
+  .preview-b {
+    background: #FAF5EE;
+    color: #2C1810;
+  }
+  .preview-b .hero {
+    position: relative;
+    height: 420px;
+    background: linear-gradient(135deg, rgba(44,24,16,0.3) 0%, rgba(44,24,16,0.6) 100%),
+                url('https://images.unsplash.com/photo-1558645836-e44122a743ee?w=1400&q=80') center/cover;
+  }
+  .preview-b .nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .preview-b .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: white;
+    letter-spacing: 2px;
+  }
+  .preview-b .logo span { font-size: 11px; display: block; letter-spacing: 3px; text-transform: uppercase; opacity: 0.6; font-family: 'DM Sans'; }
+  .preview-b .nav-links {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.7);
+  }
+  .preview-b .hero-content {
+    position: absolute;
+    bottom: 48px;
+    left: 32px;
+    z-index: 2;
+  }
+  .preview-b .hero-overline {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #C67B5C;
+    margin-bottom: 12px;
+  }
+  .preview-b .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 48px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: white;
+    max-width: 450px;
+  }
+  .preview-b .hero-title em { font-style: italic; color: #E8C4A0; }
+  .preview-b .hero-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    margin-top: 12px;
+    max-width: 400px;
+  }
+  .preview-b .cta-btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 14px 32px;
+    background: #C67B5C;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 100px;
+    letter-spacing: 0.5px;
+  }
+  .preview-b .cards-section {
+    padding: 32px;
+    display: flex;
+    gap: 16px;
+    background: #FAF5EE;
+  }
+  .preview-b .card {
+    flex: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 16px rgba(44,24,16,0.06);
+  }
+  .preview-b .card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  .preview-b .card-body {
+    padding: 16px;
+  }
+  .preview-b .card-cat {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #C67B5C;
+    margin-bottom: 6px;
+  }
+  .preview-b .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #2C1810;
+    margin-bottom: 4px;
+  }
+  .preview-b .card-meta {
+    font-size: 13px;
+    color: #8B7B6B;
+  }
+
+  /* ======================= OPTION C: MODERN MINIMAL ======================= */
+  .preview-c {
+    background: white;
+    color: #111;
+  }
+  .preview-c .hero {
+    position: relative;
+    height: 420px;
+    overflow: hidden;
+  }
+  .preview-c .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=1400&q=80') center/cover;
+  }
+  .preview-c .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(26,39,68,0.85) 0%, rgba(26,39,68,0.95) 100%);
+  }
+  .preview-c .nav {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+  }
+  .preview-c .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .preview-c .logo span { font-size: 11px; display: block; letter-spacing: 2px; opacity: 0.5; font-weight: 400; }
+  .preview-c .nav-links {
+    display: flex;
+    gap: 24px;
+    font-size: 14px;
+    font-family: 'Sora', sans-serif;
+    color: rgba(255,255,255,0.7);
+  }
+  .preview-c .hero-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 2;
+    width: 100%;
+    max-width: 600px;
+  }
+  .preview-c .hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    font-size: 12px;
+    font-family: 'Sora';
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .preview-c .hero-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: white;
+  }
+  .preview-c .hero-title span { color: #5BB3FF; }
+  .preview-c .hero-sub {
+    font-size: 16px;
+    font-family: 'Sora';
+    color: rgba(255,255,255,0.5);
+    margin-top: 16px;
+  }
+  .preview-c .search-bar {
+    margin-top: 28px;
+    display: flex;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+  }
+  .preview-c .search-field {
+    flex: 1;
+    padding: 16px 20px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+  }
+  .preview-c .search-field-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Sora';
+    font-weight: 500;
+  }
+  .preview-c .search-field-value {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    font-family: 'Sora';
+    margin-top: 4px;
+  }
+  .preview-c .search-btn {
+    padding: 16px 24px;
+    background: #5BB3FF;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora';
+    font-weight: 600;
+    font-size: 14px;
+    gap: 8px;
+  }
+  .preview-c .cards-section {
+    padding: 32px;
+    display: flex;
+    gap: 16px;
+    background: #F8F9FA;
+  }
+  .preview-c .card {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #E8EAED;
+  }
+  .preview-c .card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  .preview-c .card-body {
+    padding: 16px;
+  }
+  .preview-c .card-cat {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #5BB3FF;
+    font-family: 'Sora';
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .preview-c .card-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 4px;
+  }
+  .preview-c .card-meta {
+    font-size: 13px;
+    color: #888;
+    font-family: 'Sora';
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-overline">Trip Planner — Direccion Visual</div>
+  <h1>3 opciones de estilo</h1>
+  <p>Cada opcion esta adaptada al branding de Visit Phoenix (navy #1A2744) y al contexto de Phoenix, AZ (desierto, calor, cultura, aventura). Elige la que mas te llame la atencion.</p>
+</div>
+
+<!-- ======================= OPTION A ======================= -->
+<div class="option">
+  <div class="option-header">
+    <div class="option-number">A</div>
+    <div class="option-info">
+      <h2>Cinematic Editorial</h2>
+      <p class="subtitle">Fotografia como protagonista. Tipografia serif con personalidad. Dark mode como base. Film grain sutil. El contenido ES la interfaz. Inspirado en magazines de viaje premium, Airbnb Luxe, y revistas como Conde Nast Traveler.</p>
+      <div class="option-tag" style="background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);">Dark + Editorial + Fotografia</div>
+    </div>
+  </div>
+
+  <div class="preview preview-a">
+    <div class="hero">
+      <div class="nav">
+        <div class="logo"><span>Visit</span>PHOENIX</div>
+        <div class="nav-links">
+          <span>Explore</span>
+          <span>My Trip</span>
+          <span>Saved</span>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-overline">AI-Powered Trip Planner</div>
+        <div class="hero-title">Discover your Phoenix</div>
+        <div class="hero-sub">Tell us what you love. We'll craft your perfect itinerary.</div>
+        <div class="cta-btn">Plan My Trip</div>
+      </div>
+    </div>
+    <div class="cards-section">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Arts & Culture</div>
+          <div class="card-title">Desert Botanical Garden</div>
+          <div class="card-meta">4.8 stars / 2-3 hrs / $25</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Dining</div>
+          <div class="card-title">LON's at The Hermosa</div>
+          <div class="card-meta">4.9 stars / 1.5 hrs / $$$</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Outdoor</div>
+          <div class="card-title">Camelback Mountain</div>
+          <div class="card-meta">4.7 stars / 3-4 hrs / Free</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-row">
+    <div class="spec-card">
+      <div class="spec-card-label">Tipografia</div>
+      <div class="spec-card-value">Playfair Display (display) + DM Sans (UI/body)</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Palette</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#0a0a0a" title="Ink"></div>
+        <div class="swatch" style="background:#141414" title="Surface"></div>
+        <div class="swatch" style="background:#1a2744" title="Visit Phoenix Navy"></div>
+        <div class="swatch" style="background:#FAF8F5" title="Cream"></div>
+        <div class="swatch" style="background:#ffffff" title="White"></div>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Vibe</div>
+      <div class="spec-card-value">Luxe, inmersivo, magazine de viaje premium. La foto habla, la UI se quita del camino.</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Referentes</div>
+      <div class="spec-card-value">Airbnb Luxe, Conde Nast Traveler, Apple TV+, Aman Resorts</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= OPTION B ======================= -->
+<div class="option">
+  <div class="option-header">
+    <div class="option-number">B</div>
+    <div class="option-info">
+      <h2>Desert Warm</h2>
+      <p class="subtitle">Tonos tierra, terracota, arena. Tipografia serif elegante pero calida. Light mode con fondos cream. Texturas organicas. Se siente como estar en un resort del desierto de Scottsdale. Inspirado en brands como Aman, Four Seasons Desert, 1 Hotel.</p>
+      <div class="option-tag" style="background: rgba(198,123,92,0.15); color: #C67B5C;">Light + Earthy + Warm</div>
+    </div>
+  </div>
+
+  <div class="preview preview-b">
+    <div class="hero">
+      <div class="nav">
+        <div class="logo"><span>Visit</span>Phoenix</div>
+        <div class="nav-links">
+          <span>Explore</span>
+          <span>My Trip</span>
+          <span>Saved</span>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-overline">AI Trip Planner</div>
+        <div class="hero-title">The desert <em>made me do it</em></div>
+        <div class="hero-sub">Your personalized Phoenix itinerary, crafted in seconds.</div>
+        <div class="cta-btn">Start Planning</div>
+      </div>
+    </div>
+    <div class="cards-section">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Nature & Gardens</div>
+          <div class="card-title">Desert Botanical Garden</div>
+          <div class="card-meta">4.8 stars / 2-3 hrs / $25</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Fine Dining</div>
+          <div class="card-title">LON's at The Hermosa</div>
+          <div class="card-meta">4.9 stars / 1.5 hrs / $$$</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Hiking</div>
+          <div class="card-title">Camelback Mountain</div>
+          <div class="card-meta">4.7 stars / 3-4 hrs / Free</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-row">
+    <div class="spec-card">
+      <div class="spec-card-label">Tipografia</div>
+      <div class="spec-card-value">Cormorant Garamond (display) + DM Sans (UI/body)</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Palette</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#FAF5EE" title="Desert Cream"></div>
+        <div class="swatch" style="background:#C67B5C" title="Terracotta"></div>
+        <div class="swatch" style="background:#D4C4A8" title="Sand"></div>
+        <div class="swatch" style="background:#2C1810" title="Dark Earth"></div>
+        <div class="swatch" style="background:#1a2744" title="Visit Phoenix Navy"></div>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Vibe</div>
+      <div class="spec-card-value">Resort boutique del desierto. Calido, organico, sofisticado. Como hojear un libro de mesa de cafe sobre Arizona.</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Referentes</div>
+      <div class="spec-card-value">Aman Resorts, 1 Hotel, Soho House, Cereal Magazine, Kinfolk</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= OPTION C ======================= -->
+<div class="option">
+  <div class="option-header">
+    <div class="option-number">C</div>
+    <div class="option-info">
+      <h2>Modern Product</h2>
+      <p class="subtitle">Limpio, funcional, centrado en la herramienta. Geometric sans-serif. Colores del brand de Visit Phoenix como base (#1A2744 navy + azul accent). Se siente como un SaaS premium tipo Linear, Vercel, Notion. La UI es la estrella, no la fotografia.</p>
+      <div class="option-tag" style="background: rgba(91,179,255,0.12); color: #5BB3FF;">Clean + Functional + Tech</div>
+    </div>
+  </div>
+
+  <div class="preview preview-c">
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-overlay"></div>
+      <div class="nav">
+        <div class="logo"><span>Visit</span>PHOENIX</div>
+        <div class="nav-links">
+          <span>Explore</span>
+          <span>My Trip</span>
+          <span>Saved</span>
+        </div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">Powered by AI</div>
+        <div class="hero-title">Plan your perfect <span>Phoenix</span> trip</div>
+        <div class="hero-sub">AI-powered itineraries tailored to how you travel.</div>
+        <div class="search-bar">
+          <div class="search-field">
+            <div class="search-field-label">Where</div>
+            <div class="search-field-value">Phoenix, AZ</div>
+          </div>
+          <div class="search-field">
+            <div class="search-field-label">When</div>
+            <div class="search-field-value">Feb 24 - 28</div>
+          </div>
+          <div class="search-field" style="border:none">
+            <div class="search-field-label">Travelers</div>
+            <div class="search-field-value">2 adults</div>
+          </div>
+          <div class="search-btn">Plan Trip</div>
+        </div>
+      </div>
+    </div>
+    <div class="cards-section">
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Arts & Culture</div>
+          <div class="card-title">Desert Botanical Garden</div>
+          <div class="card-meta">4.8 stars / 2-3 hrs / $25</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Dining</div>
+          <div class="card-title">LON's at The Hermosa</div>
+          <div class="card-meta">4.9 stars / 1.5 hrs / $$$</div>
+        </div>
+      </div>
+      <div class="card">
+        <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&q=80" alt="">
+        <div class="card-body">
+          <div class="card-cat">Outdoor</div>
+          <div class="card-title">Camelback Mountain</div>
+          <div class="card-meta">4.7 stars / 3-4 hrs / Free</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-row">
+    <div class="spec-card">
+      <div class="spec-card-label">Tipografia</div>
+      <div class="spec-card-value">Sora o Space Grotesk (display/UI) + Inter (body)</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Palette</div>
+      <div class="swatches">
+        <div class="swatch" style="background:#1a2744" title="VP Navy"></div>
+        <div class="swatch" style="background:#5BB3FF" title="Sky Blue"></div>
+        <div class="swatch" style="background:#F8F9FA" title="Light Gray"></div>
+        <div class="swatch" style="background:#111" title="Near Black"></div>
+        <div class="swatch" style="background:#fff; border-color: #ddd" title="White"></div>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Vibe</div>
+      <div class="spec-card-value">SaaS premium. La interfaz se siente como una herramienta poderosa, no una revista. Funcionalidad primero.</div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-label">Referentes</div>
+      <div class="spec-card-value">Linear, Vercel, Notion, Wanderlog, Google Travel, Airbnb (search bar)</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

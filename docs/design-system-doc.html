@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrueOmni Design System v1.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+@page { size: A3 landscape; margin: 0; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Open Sans',sans-serif;color:#282828;background:#fff}
+h1,h2,h3,h4,h5{font-family:'Montserrat',sans-serif}
+
+/* Page system */
+.page{width:1587px;min-height:1123px;padding:80px;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.page-number{position:absolute;bottom:40px;right:80px;font-family:'Montserrat',sans-serif;font-size:11px;color:#8E8E8E;font-weight:600}
+.page-footer{position:absolute;bottom:40px;left:80px;display:flex;align-items:center;gap:8px}
+.page-footer img{height:16px;opacity:0.4}
+.page-footer span{font-family:'Montserrat',sans-serif;font-size:10px;color:#8E8E8E;font-weight:600;letter-spacing:0.5px}
+
+/* Cover */
+.cover{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#004F8B 0%,#282828 100%);color:white;text-align:center;flex-direction:column;gap:24px}
+.cover img{height:60px;margin-bottom:16px}
+.cover h1{font-size:64px;font-weight:700;letter-spacing:-1px}
+.cover .version{font-size:20px;opacity:0.6;font-weight:400}
+.cover .date{font-size:14px;opacity:0.4;margin-top:8px}
+.cover .divider-line{width:120px;height:3px;background:#E8A830;border-radius:2px;margin:16px auto}
+
+/* TOC */
+.toc{background:#F5F5F5}
+.toc h2{font-size:36px;color:#004F8B;margin-bottom:40px}
+.toc-item{display:flex;align-items:baseline;padding:16px 0;border-bottom:1px solid #EBEBEB}
+.toc-num{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#004F8B;width:40px;flex-shrink:0}
+.toc-label{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:600;color:#282828;flex:1}
+.toc-page{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:600;color:#8E8E8E}
+.toc-dots{flex:1;border-bottom:2px dotted #D4D4D4;margin:0 12px;min-width:40px}
+
+/* Section headers */
+.section-header{margin-bottom:48px}
+.section-num{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#E8A830;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.section-title{font-size:40px;font-weight:700;color:#004F8B;margin-bottom:8px}
+.section-desc{font-size:16px;color:#5E5E5E;max-width:800px;line-height:1.6}
+
+/* Spec box */
+.spec-box{background:#F4FAFD;border:1px solid #CCE9F8;border-radius:8px;padding:16px 20px;font-size:13px;color:#282828;margin-bottom:24px;line-height:1.7}
+.spec-box code{background:#CCE9F8;padding:2px 6px;border-radius:3px;font-size:12px;font-family:'Montserrat',sans-serif;font-weight:600}
+.spec-box strong{color:#004F8B}
+
+/* Label */
+.label{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#8E8E8E;margin-bottom:16px}
+
+/* Color swatches */
+.swatch-row{display:flex;gap:8px;margin-bottom:8px}
+.swatch{border-radius:8px;display:flex;flex-direction:column;justify-content:flex-end;padding:10px 12px;min-height:72px}
+.swatch-name{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600}
+.swatch-hex{font-family:'Open Sans',sans-serif;font-size:10px;opacity:0.7}
+.swatch-light .swatch-name,.swatch-light .swatch-hex{color:#282828}
+.swatch-dark .swatch-name,.swatch-dark .swatch-hex{color:#FFFFFF}
+
+/* Type specimen */
+.type-row{display:flex;align-items:baseline;gap:24px;padding:12px 0;border-bottom:1px solid #EBEBEB}
+.type-sample{flex:1}
+.type-meta{width:280px;font-size:12px;color:#707070;text-align:right;font-family:'Montserrat',sans-serif}
+.type-meta strong{color:#282828;display:block;font-size:13px}
+
+/* Button showcase */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:'Montserrat',sans-serif;font-weight:700;border:2px solid transparent;letter-spacing:0;border-radius:8px}
+.btn-lg{padding:14px 36px;font-size:20px;min-height:56px}
+.btn-md{padding:10px 28px;font-size:16px;min-height:44px}
+.btn-sm{padding:6px 20px;font-size:14px;min-height:36px;border-radius:4px}
+
+/* Card showcase */
+.card-demo{border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.12)}
+.card-demo-image{height:160px;position:relative}
+.card-demo-body{padding:16px;background:white}
+.card-demo-title{font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px}
+.card-demo-meta{font-size:13px;color:#5E5E5E}
+
+/* Theme comparison */
+.theme-compare{display:flex;gap:24px}
+.theme-panel{flex:1;border-radius:12px;overflow:hidden;border:1px solid #D4D4D4}
+.theme-panel-header{padding:12px 16px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.theme-panel-body{padding:24px}
+.light-panel .theme-panel-header{background:#004F8B;color:white}
+.light-panel .theme-panel-body{background:#FFFFFF}
+.dark-panel .theme-panel-header{background:#282828;color:#E8A830}
+.dark-panel .theme-panel-body{background:#1A1A1A}
+
+/* Grid helpers */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.grid-7{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.grid-10{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+.flex-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.flex-col{display:flex;flex-direction:column;gap:12px}
+.mt-24{margin-top:24px}
+.mt-32{margin-top:32px}
+.mt-48{margin-top:48px}
+.mb-16{margin-bottom:16px}
+.mb-24{margin-bottom:24px}
+.mb-32{margin-bottom:32px}
+.gap-32{gap:32px}
+
+/* Map pin */
+.pin{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pin-dot{width:40px;height:40px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:white;font-size:14px}
+.pin-label-text{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:#707070;text-align:center}
+.pin-color{font-family:'Open Sans',sans-serif;font-size:9px;color:#B0B0B0}
+
+/* Spacing bar */
+.spacing-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.spacing-label{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#707070;width:50px;text-align:right}
+.spacing-bar{border-radius:4px;height:20px;background:linear-gradient(90deg,#004F8B,#1796D6);opacity:0.3}
+.spacing-value{font-family:'Open Sans',sans-serif;font-size:11px;color:#B0B0B0}
+
+/* Shadow demo */
+.shadow-demo{background:white;border-radius:8px;padding:20px;text-align:center;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#707070}
+
+/* Photo frame */
+.frame-demo{border-radius:4px;overflow:hidden;position:relative}
+.frame-demo-img{height:120px;background:linear-gradient(135deg,#4A90C4,#1A4F7A);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:32px}
+.frame-demo-overlay{position:absolute;bottom:0;left:0;right:0;padding:8px 12px;display:flex;align-items:center;gap:8px}
+
+/* Weather */
+.weather-demo{background:white;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #EBEBEB}
+.weather-temp{font-family:'Montserrat',sans-serif;font-size:56px;font-weight:700;line-height:1}
+.weather-condition{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:600}
+.weather-stat{font-size:12px;color:#707070}
+.forecast-bar{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #EBEBEB}
+.forecast-day-item{flex:1;text-align:center;padding:8px 4px;border-radius:6px}
+.forecast-day-item.today{background:#E8F4FC}
+.forecast-day-name{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;color:#8E8E8E;text-transform:uppercase}
+.forecast-icon{font-size:20px;color:#E8A830;margin:6px 0}
+.forecast-temp{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700}
+.forecast-low{font-size:11px;color:#B0B0B0}
+
+/* Navigation demo */
+.nav-demo{border-radius:8px;overflow:hidden}
+
+/* Sticker */
+.sticker-demo{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;font-family:'Montserrat',sans-serif;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+
+/* Empty state */
+.empty-demo{text-align:center;padding:32px;background:#F5F5F5;border-radius:8px}
+.empty-demo i{font-size:36px;color:#B0B0B0;margin-bottom:12px}
+.empty-demo h4{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px}
+.empty-demo p{font-size:14px;color:#707070}
+</style>
+</head>
+<body>
+
+<!-- ========== COVER ========== -->
+<div class="page cover">
+  <img src="assets/Logo-Light.png" alt="TrueOmni">
+  <div class="divider-line"></div>
+  <h1>Design System</h1>
+  <div class="version">Component Library & Foundations v1.1</div>
+  <div class="date">February 2026 · Confidential</div>
+</div>
+
+<!-- ========== TABLE OF CONTENTS ========== -->
+<div class="page toc">
+  <h2>Table of Contents</h2>
+  <div class="toc-item"><span class="toc-num">01</span><span class="toc-label">Color System</span><span class="toc-dots"></span><span class="toc-page">3</span></div>
+  <div class="toc-item"><span class="toc-num">02</span><span class="toc-label">Light & Dark Mode</span><span class="toc-dots"></span><span class="toc-page">4</span></div>
+  <div class="toc-item"><span class="toc-num">03</span><span class="toc-label">Typography</span><span class="toc-dots"></span><span class="toc-page">5</span></div>
+  <div class="toc-item"><span class="toc-num">04</span><span class="toc-label">Spacing, Radius & Elevation</span><span class="toc-dots"></span><span class="toc-page">6</span></div>
+  <div class="toc-item"><span class="toc-num">05</span><span class="toc-label">Buttons</span><span class="toc-dots"></span><span class="toc-page">7</span></div>
+  <div class="toc-item"><span class="toc-num">06</span><span class="toc-label">Cards</span><span class="toc-dots"></span><span class="toc-page">8</span></div>
+  <div class="toc-item"><span class="toc-num">07</span><span class="toc-label">Navigation</span><span class="toc-dots"></span><span class="toc-page">9</span></div>
+  <div class="toc-item"><span class="toc-num">08</span><span class="toc-label">Forms & Inputs</span><span class="toc-dots"></span><span class="toc-page">10</span></div>
+  <div class="toc-item"><span class="toc-num">09</span><span class="toc-label">Map Pins</span><span class="toc-dots"></span><span class="toc-page">11</span></div>
+  <div class="toc-item"><span class="toc-num">10</span><span class="toc-label">Weather Modal</span><span class="toc-dots"></span><span class="toc-page">12</span></div>
+  <div class="toc-item"><span class="toc-num">11</span><span class="toc-label">Modals & Alerts</span><span class="toc-dots"></span><span class="toc-page">13</span></div>
+  <div class="toc-item"><span class="toc-num">12</span><span class="toc-label">Photo Booth</span><span class="toc-dots"></span><span class="toc-page">14</span></div>
+  <div class="toc-item"><span class="toc-num">13</span><span class="toc-label">Empty & Error States</span><span class="toc-dots"></span><span class="toc-page">15</span></div>
+  <div class="toc-item"><span class="toc-num">14</span><span class="toc-label">Responsive: Portrait & Landscape</span><span class="toc-dots"></span><span class="toc-page">16</span></div>
+  <div class="page-number">2</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 01 COLOR SYSTEM ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">01 — Foundations</div>
+    <div class="section-title">Color System</div>
+    <div class="section-desc">A complete color palette built for kiosk interfaces — high contrast, accessible, and scalable across modules.</div>
+  </div>
+
+  <div class="label">Blue — Primary Brand</div>
+  <div class="swatch-row">
+    <div class="swatch swatch-dark" style="background:#003459;flex:1"><span class="swatch-name">900</span><span class="swatch-hex">#003459</span></div>
+    <div class="swatch swatch-dark" style="background:#004F8B;flex:1;border:2px solid #E8A830"><span class="swatch-name">800 ★ Primary</span><span class="swatch-hex">#004F8B</span></div>
+    <div class="swatch swatch-dark" style="background:#0E6AAD;flex:1"><span class="swatch-name">700</span><span class="swatch-hex">#0E6AAD</span></div>
+    <div class="swatch swatch-dark" style="background:#1796D6;flex:1"><span class="swatch-name">600</span><span class="swatch-hex">#1796D6</span></div>
+    <div class="swatch swatch-dark" style="background:#3AAEE0;flex:1"><span class="swatch-name">500</span><span class="swatch-hex">#3AAEE0</span></div>
+    <div class="swatch swatch-light" style="background:#6DC4EA;flex:1"><span class="swatch-name">400</span><span class="swatch-hex">#6DC4EA</span></div>
+    <div class="swatch swatch-light" style="background:#A0D8F2;flex:1"><span class="swatch-name">300</span><span class="swatch-hex">#A0D8F2</span></div>
+    <div class="swatch swatch-light" style="background:#CCE9F8;flex:1"><span class="swatch-name">200</span><span class="swatch-hex">#CCE9F8</span></div>
+    <div class="swatch swatch-light" style="background:#E8F4FC;flex:1"><span class="swatch-name">100</span><span class="swatch-hex">#E8F4FC</span></div>
+    <div class="swatch swatch-light" style="background:#F4FAFD;flex:1;border:1px solid #EBEBEB"><span class="swatch-name">50</span><span class="swatch-hex">#F4FAFD</span></div>
+  </div>
+
+  <div class="label mt-24">Neutral</div>
+  <div class="swatch-row">
+    <div class="swatch swatch-dark" style="background:#282828;flex:1;border:2px solid #E8A830"><span class="swatch-name">900 ★ Dark</span><span class="swatch-hex">#282828</span></div>
+    <div class="swatch swatch-dark" style="background:#3C3C3C;flex:1"><span class="swatch-name">800</span><span class="swatch-hex">#3C3C3C</span></div>
+    <div class="swatch swatch-dark" style="background:#4A4A4A;flex:1"><span class="swatch-name">700</span><span class="swatch-hex">#4A4A4A</span></div>
+    <div class="swatch swatch-dark" style="background:#5E5E5E;flex:1"><span class="swatch-name">600</span><span class="swatch-hex">#5E5E5E</span></div>
+    <div class="swatch swatch-dark" style="background:#707070;flex:1"><span class="swatch-name">500</span><span class="swatch-hex">#707070</span></div>
+    <div class="swatch swatch-light" style="background:#8E8E8E;flex:1"><span class="swatch-name">400</span><span class="swatch-hex">#8E8E8E</span></div>
+    <div class="swatch swatch-light" style="background:#B0B0B0;flex:1"><span class="swatch-name">300</span><span class="swatch-hex">#B0B0B0</span></div>
+    <div class="swatch swatch-light" style="background:#D4D4D4;flex:1"><span class="swatch-name">200</span><span class="swatch-hex">#D4D4D4</span></div>
+    <div class="swatch swatch-light" style="background:#EBEBEB;flex:1"><span class="swatch-name">100</span><span class="swatch-hex">#EBEBEB</span></div>
+    <div class="swatch swatch-light" style="background:#F5F5F5;flex:1;border:1px solid #EBEBEB"><span class="swatch-name">50</span><span class="swatch-hex">#F5F5F5</span></div>
+  </div>
+
+  <div class="label mt-24">Accent — Amber Gold</div>
+  <div class="swatch-row">
+    <div class="swatch swatch-dark" style="background:#B8860B;flex:1"><span class="swatch-name">700</span><span class="swatch-hex">#B8860B</span></div>
+    <div class="swatch swatch-dark" style="background:#D4972E;flex:1"><span class="swatch-name">600</span><span class="swatch-hex">#D4972E</span></div>
+    <div class="swatch swatch-light" style="background:#E8A830;flex:1;border:2px solid #004F8B"><span class="swatch-name">500 ★ Accent</span><span class="swatch-hex">#E8A830</span></div>
+    <div class="swatch swatch-light" style="background:#F0BE5A;flex:1"><span class="swatch-name">400</span><span class="swatch-hex">#F0BE5A</span></div>
+    <div class="swatch swatch-light" style="background:#F5D48A;flex:1"><span class="swatch-name">300</span><span class="swatch-hex">#F5D48A</span></div>
+    <div class="swatch swatch-light" style="background:#FAE7B8;flex:1"><span class="swatch-name">200</span><span class="swatch-hex">#FAE7B8</span></div>
+    <div class="swatch swatch-light" style="background:#FDF3DB;flex:1;border:1px solid #EBEBEB"><span class="swatch-name">100</span><span class="swatch-hex">#FDF3DB</span></div>
+  </div>
+
+  <div class="grid-2 mt-32">
+    <div>
+      <div class="label">Semantic</div>
+      <div class="swatch-row">
+        <div class="swatch swatch-dark" style="background:#2D8A4E;flex:1"><span class="swatch-name">Success</span><span class="swatch-hex">#2D8A4E</span></div>
+        <div class="swatch swatch-dark" style="background:#D93025;flex:1"><span class="swatch-name">Error</span><span class="swatch-hex">#D93025</span></div>
+        <div class="swatch swatch-light" style="background:#E8A830;flex:1"><span class="swatch-name">Warning</span><span class="swatch-hex">#E8A830</span></div>
+        <div class="swatch swatch-dark" style="background:#1796D6;flex:1"><span class="swatch-name">Info</span><span class="swatch-hex">#1796D6</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Gradients</div>
+      <div class="swatch-row">
+        <div class="swatch swatch-dark" style="background:linear-gradient(135deg,#004F8B,#282828);flex:1"><span class="swatch-name">Brand Gradient</span></div>
+        <div class="swatch swatch-dark" style="background:linear-gradient(180deg,#004F8B,#1796D6);flex:1"><span class="swatch-name">Blue Gradient</span></div>
+        <div class="swatch swatch-dark" style="background:linear-gradient(135deg,#004F8B,#0E6AAD);flex:1"><span class="swatch-name">Surface</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">3</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 02 LIGHT & DARK MODE ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">02 — Theming</div>
+    <div class="section-title">Light & Dark Mode</div>
+    <div class="section-desc">Every component supports dual themes via semantic color tokens. The same UI adapts automatically.</div>
+  </div>
+
+  <div class="theme-compare">
+    <div class="theme-panel light-panel">
+      <div class="theme-panel-header"><i class="fa-solid fa-sun"></i> &nbsp;LIGHT MODE</div>
+      <div class="theme-panel-body">
+        <div style="margin-bottom:16px">
+          <div style="font-family:Montserrat;font-size:18px;font-weight:700;color:#282828;margin-bottom:4px">Heading Text</div>
+          <div style="font-size:14px;color:#5E5E5E;margin-bottom:12px">Secondary body text for descriptions</div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B">Primary</div>
+            <div class="btn btn-md" style="background:transparent;color:#004F8B;border:2px solid #004F8B">Secondary</div>
+            <div class="btn btn-md" style="background:#E8A830;color:#282828;border-color:#E8A830">Accent</div>
+          </div>
+          <div style="background:#FFFFFF;border:2px solid #D4D4D4;border-radius:8px;padding:12px 16px;font-size:16px;color:#8E8E8E;margin-bottom:12px">Placeholder input</div>
+          <div style="background:#F5F5F5;border-radius:8px;padding:16px;border:1px solid #EBEBEB">
+            <div style="font-family:Montserrat;font-size:14px;font-weight:700;color:#282828">Card Title</div>
+            <div style="font-size:12px;color:#5E5E5E">Card description text</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="theme-panel dark-panel">
+      <div class="theme-panel-header"><i class="fa-solid fa-moon"></i> &nbsp;DARK MODE</div>
+      <div class="theme-panel-body">
+        <div style="margin-bottom:16px">
+          <div style="font-family:Montserrat;font-size:18px;font-weight:700;color:#F0F0F0;margin-bottom:4px">Heading Text</div>
+          <div style="font-size:14px;color:#A8A8A8;margin-bottom:12px">Secondary body text for descriptions</div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B">Primary</div>
+            <div class="btn btn-md" style="background:transparent;color:#3AAEE0;border:2px solid #3AAEE0">Secondary</div>
+            <div class="btn btn-md" style="background:#E8A830;color:#282828;border-color:#E8A830">Accent</div>
+          </div>
+          <div style="background:#242424;border:2px solid #3A3A3A;border-radius:8px;padding:12px 16px;font-size:16px;color:#787878;margin-bottom:12px">Placeholder input</div>
+          <div style="background:#222222;border-radius:8px;padding:16px;border:1px solid #3A3A3A">
+            <div style="font-family:Montserrat;font-size:14px;font-weight:700;color:#F0F0F0">Card Title</div>
+            <div style="font-size:12px;color:#A8A8A8">Card description text</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-32">
+    <div class="label">Theme Token Mapping</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="border-bottom:2px solid #004F8B;text-align:left">
+        <th style="padding:8px 12px;font-family:Montserrat;font-weight:700;color:#004F8B">Token</th>
+        <th style="padding:8px 12px;font-family:Montserrat;font-weight:700;color:#004F8B">Light</th>
+        <th style="padding:8px 12px;font-family:Montserrat;font-weight:700;color:#004F8B">Dark</th>
+        <th style="padding:8px 12px;font-family:Montserrat;font-weight:700;color:#004F8B">Usage</th>
+      </tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid #EBEBEB"><td style="padding:8px 12px">BG Primary</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#FFFFFF;border:1px solid #D4D4D4;vertical-align:middle;margin-right:6px"></span>#FFFFFF</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#1A1A1A;vertical-align:middle;margin-right:6px"></span>#1A1A1A</td><td style="padding:8px 12px;color:#707070">Page background</td></tr>
+        <tr style="border-bottom:1px solid #EBEBEB"><td style="padding:8px 12px">Text Primary</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#282828;vertical-align:middle;margin-right:6px"></span>#282828</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#F0F0F0;vertical-align:middle;margin-right:6px"></span>#F0F0F0</td><td style="padding:8px 12px;color:#707070">Headlines, body text</td></tr>
+        <tr style="border-bottom:1px solid #EBEBEB"><td style="padding:8px 12px">Text Secondary</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#5E5E5E;vertical-align:middle;margin-right:6px"></span>#5E5E5E</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#A8A8A8;vertical-align:middle;margin-right:6px"></span>#A8A8A8</td><td style="padding:8px 12px;color:#707070">Descriptions, meta</td></tr>
+        <tr style="border-bottom:1px solid #EBEBEB"><td style="padding:8px 12px">Surface Card</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#FFFFFF;border:1px solid #D4D4D4;vertical-align:middle;margin-right:6px"></span>#FFFFFF</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#242424;vertical-align:middle;margin-right:6px"></span>#242424</td><td style="padding:8px 12px;color:#707070">Cards, modals</td></tr>
+        <tr style="border-bottom:1px solid #EBEBEB"><td style="padding:8px 12px">Border Default</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#D4D4D4;vertical-align:middle;margin-right:6px"></span>#D4D4D4</td><td style="padding:8px 12px"><span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#3A3A3A;vertical-align:middle;margin-right:6px"></span>#3A3A3A</td><td style="padding:8px 12px;color:#707070">Borders, dividers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="page-number">4</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 03 TYPOGRAPHY ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">03 — Foundations</div>
+    <div class="section-title">Typography</div>
+    <div class="section-desc">Two font families replace the previous 13. Montserrat for headlines and UI. Open Sans for body and forms.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Migration:</strong> 13 font families → 2 · <strong>Montserrat</strong> (Bold, SemiBold, Medium) for headings, buttons, labels · <strong>Open Sans</strong> (Regular, SemiBold, Bold) for body, forms, captions
+  </div>
+
+  <div class="type-row" style="border-top:1px solid #EBEBEB">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:48px;letter-spacing:-0.5px">Display Large</div>
+    <div class="type-meta"><strong>Montserrat Bold 72/80</strong>Letter spacing: -1px · Billboard, hero</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:36px">Display Medium</div>
+    <div class="type-meta"><strong>Montserrat Bold 48/56</strong>Letter spacing: -0.5px · Section hero</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:32px">Heading H1</div>
+    <div class="type-meta"><strong>Montserrat Bold 40/48</strong>Page titles</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:28px">Heading H2</div>
+    <div class="type-meta"><strong>Montserrat Bold 32/40</strong>Section titles</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:24px">Heading H3</div>
+    <div class="type-meta"><strong>Montserrat Bold 28/36</strong>Subsection titles</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:600;font-size:22px">Heading H4</div>
+    <div class="type-meta"><strong>Montserrat SemiBold 24/32</strong>Card titles, module names</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:600;font-size:20px">Heading H5</div>
+    <div class="type-meta"><strong>Montserrat SemiBold 20/28</strong>List headers</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:'Open Sans';font-size:18px">Body Large — The quick brown fox jumps over the lazy dog</div>
+    <div class="type-meta"><strong>Open Sans Regular 18/28</strong>Primary reading text</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:'Open Sans';font-size:16px">Body Base — The quick brown fox jumps over the lazy dog</div>
+    <div class="type-meta"><strong>Open Sans Regular 16/24</strong>Default body text</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:'Open Sans';font-size:14px">Body Small — The quick brown fox jumps over the lazy dog</div>
+    <div class="type-meta"><strong>Open Sans Regular 14/20</strong>Secondary, meta text</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:16px">UI / Button Medium</div>
+    <div class="type-meta"><strong>Montserrat Bold 16/20</strong>Button labels, CTAs</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:'Open Sans';font-size:13px">UI / Caption — Supporting text for form fields and metadata</div>
+    <div class="type-meta"><strong>Open Sans Regular 13/18</strong>Helpers, captions</div>
+  </div>
+  <div class="type-row">
+    <div class="type-sample" style="font-family:Montserrat;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase">UI / OVERLINE — SECTION LABEL</div>
+    <div class="type-meta"><strong>Montserrat Bold 11/16</strong>LS: 1px · Category labels</div>
+  </div>
+
+  <div class="page-number">5</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 04 SPACING, RADIUS, ELEVATION ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">04 — Foundations</div>
+    <div class="section-title">Spacing, Radius & Elevation</div>
+    <div class="section-desc">Consistent spacing on a 4px grid. Six radius levels. Five elevation levels for depth hierarchy.</div>
+  </div>
+
+  <div class="grid-3 gap-32">
+    <div>
+      <div class="label">Spacing Scale (4px base)</div>
+      <div class="spacing-row"><span class="spacing-label">4px</span><div class="spacing-bar" style="width:16px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">8px</span><div class="spacing-bar" style="width:32px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">12px</span><div class="spacing-bar" style="width:48px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">16px</span><div class="spacing-bar" style="width:64px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">20px</span><div class="spacing-bar" style="width:80px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">24px</span><div class="spacing-bar" style="width:96px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">32px</span><div class="spacing-bar" style="width:128px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">40px</span><div class="spacing-bar" style="width:160px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">48px</span><div class="spacing-bar" style="width:192px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">64px</span><div class="spacing-bar" style="width:256px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">80px</span><div class="spacing-bar" style="width:300px"></div></div>
+      <div class="spacing-row"><span class="spacing-label">96px</span><div class="spacing-bar" style="width:360px"></div></div>
+    </div>
+
+    <div>
+      <div class="label">Border Radius</div>
+      <div class="flex-col">
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:0"></div><span style="font-size:13px"><strong>None</strong> — 0px</span></div>
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:4px"></div><span style="font-size:13px"><strong>SM</strong> — 4px · Small buttons</span></div>
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:8px"></div><span style="font-size:13px"><strong>MD</strong> — 8px · Cards, inputs</span></div>
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:16px"></div><span style="font-size:13px"><strong>LG</strong> — 16px · Modals, panels</span></div>
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:24px"></div><span style="font-size:13px"><strong>XL</strong> — 24px · Containers</span></div>
+        <div class="flex-row"><div style="width:64px;height:40px;background:#E8F4FC;border:2px solid #004F8B;border-radius:9999px"></div><span style="font-size:13px"><strong>Full</strong> — 9999px · Chips, pills</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Elevation (Shadows)</div>
+      <div class="flex-col" style="gap:16px">
+        <div class="shadow-demo" style="box-shadow:0 1px 2px rgba(0,0,0,0.08)">Elevation 1 — Subtle</div>
+        <div class="shadow-demo" style="box-shadow:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.06)">Elevation 2 — Default</div>
+        <div class="shadow-demo" style="box-shadow:0 4px 12px rgba(0,0,0,0.15),0 2px 4px rgba(0,0,0,0.06)">Elevation 3 — Medium</div>
+        <div class="shadow-demo" style="box-shadow:0 8px 24px rgba(0,0,0,0.20),0 4px 8px rgba(0,0,0,0.08)">Elevation 4 — High</div>
+        <div class="shadow-demo" style="box-shadow:0 16px 48px rgba(0,0,0,0.25),0 8px 16px rgba(0,0,0,0.10)">Elevation 5 — Overlay</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">6</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 05 BUTTONS ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">05 — Components</div>
+    <div class="section-title">Buttons</div>
+    <div class="section-desc">7 variants × 3 sizes × 5 states. Minimum touch target: 44px for kiosk accessibility.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Font:</strong> <code>Montserrat Bold</code> · <strong>Radius:</strong> <code>8px</code> (md/lg), <code>4px</code> (sm) · <strong>Min heights:</strong> <code>56px</code> (lg), <code>44px</code> (md), <code>36px</code> (sm) · <strong>Border:</strong> <code>2px solid</code>
+  </div>
+
+  <div class="label">Variants — Default State</div>
+  <div class="flex-row mb-32">
+    <div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B">Primary</div>
+    <div class="btn btn-md" style="background:transparent;color:#004F8B;border:2px solid #004F8B">Secondary</div>
+    <div class="btn btn-md" style="background:transparent;color:#004F8B">Ghost</div>
+    <div class="btn btn-md" style="background:#E8A830;color:#282828;border-color:#E8A830">Accent</div>
+    <div class="btn btn-md" style="background:#282828;color:white;border-color:#282828">Dark</div>
+    <div class="btn btn-md" style="background:linear-gradient(180deg,#004F8B,#1796D6);color:white">Gradient</div>
+    <div class="btn btn-md" style="background:#D93025;color:white;border-color:#D93025">Destructive</div>
+  </div>
+
+  <div class="label">Sizes</div>
+  <div class="flex-row mb-32" style="align-items:flex-end">
+    <div class="btn btn-lg" style="background:#004F8B;color:white;border-color:#004F8B">Large — 56px</div>
+    <div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B">Medium — 44px</div>
+    <div class="btn btn-sm" style="background:#004F8B;color:white;border-color:#004F8B">Small — 36px</div>
+  </div>
+
+  <div class="label">Primary — All States</div>
+  <div class="flex-row mb-32">
+    <div style="text-align:center"><div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B">Default</div><div style="font-size:10px;color:#8E8E8E;margin-top:4px;font-family:Montserrat;font-weight:600">DEFAULT</div></div>
+    <div style="text-align:center"><div class="btn btn-md" style="background:#0E6AAD;color:white;border-color:#0E6AAD">Hover</div><div style="font-size:10px;color:#8E8E8E;margin-top:4px;font-family:Montserrat;font-weight:600">HOVER</div></div>
+    <div style="text-align:center"><div class="btn btn-md" style="background:#003459;color:white;border-color:#003459">Pressed</div><div style="font-size:10px;color:#8E8E8E;margin-top:4px;font-family:Montserrat;font-weight:600">PRESSED</div></div>
+    <div style="text-align:center"><div class="btn btn-md" style="background:#B0B0B0;color:#707070;border-color:#B0B0B0">Disabled</div><div style="font-size:10px;color:#8E8E8E;margin-top:4px;font-family:Montserrat;font-weight:600">DISABLED</div></div>
+    <div style="text-align:center"><div class="btn btn-md" style="background:#0E6AAD;color:rgba(255,255,255,0.6);border-color:#0E6AAD"><i class="fa-solid fa-spinner fa-spin"></i> Loading</div><div style="font-size:10px;color:#8E8E8E;margin-top:4px;font-family:Montserrat;font-weight:600">LOADING</div></div>
+  </div>
+
+  <div class="label">With Icons</div>
+  <div class="flex-row">
+    <div class="btn btn-md" style="background:#004F8B;color:white;border-color:#004F8B"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+    <div class="btn btn-md" style="background:transparent;color:#004F8B;border:2px solid #004F8B"><i class="fa-solid fa-share-nodes"></i> Share Itinerary</div>
+    <div class="btn btn-md" style="background:#E8A830;color:#282828;border-color:#E8A830"><i class="fa-solid fa-globe"></i> Website</div>
+    <div class="btn btn-md" style="background:#282828;color:white;border-color:#282828"><i class="fa-solid fa-house"></i> Home</div>
+    <div style="width:44px;height:44px;border-radius:50%;background:#004F8B;display:flex;align-items:center;justify-content:center;color:white;font-size:16px"><i class="fa-solid fa-xmark"></i></div>
+    <div style="width:44px;height:44px;border-radius:50%;background:transparent;border:2px solid #004F8B;display:flex;align-items:center;justify-content:center;color:#004F8B;font-size:16px"><i class="fa-solid fa-heart"></i></div>
+  </div>
+
+  <div class="page-number">7</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 06 CARDS ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">06 — Components</div>
+    <div class="section-title">Cards</div>
+    <div class="section-desc">Four card types: Module (dashboard), Listing (browse), Event (calendar), and Map Popup (interactive map).</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Radius:</strong> <code>8px</code> · <strong>Shadow:</strong> <code>Elevation 2</code> default, <code>Elevation 3</code> hover · <strong>Border:</strong> <code>1px solid border-default</code> · <strong>Transition:</strong> <code>0.2s ease</code>
+  </div>
+
+  <div class="grid-2" style="gap:40px">
+    <div>
+      <div class="label">Module Cards (Dashboard)</div>
+      <div class="grid-2">
+        <div style="height:160px;border-radius:8px;background:linear-gradient(135deg,#004F8B,#282828);display:flex;align-items:flex-end;padding:16px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(40,40,40,0.85))"></div><span style="font-family:Montserrat;font-weight:700;font-size:22px;color:white;position:relative;z-index:1">Restaurants</span></div>
+        <div style="height:160px;border-radius:8px;background:linear-gradient(135deg,#0E6AAD,#282828);display:flex;align-items:flex-end;padding:16px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(40,40,40,0.85))"></div><span style="font-family:Montserrat;font-weight:700;font-size:22px;color:white;position:relative;z-index:1">Things To Do</span></div>
+        <div style="height:160px;border-radius:8px;background:linear-gradient(135deg,#B8860B,#282828);display:flex;align-items:flex-end;padding:16px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(40,40,40,0.85))"></div><span style="font-family:Montserrat;font-weight:700;font-size:22px;color:white;position:relative;z-index:1">Events</span></div>
+        <div style="height:160px;border-radius:8px;background:linear-gradient(180deg,#1796D6,#003459);display:flex;align-items:flex-end;padding:16px;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(40,40,40,0.85))"></div><span style="font-family:Montserrat;font-weight:700;font-size:22px;color:white;position:relative;z-index:1">Photo Booth</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Listing Cards</div>
+      <div class="grid-2">
+        <div class="card-demo">
+          <div class="card-demo-image" style="background:linear-gradient(135deg,#004F8B,#1796D6)">
+            <div style="position:absolute;top:8px;left:8px;background:rgba(0,79,139,0.85);color:white;padding:3px 8px;border-radius:3px;font-family:Montserrat;font-size:9px;font-weight:700;letter-spacing:0.5px">THINGS TO DO</div>
+            <div style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;color:#D93025;font-size:12px"><i class="fa-solid fa-heart"></i></div>
+          </div>
+          <div class="card-demo-body">
+            <div class="card-demo-title">California State Parks</div>
+            <div class="card-demo-meta"><i class="fa-solid fa-location-dot" style="color:#1796D6"></i> Kellogg Mill Rd</div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:#D4972E;font-weight:600">7.5 mi</span><span style="font-size:12px;color:#2D8A4E;font-weight:600">Open</span></div>
+          </div>
+        </div>
+        <div class="card-demo">
+          <div class="card-demo-image" style="background:linear-gradient(135deg,#D4972E,#B8860B)">
+            <div style="position:absolute;top:8px;left:8px;background:rgba(0,79,139,0.85);color:white;padding:3px 8px;border-radius:3px;font-family:Montserrat;font-size:9px;font-weight:700;letter-spacing:0.5px">RESTAURANT</div>
+          </div>
+          <div class="card-demo-body">
+            <div class="card-demo-title">Lola's Kitchen</div>
+            <div class="card-demo-meta"><i class="fa-solid fa-utensils" style="color:#1796D6"></i> American, Italian</div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px"><span style="font-size:12px;color:#D4972E;font-weight:600">2.3 mi</span><span style="font-size:12px;color:#2D8A4E;font-weight:600">Open now</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label mt-24">Event Card</div>
+      <div style="display:flex;gap:12px;padding:14px;border-radius:8px;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.12);border:1px solid #EBEBEB;align-items:center">
+        <div style="width:52px;height:52px;border-radius:8px;background:#E8F4FC;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-family:Montserrat;font-weight:700;font-size:20px;color:#004F8B;line-height:1">27</span><span style="font-family:Montserrat;font-weight:700;font-size:9px;color:#1796D6">NOV</span></div>
+        <div><div style="font-family:Montserrat;font-weight:700;font-size:14px;color:#282828">Cubs at SF Giants</div><div style="font-size:12px;color:#5E5E5E">7:00 pm · Oracle Park</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">8</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 07 NAVIGATION ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">07 — Components</div>
+    <div class="section-title">Navigation</div>
+    <div class="section-desc">Header bar, tab bar, bottom bar, filter chips, and action bar — consistent across all modules.</div>
+  </div>
+
+  <div class="label">Header Bar</div>
+  <div class="nav-demo" style="background:#004F8B;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;color:white;margin-bottom:0;border-radius:8px 8px 0 0">
+    <div style="display:flex;align-items:center;gap:10px"><img src="assets/Logo-Light.png" style="height:22px"></div>
+    <div style="display:flex;gap:20px;font-size:14px;align-items:center"><span>12:00 PM</span><span style="padding:4px 8px;border-radius:4px;background:rgba(255,255,255,0.1)"><i class="fa-solid fa-cloud"></i> 50°</span><span>Friday, December 10, 2025</span></div>
+  </div>
+
+  <div class="label mt-32">Tab Bar</div>
+  <div class="nav-demo" style="background:#004F8B;display:flex;border-radius:0 0 8px 8px;margin-bottom:24px">
+    <div style="flex:1;text-align:center;padding:14px;font-family:Montserrat;font-weight:700;font-size:16px;color:white;border-bottom:3px solid #E8A830;background:rgba(255,255,255,0.08)"><i class="fa-solid fa-hiking"></i> Things To Do</div>
+    <div style="flex:1;text-align:center;padding:14px;font-family:Montserrat;font-weight:500;font-size:16px;color:rgba(255,255,255,0.6)"><i class="fa-solid fa-map-pin"></i> Local Listing</div>
+    <div style="flex:1;text-align:center;padding:14px;font-family:Montserrat;font-weight:500;font-size:16px;color:rgba(255,255,255,0.6)"><i class="fa-solid fa-calendar"></i> Events</div>
+  </div>
+
+  <div class="label">Bottom Bar</div>
+  <div class="nav-demo" style="background:#282828;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;color:white;border-radius:8px;margin-bottom:24px">
+    <img src="assets/Logo-Light.png" style="height:18px">
+    <div style="display:flex;gap:16px;align-items:center">
+      <i class="fa-solid fa-wheelchair" style="opacity:0.6"></i>
+      <div style="background:#E8A830;color:#282828;padding:6px 14px;border-radius:4px;font-family:Montserrat;font-weight:700;font-size:14px"><i class="fa-solid fa-globe"></i> ENGLISH <i class="fa-solid fa-chevron-up" style="font-size:10px"></i></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="label">Filter Chips</div>
+      <div class="flex-row mb-16">
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#004F8B;color:white;font-family:Montserrat;font-weight:600;font-size:14px"><i class="fa-solid fa-filter" style="font-size:11px"></i> Eat</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#004F8B;color:white;font-family:Montserrat;font-weight:600;font-size:14px"><i class="fa-solid fa-filter" style="font-size:11px"></i> Stay</span>
+        <span style="display:inline-flex;padding:6px 14px;border-radius:9999px;background:#EBEBEB;color:#4A4A4A;font-family:Montserrat;font-weight:600;font-size:14px">Play</span>
+        <span style="display:inline-flex;padding:6px 14px;border-radius:9999px;background:#EBEBEB;color:#4A4A4A;font-family:Montserrat;font-weight:600;font-size:14px">Shop</span>
+      </div>
+      <div class="flex-row">
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#E8F4FC;color:#004F8B;font-family:Montserrat;font-weight:600;font-size:14px;border:2px solid #CCE9F8">Hotels <span style="width:16px;height:16px;border-radius:50%;background:#004F8B;color:white;display:flex;align-items:center;justify-content:center;font-size:9px"><i class="fa-solid fa-xmark"></i></span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#E8F4FC;color:#004F8B;font-family:Montserrat;font-weight:600;font-size:14px;border:2px solid #CCE9F8">Pet Friendly <span style="width:16px;height:16px;border-radius:50%;background:#004F8B;color:white;display:flex;align-items:center;justify-content:center;font-size:9px"><i class="fa-solid fa-xmark"></i></span></span>
+      </div>
+    </div>
+    <div>
+      <div class="label">Action Bar</div>
+      <div style="display:flex;justify-content:space-around;padding:14px 20px;background:white;border:1px solid #EBEBEB;border-radius:8px">
+        <div style="text-align:center;color:#5E5E5E;font-size:11px;font-weight:600"><i class="fa-solid fa-envelope" style="font-size:20px;display:block;margin-bottom:4px"></i>Email</div>
+        <div style="text-align:center;color:#5E5E5E;font-size:11px;font-weight:600"><i class="fa-solid fa-mobile-screen" style="font-size:20px;display:block;margin-bottom:4px"></i>Phone</div>
+        <div style="text-align:center;color:#004F8B;font-size:11px;font-weight:600"><i class="fa-solid fa-heart" style="font-size:20px;display:block;margin-bottom:4px"></i>Favorite</div>
+        <div style="text-align:center;color:#5E5E5E;font-size:11px;font-weight:600"><i class="fa-solid fa-diamond-turn-right" style="font-size:20px;display:block;margin-bottom:4px"></i>Directions</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">9</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 08 FORMS ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">08 — Components</div>
+    <div class="section-title">Forms & Inputs</div>
+    <div class="section-desc">Text inputs, search, checkboxes, and toggles — all states documented for kiosk touch interaction.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Input font:</strong> <code>Open Sans Regular 18px</code> · <strong>Label:</strong> <code>Open Sans SemiBold 14px</code> · <strong>Border:</strong> <code>2px solid</code> · <strong>Focus ring:</strong> <code>3px blue-800 @ 12% opacity</code> · <strong>Radius:</strong> <code>8px</code>
+  </div>
+
+  <div class="grid-4 mb-32">
+    <div>
+      <div class="label">Default</div>
+      <div style="font-family:'Open Sans';font-size:14px;font-weight:600;color:#5E5E5E;margin-bottom:8px">Email Address</div>
+      <div style="border:2px solid #D4D4D4;border-radius:8px;padding:12px 16px;font-size:18px;color:#8E8E8E;background:white">example@mail.com</div>
+      <div style="font-size:12px;color:#8E8E8E;margin-top:4px">Helper text goes here</div>
+    </div>
+    <div>
+      <div class="label">Focus</div>
+      <div style="font-family:'Open Sans';font-size:14px;font-weight:600;color:#5E5E5E;margin-bottom:8px">Email Address</div>
+      <div style="border:2px solid #004F8B;border-radius:8px;padding:12px 16px;font-size:18px;color:#282828;background:white;box-shadow:0 0 0 3px rgba(0,79,139,0.12)">john@email.com</div>
+    </div>
+    <div>
+      <div class="label">Error</div>
+      <div style="font-family:'Open Sans';font-size:14px;font-weight:600;color:#5E5E5E;margin-bottom:8px">Phone Number</div>
+      <div style="border:2px solid #D93025;border-radius:8px;padding:12px 16px;font-size:18px;color:#282828;background:white;box-shadow:0 0 0 3px rgba(217,48,37,0.12)">123</div>
+      <div style="font-size:12px;color:#D93025;margin-top:4px"><i class="fa-solid fa-circle-exclamation"></i> Enter a valid number</div>
+    </div>
+    <div>
+      <div class="label">Disabled</div>
+      <div style="font-family:'Open Sans';font-size:14px;font-weight:600;color:#5E5E5E;margin-bottom:8px">Country</div>
+      <div style="border:2px solid #D4D4D4;border-radius:8px;padding:12px 16px;font-size:18px;color:#8E8E8E;background:#F5F5F5">United States</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <div class="label">Search Bar</div>
+      <div style="display:flex;border:2px solid #D4D4D4;border-radius:8px;overflow:hidden">
+        <div style="flex:1;padding:12px 16px;font-size:18px;color:#8E8E8E">What are you looking for?</div>
+        <div style="background:#E8A830;padding:12px 24px;font-family:Montserrat;font-weight:700;font-size:16px;color:#282828;display:flex;align-items:center">SEARCH</div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Checkboxes & Toggles</div>
+      <div class="flex-col">
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:24px;height:24px;border-radius:4px;background:#004F8B;display:flex;align-items:center;justify-content:center;color:white;font-size:14px"><i class="fa-solid fa-check"></i></div><span style="font-size:16px">Accept Terms & Conditions</span></div>
+        <div style="display:flex;align-items:center;gap:12px"><div style="width:24px;height:24px;border-radius:4px;border:2px solid #B0B0B0"></div><span style="font-size:16px">Receive Email Updates</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
+          <div style="width:52px;height:28px;border-radius:14px;background:#004F8B;position:relative"><div style="width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:3px;right:3px;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div></div><span style="font-size:14px;font-weight:600">Show Driving</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:52px;height:28px;border-radius:14px;background:#B0B0B0;position:relative"><div style="width:22px;height:22px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;box-shadow:0 1px 3px rgba(0,0,0,0.2)"></div></div><span style="font-size:14px;font-weight:600;color:#707070">Hide Markers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">10</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 09 MAP PINS ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">09 — Components</div>
+    <div class="section-title">Map Pins</div>
+    <div class="section-desc">7 category pins, 3 sizes, numbered itinerary pins, route markers, and cluster indicators.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Shape:</strong> <code>Circle + pointer</code> · <strong>Sizes:</strong> <code>32px</code> (sm), <code>44px</code> (md), <code>56px</code> (lg) · <strong>Border:</strong> <code>3px solid white</code> · <strong>Selected:</strong> <code>Amber ring + pulse animation</code>
+  </div>
+
+  <div class="label">Category Pins</div>
+  <div style="display:flex;gap:48px;margin-bottom:32px;flex-wrap:wrap">
+    <div class="pin"><div class="pin-dot" style="background:#004F8B"><i class="fa-solid fa-hiking"></i></div><div class="pin-label-text">Things To Do</div><div class="pin-color">#004F8B</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#D93025"><i class="fa-solid fa-utensils"></i></div><div class="pin-label-text">Food & Drink</div><div class="pin-color">#D93025</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#6B5CE7"><i class="fa-solid fa-bed"></i></div><div class="pin-label-text">Stay</div><div class="pin-color">#6B5CE7</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#D4972E"><i class="fa-solid fa-bag-shopping"></i></div><div class="pin-label-text">Shop</div><div class="pin-color">#D4972E</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#E05CA5"><i class="fa-solid fa-calendar"></i></div><div class="pin-label-text">Events</div><div class="pin-color">#E05CA5</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#2D8A4E"><i class="fa-solid fa-route"></i></div><div class="pin-label-text">Itinerary</div><div class="pin-color">#2D8A4E</div></div>
+    <div class="pin"><div class="pin-dot" style="background:#5E5E5E"><i class="fa-solid fa-location-dot"></i></div><div class="pin-label-text">General</div><div class="pin-color">#5E5E5E</div></div>
+  </div>
+
+  <div class="grid-3 gap-32">
+    <div>
+      <div class="label">Itinerary Numbered Pins</div>
+      <div style="display:flex;gap:16px">
+        <div class="pin"><div class="pin-dot" style="background:#2D8A4E;font-family:Montserrat;font-weight:700;font-size:16px">1</div></div>
+        <div class="pin"><div class="pin-dot" style="background:#2D8A4E;font-family:Montserrat;font-weight:700;font-size:16px">2</div></div>
+        <div class="pin"><div class="pin-dot" style="background:#2D8A4E;font-family:Montserrat;font-weight:700;font-size:16px">3</div></div>
+        <div class="pin"><div class="pin-dot" style="background:#2D8A4E;font-family:Montserrat;font-weight:700;font-size:16px">4</div></div>
+        <div class="pin"><div class="pin-dot" style="background:#2D8A4E;font-family:Montserrat;font-weight:700;font-size:16px">5</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Route Markers</div>
+      <div class="flex-col">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#2D8A4E;color:white;font-family:Montserrat;font-weight:700;font-size:13px;width:fit-content"><i class="fa-solid fa-play"></i> START</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:#D93025;color:white;font-family:Montserrat;font-weight:700;font-size:13px;width:fit-content"><i class="fa-solid fa-flag-checkered"></i> END</div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Cluster Pins</div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <div style="width:36px;height:36px;border-radius:50%;background:#004F8B;color:white;display:flex;align-items:center;justify-content:center;font-family:Montserrat;font-weight:700;font-size:13px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25)">5</div>
+        <div style="width:48px;height:48px;border-radius:50%;background:#004F8B;color:white;display:flex;align-items:center;justify-content:center;font-family:Montserrat;font-weight:700;font-size:16px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25)">24</div>
+        <div style="width:60px;height:60px;border-radius:50%;background:#003459;color:white;display:flex;align-items:center;justify-content:center;font-family:Montserrat;font-weight:700;font-size:20px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25)">128</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">11</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 10 WEATHER MODAL ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">10 — Components</div>
+    <div class="section-title">Weather Modal</div>
+    <div class="section-desc">Triggered by tapping the weather indicator in the header bar. Shows current conditions and 5-day forecast.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Temperature:</strong> <code>Montserrat Bold 72px</code> · <strong>Condition:</strong> <code>Montserrat SemiBold 22px</code> · <strong>Forecast:</strong> <code>Montserrat Bold 16px</code> temp, <code>11px</code> day name
+  </div>
+
+  <div class="grid-2" style="gap:48px">
+    <div class="weather-demo" style="max-width:420px">
+      <div style="display:flex;align-items:center;gap:24px;margin-bottom:20px">
+        <div class="weather-temp" style="color:#282828">50°</div>
+        <div>
+          <div class="weather-condition"><i class="fa-solid fa-cloud" style="color:#8E8E8E"></i> Cloudy</div>
+          <div style="font-size:14px;color:#5E5E5E;margin-bottom:8px"><i class="fa-solid fa-location-dot"></i> Fredericksburg, VA</div>
+          <div style="display:flex;gap:16px">
+            <span class="weather-stat"><i class="fa-solid fa-droplet" style="color:#1796D6"></i> 65%</span>
+            <span class="weather-stat"><i class="fa-solid fa-wind" style="color:#1796D6"></i> 8 mph</span>
+            <span class="weather-stat"><i class="fa-solid fa-eye" style="color:#1796D6"></i> 10 mi</span>
+          </div>
+        </div>
+      </div>
+      <div class="forecast-bar">
+        <div class="forecast-day-item today"><div class="forecast-day-name">Today</div><div class="forecast-icon"><i class="fa-solid fa-cloud"></i></div><div class="forecast-temp">50°</div><div class="forecast-low">38°</div></div>
+        <div class="forecast-day-item"><div class="forecast-day-name">Sat</div><div class="forecast-icon"><i class="fa-solid fa-sun"></i></div><div class="forecast-temp">55°</div><div class="forecast-low">40°</div></div>
+        <div class="forecast-day-item"><div class="forecast-day-name">Sun</div><div class="forecast-icon"><i class="fa-solid fa-cloud-sun"></i></div><div class="forecast-temp">52°</div><div class="forecast-low">39°</div></div>
+        <div class="forecast-day-item"><div class="forecast-day-name">Mon</div><div class="forecast-icon" style="color:#3AAEE0"><i class="fa-solid fa-cloud-rain"></i></div><div class="forecast-temp">48°</div><div class="forecast-low">35°</div></div>
+        <div class="forecast-day-item"><div class="forecast-day-name">Tue</div><div class="forecast-icon"><i class="fa-solid fa-sun"></i></div><div class="forecast-temp">58°</div><div class="forecast-low">42°</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Specs</div>
+      <div style="font-size:14px;line-height:2;color:#4A4A4A">
+        • Container: <strong>380px wide</strong>, radius 16px, Elevation 3<br>
+        • Temperature: <strong>Montserrat Bold 72px</strong><br>
+        • Condition: <strong>Montserrat SemiBold 22px</strong><br>
+        • Location: <strong>Open Sans Regular 14px</strong>, color text-secondary<br>
+        • Stats (humidity, wind, visibility): <strong>Open Sans 13px</strong><br>
+        • Forecast day: <strong>Montserrat Bold 11px</strong> uppercase<br>
+        • Forecast temp: <strong>Montserrat Bold 16px</strong><br>
+        • Forecast low: <strong>Open Sans 13px</strong>, color text-tertiary<br>
+        • "Today" highlight: <strong>blue-100 background</strong>, radius 8px<br>
+        • Icons: <strong>Font Awesome 6</strong> weather set, color accent-500<br>
+        • Trigger: tap weather in header bar
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">12</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 11 MODALS ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">11 — Components</div>
+    <div class="section-title">Modals & Alerts</div>
+    <div class="section-desc">Email send, confirmation dialogs, and success/error alerts — all with consistent overlay treatment.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Overlay:</strong> <code>neutral-900 @ 60% opacity</code> · <strong>Modal:</strong> <code>420px wide</code>, <code>radius 16px</code>, <code>padding 32px</code>, <code>Elevation 5</code> · <strong>Title:</strong> <code>Montserrat Bold 24px</code>
+  </div>
+
+  <div class="grid-2" style="gap:48px">
+    <div>
+      <div class="label">Send to Email</div>
+      <div style="background:rgba(40,40,40,0.6);border-radius:16px;padding:48px;display:flex;align-items:center;justify-content:center">
+        <div style="background:white;border-radius:16px;padding:32px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,0.25)">
+          <div style="font-family:Montserrat;font-size:24px;font-weight:700;margin-bottom:8px">Send to e-mail</div>
+          <div style="font-size:16px;color:#5E5E5E;margin-bottom:20px">Enter your e-mail address</div>
+          <div style="border:2px solid #D4D4D4;border-radius:8px;padding:12px 16px;font-size:18px;color:#8E8E8E;margin-bottom:16px">example@mail.com</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+            <div style="width:22px;height:22px;border-radius:4px;background:#004F8B;display:flex;align-items:center;justify-content:center;color:white;font-size:12px;flex-shrink:0"><i class="fa-solid fa-check"></i></div>
+            <span style="font-size:14px">I accept <span style="color:#1796D6">Terms & Conditions</span></span>
+          </div>
+          <div style="display:flex;gap:12px">
+            <div class="btn btn-md" style="flex:1;background:transparent;color:#004F8B;border:2px solid #004F8B;justify-content:center">Cancel</div>
+            <div class="btn btn-md" style="flex:1;background:#004F8B;color:white;border-color:#004F8B;justify-content:center">Send</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="label">Success Alert</div>
+      <div style="background:rgba(40,40,40,0.6);border-radius:16px;padding:48px;display:flex;align-items:center;justify-content:center">
+        <div style="background:white;border-radius:16px;padding:32px;width:380px;box-shadow:0 16px 48px rgba(0,0,0,0.25);text-align:center">
+          <div style="width:72px;height:72px;border-radius:50%;background:#E6F4EB;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:#2D8A4E;font-size:32px"><i class="fa-solid fa-check"></i></div>
+          <div style="font-family:Montserrat;font-size:24px;font-weight:700;margin-bottom:8px">Thank you!</div>
+          <div style="font-size:16px;color:#5E5E5E;margin-bottom:24px;line-height:1.5">Would you like to fill out a quick survey?</div>
+          <div style="display:flex;gap:12px">
+            <div class="btn btn-md" style="flex:1;background:transparent;color:#D93025;justify-content:center">No, Thanks</div>
+            <div class="btn btn-md" style="flex:1;background:#004F8B;color:white;border-color:#004F8B;justify-content:center">OK</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">13</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 12 PHOTO BOOTH ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">12 — Components</div>
+    <div class="section-title">Photo Booth</div>
+    <div class="section-desc">Custom frames and branded stickers — personalized per client for their property or destination.</div>
+  </div>
+
+  <div class="grid-2" style="gap:48px">
+    <div>
+      <div class="label">Custom Frames</div>
+      <div class="grid-2" style="gap:16px">
+        <div>
+          <div class="frame-demo" style="border:5px solid white;box-shadow:0 2px 12px rgba(0,0,0,0.15)">
+            <div class="frame-demo-img"><i class="fa-solid fa-camera"></i></div>
+            <div class="frame-demo-overlay" style="background:linear-gradient(transparent,rgba(0,0,0,0.6))"><img src="assets/Logo-Light.png" style="height:12px;opacity:0.8"><span style="font-family:Montserrat;font-size:8px;color:rgba(255,255,255,0.7);letter-spacing:0.5px">YOUR EXPERIENCE AWAITS</span></div>
+            <div style="position:absolute;top:0;left:0;width:16px;height:16px;border-top:3px solid #E8A830;border-left:3px solid #E8A830"></div>
+            <div style="position:absolute;top:0;right:0;width:16px;height:16px;border-top:3px solid #E8A830;border-right:3px solid #E8A830"></div>
+          </div>
+          <div style="text-align:center;font-family:Montserrat;font-size:10px;font-weight:700;color:#8E8E8E;margin-top:6px">CLASSIC BORDER</div>
+        </div>
+        <div>
+          <div class="frame-demo" style="box-shadow:0 2px 12px rgba(0,0,0,0.15)">
+            <div class="frame-demo-img"><i class="fa-solid fa-camera"></i></div>
+            <div style="position:absolute;bottom:0;left:0;right:0;background:#004F8B;padding:8px 12px;display:flex;justify-content:space-between;align-items:center"><img src="assets/Logo-Light.png" style="height:12px"><div style="text-align:right"><div style="font-family:Montserrat;font-size:9px;font-weight:700;color:white">Feb 15, 2026</div><div style="font-size:8px;color:rgba(255,255,255,0.6)"><i class="fa-solid fa-location-dot" style="color:#E8A830;font-size:7px"></i> Fredericksburg, VA</div></div></div>
+          </div>
+          <div style="text-align:center;font-family:Montserrat;font-size:10px;font-weight:700;color:#8E8E8E;margin-top:6px">BOTTOM STRIP</div>
+        </div>
+        <div>
+          <div class="frame-demo" style="border:4px solid #F5F0E8;box-shadow:0 2px 12px rgba(0,0,0,0.15)">
+            <div class="frame-demo-img"><i class="fa-solid fa-camera"></i></div>
+            <div style="position:absolute;bottom:8px;left:12px"><div style="font-size:9px;color:white;text-shadow:0 1px 3px rgba(0,0,0,0.5)">Greetings from</div><div style="font-family:Montserrat;font-weight:700;font-size:16px;color:white;text-shadow:0 2px 6px rgba(0,0,0,0.5)">Fredericksburg</div></div>
+          </div>
+          <div style="text-align:center;font-family:Montserrat;font-size:10px;font-weight:700;color:#8E8E8E;margin-top:6px">POSTCARD</div>
+        </div>
+        <div>
+          <div style="background:white;padding:6px 6px 20px 6px;border-radius:2px;box-shadow:0 2px 12px rgba(0,0,0,0.12)">
+            <div style="height:100px;background:linear-gradient(135deg,#4A90C4,#1A4F7A);border-radius:2px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.2);font-size:28px"><i class="fa-solid fa-camera"></i></div>
+            <div style="text-align:center;padding-top:4px"><img src="assets/Logo-Dark.png" style="height:10px;opacity:0.3"></div>
+          </div>
+          <div style="text-align:center;font-family:Montserrat;font-size:10px;font-weight:700;color:#8E8E8E;margin-top:6px">MINIMAL WHITE</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="label">Custom Stickers</div>
+      <div class="label" style="color:#4A4A4A;font-size:10px">BRANDING</div>
+      <div class="flex-row mb-16">
+        <div style="background:white;padding:6px 12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.12);border:1px solid #EBEBEB"><img src="assets/Logo-Dark.png" style="height:16px"></div>
+        <div class="sticker-demo" style="background:#004F8B;color:white;font-size:13px;padding:5px 12px">Welcome!</div>
+        <div class="sticker-demo" style="background:#E8A830;color:#282828;font-size:13px;padding:5px 12px">#MyTrip</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#004F8B;display:flex;align-items:center;justify-content:center;color:white;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><i class="fa-solid fa-heart"></i></div>
+      </div>
+
+      <div class="label" style="color:#4A4A4A;font-size:10px">DESTINATION</div>
+      <div class="flex-row mb-16">
+        <div style="background:white;padding:5px 10px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,0.12);font-family:Montserrat;font-weight:700;font-size:11px;display:flex;align-items:center;gap:4px;border:1px solid #EBEBEB"><i class="fa-solid fa-location-dot" style="color:#D93025"></i> Fredericksburg</div>
+        <div class="sticker-demo" style="background:linear-gradient(135deg,#004F8B,#1796D6);color:white;font-size:13px;padding:5px 12px">I Was Here!</div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#E8A830;display:flex;align-items:center;justify-content:center;color:#282828;box-shadow:0 2px 6px rgba(0,0,0,0.15)"><i class="fa-solid fa-star"></i></div>
+      </div>
+
+      <div class="label" style="color:#4A4A4A;font-size:10px">SEASONAL</div>
+      <div class="flex-row mb-24">
+        <span style="font-size:32px">🎄</span>
+        <span style="font-size:32px">🎃</span>
+        <span style="font-size:32px">🎆</span>
+        <span style="font-size:32px">❄️</span>
+        <span style="font-size:32px">🌸</span>
+      </div>
+
+      <div class="label">Client Asset Specs</div>
+      <div style="font-size:13px;line-height:1.8;color:#4A4A4A">
+        <strong>Frames:</strong> PNG transparent · 1080×810px (4:3) · Safe zone center 85%<br>
+        <strong>Stickers:</strong> PNG transparent · 160×160px @2x · Drag 80-160px<br>
+        <strong>Delivery:</strong> 3-6 frames + 8-15 stickers per client<br>
+        <strong>Naming:</strong> <code style="background:#E8F4FC;padding:1px 4px;border-radius:2px;font-size:11px">frame-[client]-[name].png</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-number">14</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 13 EMPTY & ERROR STATES ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">13 — Patterns</div>
+    <div class="section-title">Empty & Error States</div>
+    <div class="section-desc">Previously missing from the product — now defined for every scenario. Always provide a clear action.</div>
+  </div>
+
+  <div class="grid-3" style="gap:32px;margin-bottom:48px">
+    <div class="empty-demo">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <h4>No results found</h4>
+      <p>Try adjusting your filters or search terms</p>
+      <div class="btn btn-sm" style="background:transparent;color:#004F8B;border:2px solid #004F8B;margin-top:12px">Clear Filters</div>
+    </div>
+    <div class="empty-demo">
+      <i class="fa-solid fa-heart"></i>
+      <h4>No favorites yet</h4>
+      <p>Tap the heart icon on any listing to save it</p>
+      <div class="btn btn-sm" style="background:#004F8B;color:white;border-color:#004F8B;margin-top:12px">Explore</div>
+    </div>
+    <div class="empty-demo" style="background:#FDECEA;border:1px solid #D93025">
+      <i class="fa-solid fa-triangle-exclamation" style="color:#D93025"></i>
+      <h4 style="color:#D93025">Something went wrong</h4>
+      <p>We couldn't load this content</p>
+      <div class="btn btn-sm" style="background:#D93025;color:white;border-color:#D93025;margin-top:12px">Retry</div>
+    </div>
+  </div>
+
+  <div class="label">Badges & Status Tags</div>
+  <div class="flex-row">
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#004F8B;color:white;font-family:Montserrat;font-weight:700;font-size:11px">New</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#E8A830;color:#282828;font-family:Montserrat;font-weight:700;font-size:11px">Featured</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#2D8A4E;color:white;font-family:Montserrat;font-weight:700;font-size:11px">Open</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#D93025;color:white;font-family:Montserrat;font-weight:700;font-size:11px">Closed</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#EBEBEB;color:#4A4A4A;font-family:Montserrat;font-weight:700;font-size:11px">12 results</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#E8F4FC;color:#004F8B;font-family:Montserrat;font-weight:700;font-size:11px">Things To Do</span>
+    <span style="display:inline-flex;padding:2px 8px;border-radius:9999px;background:#FDF3DB;color:#B8860B;font-family:Montserrat;font-weight:700;font-size:11px">Restaurant</span>
+  </div>
+
+  <div class="page-number">15</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+<!-- ========== 14 RESPONSIVE ========== -->
+<div class="page">
+  <div class="section-header">
+    <div class="section-num">14 — Layout</div>
+    <div class="section-title">Responsive: Portrait & Landscape</div>
+    <div class="section-desc">Same components, different layouts. The design system scales to any kiosk orientation.</div>
+  </div>
+
+  <div class="spec-box">
+    <strong>Portrait:</strong> <code>1080 × 1920px</code> — vertical stack layout, cards full width<br>
+    <strong>Landscape:</strong> <code>1920 × 1080px</code> — split panel: content list (left) + map/detail (right)
+  </div>
+
+  <div style="display:flex;gap:64px;justify-content:center;margin-top:32px">
+    <!-- Portrait mock -->
+    <div style="text-align:center">
+      <div style="width:240px;height:426px;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.2);border:2px solid #D4D4D4;display:flex;flex-direction:column;background:white">
+        <div style="background:#004F8B;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;color:white"><img src="assets/Logo-Light.png" style="height:12px"><span style="font-size:9px">12:00 PM ☁ 50°</span></div>
+        <div style="background:linear-gradient(135deg,#004F8B,#1796D6);height:80px;display:flex;align-items:flex-end;padding:8px"><span style="font-family:Montserrat;font-weight:700;font-size:14px;color:white">Things To Do</span></div>
+        <div style="display:flex;background:#004F8B"><div style="flex:1;text-align:center;color:white;font-size:8px;font-family:Montserrat;font-weight:700;padding:6px;border-bottom:2px solid #E8A830">Things To Do</div><div style="flex:1;text-align:center;color:rgba(255,255,255,0.5);font-size:8px;font-family:Montserrat;padding:6px">Local</div><div style="flex:1;text-align:center;color:rgba(255,255,255,0.5);font-size:8px;font-family:Montserrat;padding:6px">Events</div></div>
+        <div style="flex:1;padding:8px;background:#F5F5F5;display:flex;flex-direction:column;gap:6px;overflow:hidden">
+          <div style="background:white;border-radius:6px;overflow:hidden;border:1px solid #EBEBEB"><div style="height:50px;background:linear-gradient(135deg,#004F8B,#1796D6)"></div><div style="padding:6px"><div style="font-family:Montserrat;font-size:9px;font-weight:700">California State Parks</div><div style="font-size:7px;color:#5E5E5E">7.5 mi away</div></div></div>
+          <div style="background:white;border-radius:6px;overflow:hidden;border:1px solid #EBEBEB"><div style="height:50px;background:linear-gradient(135deg,#D4972E,#B8860B)"></div><div style="padding:6px"><div style="font-family:Montserrat;font-size:9px;font-weight:700">Lola's Kitchen</div><div style="font-size:7px;color:#5E5E5E">2.3 mi away</div></div></div>
+        </div>
+        <div style="background:#282828;padding:6px 10px;display:flex;justify-content:space-between;align-items:center"><img src="assets/Logo-Light.png" style="height:8px"><span style="background:#E8A830;color:#282828;font-size:7px;padding:2px 6px;border-radius:2px;font-family:Montserrat;font-weight:700">ENGLISH</span></div>
+      </div>
+      <div style="font-family:Montserrat;font-size:11px;font-weight:700;color:#8E8E8E;margin-top:12px;letter-spacing:0.5px">PORTRAIT — 1080 × 1920</div>
+    </div>
+
+    <!-- Landscape mock -->
+    <div style="text-align:center">
+      <div style="width:480px;height:270px;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.2);border:2px solid #D4D4D4;display:flex;flex-direction:column;background:white">
+        <div style="background:#004F8B;padding:6px 12px;display:flex;justify-content:space-between;align-items:center;color:white"><img src="assets/Logo-Light.png" style="height:10px"><span style="font-size:8px">12:00 PM ☁ 50° · Friday, Dec 10</span></div>
+        <div style="flex:1;display:flex;overflow:hidden">
+          <div style="width:55%;display:flex;flex-direction:column;border-right:1px solid #EBEBEB">
+            <div style="display:flex;background:#004F8B"><div style="flex:1;text-align:center;color:white;font-size:7px;font-family:Montserrat;font-weight:700;padding:4px;border-bottom:2px solid #E8A830">Things To Do</div><div style="flex:1;text-align:center;color:rgba(255,255,255,0.5);font-size:7px;font-family:Montserrat;padding:4px">Local</div><div style="flex:1;text-align:center;color:rgba(255,255,255,0.5);font-size:7px;font-family:Montserrat;padding:4px">Events</div></div>
+            <div style="flex:1;padding:6px;background:#F5F5F5;display:flex;flex-direction:column;gap:4px;overflow:hidden">
+              <div style="display:flex;gap:4px;background:white;border-radius:4px;border:1px solid #EBEBEB"><div style="width:44px;height:44px;background:linear-gradient(135deg,#004F8B,#1796D6);flex-shrink:0;border-radius:4px 0 0 4px"></div><div style="padding:4px"><div style="font-family:Montserrat;font-size:7px;font-weight:700">California Parks</div><div style="font-size:6px;color:#5E5E5E">7.5 mi · Open</div></div></div>
+              <div style="display:flex;gap:4px;background:white;border-radius:4px;border:1px solid #EBEBEB"><div style="width:44px;height:44px;background:linear-gradient(135deg,#D4972E,#B8860B);flex-shrink:0;border-radius:4px 0 0 4px"></div><div style="padding:4px"><div style="font-family:Montserrat;font-size:7px;font-weight:700">Lola's Kitchen</div><div style="font-size:6px;color:#5E5E5E">2.3 mi · Open</div></div></div>
+              <div style="display:flex;gap:4px;background:white;border-radius:4px;border:1px solid #EBEBEB"><div style="width:44px;height:44px;background:linear-gradient(135deg,#5E5E5E,#282828);flex-shrink:0;border-radius:4px 0 0 4px"></div><div style="padding:4px"><div style="font-family:Montserrat;font-size:7px;font-weight:700">Angelwood Inn</div><div style="font-size:6px;color:#5E5E5E">5.1 mi · $189</div></div></div>
+            </div>
+          </div>
+          <div style="width:45%;background:#E8F4FC;display:flex;align-items:center;justify-content:center;color:#A0D8F2;font-size:32px"><i class="fa-solid fa-map"></i></div>
+        </div>
+        <div style="background:#282828;padding:4px 10px;display:flex;justify-content:space-between;align-items:center"><img src="assets/Logo-Light.png" style="height:6px"><span style="background:#E8A830;color:#282828;font-size:6px;padding:2px 5px;border-radius:2px;font-family:Montserrat;font-weight:700">EN</span></div>
+      </div>
+      <div style="font-family:Montserrat;font-size:11px;font-weight:700;color:#8E8E8E;margin-top:12px;letter-spacing:0.5px">LANDSCAPE — 1920 × 1080</div>
+    </div>
+  </div>
+
+  <div class="page-number">16</div>
+  <div class="page-footer"><img src="assets/Logo-Dark.png"><span>TRUEOMNI DESIGN SYSTEM v1.1</span></div>
+</div>
+
+</body>
+</html>
