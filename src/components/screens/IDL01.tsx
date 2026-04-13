@@ -137,7 +137,7 @@ export default function IdleScreen() {
               marginBottom: 24,
             }}
           >
-            {t("idle.subtitle")}
+            {brand.tagline || t("idle.subtitle")}
           </p>
           <div
             style={{
