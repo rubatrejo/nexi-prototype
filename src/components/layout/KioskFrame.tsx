@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useKiosk } from "@/lib/kiosk-context";
 import { getTransitionType, getMotionProps } from "@/lib/transitions";
@@ -9,12 +9,6 @@ import AIConcierge from "@/components/ui/AIConcierge";
 import InactivityModal from "@/components/ui/InactivityModal";
 import { NexiLogoFull, PoweredByTrueOmni } from "@/components/ui/Icons";
 
-// Virtual viewport: screens are dimensioned in px as if running on real 1920x1080
-// kiosk hardware. The outer frame is scaled down with transform:scale() so
-// everything looks proportional regardless of browser window size.
-const VIRTUAL_WIDTH = 1920;
-const VIRTUAL_HEIGHT = 1080;
-
 export default function KioskFrame({ children, onBackToSelection, onGoToROI }: { children: React.ReactNode; onBackToSelection?: () => void; onGoToROI?: () => void }) {
   const { currentScreen, previousScreen, theme, navOpen, toggleTheme, guestMode, toggleGuestMode } = useKiosk();
 
@@ -22,25 +16,6 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
     () => getMotionProps(getTransitionType(previousScreen, currentScreen)),
     [previousScreen, currentScreen]
   );
-
-  const frameRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(() => {
-    if (typeof window === "undefined") return 1300 / VIRTUAL_WIDTH;
-    return Math.min(window.innerWidth * 0.75, 1300) / VIRTUAL_WIDTH;
-  });
-
-  useLayoutEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    const update = () => {
-      const rect = el.getBoundingClientRect();
-      if (rect.width > 0) setScale(rect.width / VIRTUAL_WIDTH);
-    };
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   return (
     <div
@@ -109,51 +84,37 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
         </div>
       </div>
 
-      {/* Kiosk frame — outer box clips the scaled virtual viewport */}
+      {/* Kiosk frame */}
       <div
-        ref={frameRef}
         data-theme={theme}
         style={{
-          width: "75vw",
-          maxWidth: "1300px",
+          width: "52vw",
+          maxWidth: "980px",
           aspectRatio: "16/9",
           borderRadius: "12px",
           overflow: "hidden",
           position: "relative",
+          zoom: 1,
           boxShadow: "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
           background: "var(--bg)",
           flexShrink: 0,
         }}
       >
-        {/* Virtual viewport: 1920x1080 scaled to fit the frame. Screens render
-            at their native kiosk-hardware size and the browser downscales. */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: `${VIRTUAL_WIDTH}px`,
-            height: `${VIRTUAL_HEIGHT}px`,
-            transformOrigin: "top left",
-            transform: `scale(${scale})`,
-          }}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentScreen}
-              initial={motionProps.initial}
-              animate={{ ...motionProps.animate, transition: motionProps.transition }}
-              exit={{ ...motionProps.exit, transition: motionProps.exitTransition || { duration: 0.15 } }}
-              style={{ width: "100%", height: "100%", position: "relative" }}
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentScreen}
+            initial={motionProps.initial}
+            animate={{ ...motionProps.animate, transition: motionProps.transition }}
+            exit={{ ...motionProps.exit, transition: motionProps.exitTransition || { duration: 0.15 } }}
+            style={{ width: "100%", height: "100%", position: "relative" }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
 
-          <ErrorModal />
-          <AIConcierge />
-          <InactivityModal />
-        </div>
+        <ErrorModal />
+        <AIConcierge />
+        <InactivityModal />
       </div>
 
       {/* Footer — fixed bottom, shifts with nav panel */}
