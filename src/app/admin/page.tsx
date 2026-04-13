@@ -42,7 +42,15 @@ const ICONS: Record<string, React.ReactNode> = {
   info: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>,
   timers: <svg {...sp}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
   apis: <svg {...sp}><rect x="2" y="9" width="20" height="6" rx="2" /><path d="M6 12h.01M10 12h.01M14 12h.01" /><path d="M18 12h2" /></svg>,
+  languages: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
 };
+
+const ADMIN_LOCALES: { code: string; label: string; name: string; flag: string }[] = [
+  { code: "en", label: "EN", name: "English",  flag: "🇺🇸" },
+  { code: "es", label: "ES", name: "Español",  flag: "🇪🇸" },
+  { code: "fr", label: "FR", name: "Français", flag: "🇫🇷" },
+  { code: "ja", label: "JP", name: "日本語",   flag: "🇯🇵" },
+];
 
 const GOOGLE_FONTS = ["Mona Sans", "Inter", "Playfair Display", "Space Grotesk", "DM Sans", "Manrope", "Instrument Serif", "Cormorant Garamond", "Fraunces", "Geist"];
 
@@ -57,6 +65,7 @@ const SECTIONS = [
   { key: "info", num: "08", label: "Info", title: "Hotel Information", desc: "Operational details the kiosk shows to guests." },
   { key: "timers", num: "09", label: "Timers", title: "Inactivity Timers", desc: "Tune the auto-reset thresholds for your lobby traffic." },
   { key: "apis", num: "10", label: "API Credentials", title: "API Credentials", desc: "Third-party service keys used by this client. Stored privately, never rendered on the kiosk." },
+  { key: "languages", num: "11", label: "Languages", title: "Supported Languages", desc: "Pick which locales the language picker exposes on the kiosk." },
 ];
 
 // ─── presets: signature fields only, rest inherits from defaultConfig ──
@@ -217,6 +226,15 @@ export default function AdminCMS() {
       if (!c) return c;
       const base = c.integrations ?? { heygenApiKey: "", tavusApiKey: "", didApiKey: "", resendApiKey: "" };
       return { ...c, integrations: { ...base, [k]: v } };
+    });
+  }, []);
+
+  const toggleLocale = useCallback((code: string) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const current = c.enabledLocales ?? ADMIN_LOCALES.map((l) => l.code);
+      const next = current.includes(code) ? current.filter((l) => l !== code) : [...current, code];
+      return { ...c, enabledLocales: next };
     });
   }, []);
 
@@ -383,7 +401,14 @@ export default function AdminCMS() {
   }
 
   const c = current;
-  const activeSection = SECTIONS.find((s) => s.key === activeTab)!;
+  const languagesModuleOn = c.modules.find((m) => m.id === "languages")?.enabled !== false;
+  const visibleSections = SECTIONS.filter((s) => s.key !== "languages" || languagesModuleOn);
+  if (activeTab === "languages" && !languagesModuleOn) {
+    // user just disabled the Languages module while on that tab — bounce
+    // back to Client so the UI doesn't show a header for a hidden section
+    setTimeout(() => setActiveTab("client"), 0);
+  }
+  const activeSection = visibleSections.find((s) => s.key === activeTab) ?? SECTIONS[0];
 
   return (
     <div style={{ height: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -406,7 +431,7 @@ export default function AdminCMS() {
       <div style={{ height: 52, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 2, flexShrink: 0, overflowX: "auto", scrollbarWidth: "none" }}>
         <style>{`.tabs-strip::-webkit-scrollbar{display:none}`}</style>
         <div className="tabs-strip" style={{ display: "flex", gap: 2, height: "100%" }}>
-          {SECTIONS.map((s) => {
+          {visibleSections.map((s) => {
             const active = s.key === activeTab;
             return (
               <button key={s.key} onClick={() => setActiveTab(s.key)} style={{
@@ -578,6 +603,47 @@ export default function AdminCMS() {
                 <SecretField label="Resend API Key" help="Email delivery" value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
               </div>
             )}
+
+            {activeTab === "languages" && languagesModuleOn && (() => {
+              const enabled = c.enabledLocales ?? ADMIN_LOCALES.map((l) => l.code);
+              return (
+                <div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+                    {ADMIN_LOCALES.map((l) => {
+                      const on = enabled.includes(l.code);
+                      return (
+                        <button
+                          key={l.code}
+                          onClick={() => toggleLocale(l.code)}
+                          style={{
+                            display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6,
+                            padding: "12px 14px", borderRadius: 10, textAlign: "left",
+                            background: on ? `${T.accent}0A` : T.surface,
+                            border: `1.5px solid ${on ? T.accent : T.border}`,
+                            cursor: "pointer", transition: "all 150ms",
+                            opacity: on ? 1 : 0.6,
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+                            <div style={{ fontSize: 22, lineHeight: 1 }}>{l.flag}</div>
+                            <Toggle on={on} onClick={(e) => { e.stopPropagation(); toggleLocale(l.code); }} />
+                          </div>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+                            <div style={{ fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>{l.name}</div>
+                            <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, fontFamily: "ui-monospace, monospace", textTransform: "uppercase", letterSpacing: 0.5 }}>{l.code}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ marginTop: 10, fontSize: 10, color: T.textMuted }}>
+                    {enabled.length === 0
+                      ? "⚠ No locales selected — the language picker will be hidden even if the Languages module is on."
+                      : `${enabled.length} of ${ADMIN_LOCALES.length} locales will appear in the kiosk picker.`}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -755,14 +821,9 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
 }) {
   return (
     <div style={{ height: 64, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" /></svg>
-        </div>
-        <div>
-          <div style={{ fontFamily: T.fontDisplay, fontSize: 13, fontWeight: 800, color: T.text, letterSpacing: "-0.01em" }}>NEXI CMS</div>
-          <div style={{ fontSize: 9, color: T.textMuted, fontFamily: T.fontBody, letterSpacing: 1, textTransform: "uppercase" }}>by TrueOmni</div>
-        </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 3, flexShrink: 0 }}>
+        <img src="/logos/nexi-logo-dark.svg" alt="NEXI" style={{ height: 22, width: "auto", display: "block" }} />
+        <img src="/logos/powered-by-trueomni-dark.svg" alt="Powered by TrueOmni" style={{ height: 8, width: "auto", display: "block", opacity: 0.8 }} />
       </div>
 
       <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} />

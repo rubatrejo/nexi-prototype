@@ -60,8 +60,12 @@ const ACTIONS = [
 export default function OnboardingAction() {
   const { navigate } = useKiosk();
   const { locale, setLocale, t } = useI18n();
-  const { images, modules } = useHotel();
+  const hotel = useHotel();
+  const { images, modules } = hotel;
   const languagesEnabled = modules.find((m) => m.id === "languages")?.enabled !== false;
+  const visibleLocales = hotel.enabledLocales
+    ? LOCALES.filter((l) => hotel.enabledLocales!.includes(l.code))
+    : LOCALES;
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
@@ -73,9 +77,9 @@ export default function OnboardingAction() {
       <div style={{ position: "absolute", top: "5%", left: "6%", right: "6%", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 5 }}>
         <BrandLogo theme="dark" height={28} color="#fff" />
         {/* Language pills — hidden when the "languages" module is disabled */}
-        {languagesEnabled && (
+        {languagesEnabled && visibleLocales.length > 0 && (
           <div style={{ display: "flex", gap: 6 }}>
-            {LOCALES.map((l) => (
+            {visibleLocales.map((l) => (
               <button
                 key={l.code}
                 onClick={() => setLocale(l.code as Locale)}

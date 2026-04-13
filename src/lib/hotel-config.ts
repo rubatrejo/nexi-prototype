@@ -177,6 +177,13 @@ export interface HotelConfig {
   };
   orientation: "landscape" | "portrait";
   integrations: HotelIntegrations;
+  /**
+   * Locale codes the kiosk exposes in its language picker. Subset of the
+   * full LOCALES list in @/lib/i18n/types. Ignored when the "languages"
+   * module is disabled. Undefined means "all supported locales" — used by
+   * legacy configs stored in KV before this field existed.
+   */
+  enabledLocales?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -380,4 +387,6 @@ export const hotelConfig: HotelConfig = {
     didApiKey: "",
     resendApiKey: "",
   },
+
+  enabledLocales: ["en", "es", "fr", "ja"],
 };
