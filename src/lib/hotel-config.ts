@@ -254,6 +254,7 @@ export const hotelConfig: HotelConfig = {
     { id: "payments",       label: "TruePay",         labelKey: "dsh.payments",      icon: "credit-card",    entryScreen: "PAY-01",  enabled: true,  color: "var(--success)"        },
     { id: "early-checkin",  label: "Early Check-in",  labelKey: "dsh.earlyCheckin",  icon: "sunrise",        entryScreen: "ECI-01",  enabled: true,  color: "var(--amber)"          },
     { id: "ai-avatar",      label: "AI Concierge",    labelKey: "dsh.aiConcierge",   icon: "bot",            entryScreen: "AVT-01",  enabled: true,  color: "var(--primary)"        },
+    { id: "languages",      label: "Languages",       labelKey: "dsh.languages",     icon: "globe",          entryScreen: "ONB-02",  enabled: true,  color: "var(--primary)"        },
   ],
 
   rooms: [

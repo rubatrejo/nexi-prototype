@@ -60,7 +60,8 @@ const ACTIONS = [
 export default function OnboardingAction() {
   const { navigate } = useKiosk();
   const { locale, setLocale, t } = useI18n();
-  const { images } = useHotel();
+  const { images, modules } = useHotel();
+  const languagesEnabled = modules.find((m) => m.id === "languages")?.enabled !== false;
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
@@ -71,31 +72,33 @@ export default function OnboardingAction() {
       {/* Top Bar */}
       <div style={{ position: "absolute", top: "5%", left: "6%", right: "6%", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 5 }}>
         <BrandLogo theme="dark" height={28} color="#fff" />
-        {/* Language pills */}
-        <div style={{ display: "flex", gap: 6 }}>
-          {LOCALES.map((l) => (
-            <button
-              key={l.code}
-              onClick={() => setLocale(l.code as Locale)}
-              style={{
-                padding: "6px 14px",
-                borderRadius: "var(--radius-full)",
-                border: "none",
-                background: locale === l.code ? "var(--primary)" : "rgba(255,255,255,0.15)",
-                backdropFilter: locale === l.code ? "none" : "blur(12px)",
-                color: "#fff",
-                fontFamily: "var(--font-display)",
-                fontWeight: 600,
-                fontSize: "0.75rem",
-                cursor: "pointer",
-                transition: "all 200ms ease",
-                letterSpacing: "0.5px",
-              }}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
+        {/* Language pills — hidden when the "languages" module is disabled */}
+        {languagesEnabled && (
+          <div style={{ display: "flex", gap: 6 }}>
+            {LOCALES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLocale(l.code as Locale)}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "var(--radius-full)",
+                  border: "none",
+                  background: locale === l.code ? "var(--primary)" : "rgba(255,255,255,0.15)",
+                  backdropFilter: locale === l.code ? "none" : "blur(12px)",
+                  color: "#fff",
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  cursor: "pointer",
+                  transition: "all 200ms ease",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Center Content */}
