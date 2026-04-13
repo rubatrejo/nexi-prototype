@@ -21,17 +21,20 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI, emb
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: embed ? undefined : "100vh",
+        height: embed ? "100vh" : undefined,
+        width: embed ? "100vw" : undefined,
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+        alignItems: embed ? "stretch" : "center",
+        justifyContent: embed ? "flex-start" : "center",
         background: "#E8E8E3",
-        paddingRight: navOpen ? 340 : 0,
+        paddingRight: !embed && navOpen ? 340 : 0,
         transition: "padding-right 0.3s ease",
         position: "relative",
         gap: embed ? 0 : 32,
         padding: embed ? 0 : "24px 0 100px",
+        overflow: embed ? "hidden" : undefined,
       }}
     >
       {/* Logo + Toggles — hidden in embed mode */}
@@ -91,10 +94,10 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI, emb
       <div
         data-theme={theme}
         style={{
-          width: embed ? "auto" : "52vw",
+          width: embed ? "100vw" : "52vw",
           maxWidth: embed ? "none" : "980px",
           height: embed ? "100vh" : undefined,
-          aspectRatio: "16/9",
+          aspectRatio: embed ? ("auto" as const) : "16/9",
           borderRadius: embed ? 0 : "12px",
           overflow: "hidden",
           position: "relative",

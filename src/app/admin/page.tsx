@@ -254,8 +254,8 @@ export default function AdminCMS() {
 
   // ─── shared styles ──────────────────────────────────────────────
   const input: React.CSSProperties = {
-    width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`,
-    borderRadius: 8, color: T.text, fontSize: 13, fontFamily: T.fontBody, outline: "none",
+    width: "100%", padding: "7px 10px", background: T.surface, border: `1px solid ${T.border}`,
+    borderRadius: 7, color: T.text, fontSize: 12, fontFamily: T.fontBody, outline: "none",
   };
 
   // ═══════ EMPTY STATE — preset gallery ═══════
@@ -367,32 +367,28 @@ export default function AdminCMS() {
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
         {/* Form panel — top 40% */}
-        <div style={{ flex: "0 0 40%", overflow: "auto", padding: "32px 48px 48px", background: T.bg, minHeight: 0 }}>
-          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ flex: "0 0 40%", overflow: "auto", padding: "16px 40px 20px", background: T.bg, minHeight: 0 }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <SectionHeader section={activeSection} />
 
             {activeTab === "client" && (
-              <div style={{ display: "grid", gap: 16 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              <div style={{ display: "grid", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                   <Field label="Hotel / Client Name"><input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} /></Field>
                   <Field label="Tagline"><input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} /></Field>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <Field label="Website"><input style={input} type="url" placeholder="https://www.hotel.com" value={c.brand.website ?? ""} onChange={(e) => patchBrand("website", e.target.value)} /></Field>
                   <Field label="Kiosk Slug"><input style={{ ...input, fontFamily: "ui-monospace, monospace" }} placeholder="hotel-slug" value={c.slug} onChange={(e) => patch("slug", slugify(e.target.value))} /></Field>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <ImageField label="Logo (light bg)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact />
-                  <ImageField label="Logo (dark bg)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                  <ImageField label="Logo (light)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact />
+                  <ImageField label="Logo (dark)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact />
                   <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact />
-                  <ImageField label="Icon white" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact />
+                  <ImageField label="Icon (white)" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact />
                 </div>
                 <Field label="Important Notes (internal)">
                   <textarea
-                    style={{ ...input, minHeight: 110, fontFamily: T.fontBody, resize: "vertical", lineHeight: 1.5 }}
-                    placeholder="Sales context, decision-makers, onboarding quirks, deal size, integration requirements…"
+                    style={{ ...input, minHeight: 56, fontFamily: T.fontBody, resize: "none", lineHeight: 1.4, padding: "8px 12px" }}
+                    placeholder="Sales context, decision-makers, integration requirements…"
                     value={c.brand.notes ?? ""}
                     onChange={(e) => patchBrand("notes", e.target.value)}
                   />
@@ -401,25 +397,29 @@ export default function AdminCMS() {
             )}
 
             {activeTab === "colors" && (
-              <div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+              <div style={{ display: "grid", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
                   <ColorField label="Primary" value={c.colors.primary} onChange={(v) => patchColors("primary", v)} />
                   <ColorField label="Primary Hover" value={c.colors.primaryHover} onChange={(v) => patchColors("primaryHover", v)} />
                   <ColorField label="Amber Accent" value={c.colors.amber} onChange={(v) => patchColors("amber", v)} />
                   <ColorField label="Purple Accent" value={c.colors.purple} onChange={(v) => patchColors("purple", v)} />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                   <ColorGroup title="Light Mode">
-                    <ColorField label="Background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
-                    <ColorField label="Card" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
-                    <ColorField label="Text" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
-                    <ColorField label="Border" value={c.colors.light.border} onChange={(v) => patchColors("light.border", v)} />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <ColorField label="Background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
+                      <ColorField label="Card" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
+                      <ColorField label="Text" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
+                      <ColorField label="Border" value={c.colors.light.border} onChange={(v) => patchColors("light.border", v)} />
+                    </div>
                   </ColorGroup>
                   <ColorGroup title="Dark Mode">
-                    <ColorField label="Background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
-                    <ColorField label="Card" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
-                    <ColorField label="Text" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
-                    <ColorField label="Border" value={c.colors.dark.border} onChange={(v) => patchColors("dark.border", v)} />
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <ColorField label="Background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
+                      <ColorField label="Card" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
+                      <ColorField label="Text" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
+                      <ColorField label="Border" value={c.colors.dark.border} onChange={(v) => patchColors("dark.border", v)} />
+                    </div>
                   </ColorGroup>
                 </div>
               </div>
@@ -441,14 +441,12 @@ export default function AdminCMS() {
             )}
 
             {activeTab === "images" && (
-              <div style={{ display: "grid", gap: 16 }}>
-                <ImageField label="Hero Exterior (idle splash)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} />
-                <ImageField label="Hero Lobby (dashboard welcome)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                  <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} />
-                  <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} />
-                </div>
-                <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+                <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact />
+                <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact />
+                <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact />
+                <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact />
+                <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact />
               </div>
             )}
 
@@ -513,19 +511,21 @@ export default function AdminCMS() {
             )}
 
             {activeTab === "apis" && (
-              <div style={{ display: "grid", gap: 14 }}>
-                <SecretField label="HeyGen API Key" help="Streaming avatar (AI concierge)." value={c.integrations?.heygenApiKey ?? ""} onChange={(v) => patchIntegrations("heygenApiKey", v)} />
-                <SecretField label="Tavus API Key" help="Tavus conversational video." value={c.integrations?.tavusApiKey ?? ""} onChange={(v) => patchIntegrations("tavusApiKey", v)} />
-                <SecretField label="D-ID API Key" help="D-ID avatar streaming fallback." value={c.integrations?.didApiKey ?? ""} onChange={(v) => patchIntegrations("didApiKey", v)} />
-                <SecretField label="Resend API Key" help="Transactional email (welcome / receipts)." value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <SecretField label="HeyGen API Key" help="Avatar streaming" value={c.integrations?.heygenApiKey ?? ""} onChange={(v) => patchIntegrations("heygenApiKey", v)} />
+                <SecretField label="Tavus API Key" help="Conversational video" value={c.integrations?.tavusApiKey ?? ""} onChange={(v) => patchIntegrations("tavusApiKey", v)} />
+                <SecretField label="D-ID API Key" help="Avatar fallback" value={c.integrations?.didApiKey ?? ""} onChange={(v) => patchIntegrations("didApiKey", v)} />
+                <SecretField label="Resend API Key" help="Email delivery" value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
               </div>
             )}
           </div>
         </div>
 
-        {/* Preview panel — bottom 60%, iframe with breathing room */}
-        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", padding: "32px 48px 40px" }}>
-          <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
+        {/* Preview panel — bottom 60%, iframe sized 16:9 with breathing room */}
+        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", padding: "28px 48px 32px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.bg, display: "flex" }}>
+            <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
+          </div>
         </div>
       </div>
 
@@ -551,24 +551,19 @@ const addCardBtn: React.CSSProperties = {
 
 function SectionHeader({ section }: { section: typeof SECTIONS[number] }) {
   return (
-    <div style={{ marginBottom: 32 }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginBottom: 20 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 16, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${T.accent}28` }}>
-          {ICONS[section.key]}
-        </div>
-        <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: T.textMuted, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "ui-monospace, monospace", marginBottom: 6 }}>
-            {section.num} · {section.title.toUpperCase()}
-          </div>
-          <h1 style={{ fontFamily: T.fontDisplay, fontSize: 32, fontWeight: 800, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
-            {section.title}
-          </h1>
-          <p style={{ fontSize: 14, color: T.textDim, maxWidth: 560, lineHeight: 1.5 }}>
-            {section.desc}
-          </p>
-        </div>
+    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, paddingBottom: 10, borderBottom: `1px solid ${T.border}` }}>
+      <div style={{ width: 30, height: 30, borderRadius: 8, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${T.accent}28` }}>
+        <span style={{ display: "inline-flex", transform: "scale(0.65)" }}>{ICONS[section.key]}</span>
       </div>
-      <div style={{ height: 1, background: T.border }} />
+      <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, letterSpacing: 1.2, textTransform: "uppercase", fontFamily: "ui-monospace, monospace" }}>
+        {section.num}
+      </div>
+      <h1 style={{ fontFamily: T.fontDisplay, fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", lineHeight: 1, margin: 0 }}>
+        {section.title}
+      </h1>
+      <p style={{ fontSize: 11, color: T.textDim, lineHeight: 1.4, margin: 0, marginLeft: 4, flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {section.desc}
+      </p>
     </div>
   );
 }
@@ -820,7 +815,7 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{label}</div>
       {children}
     </div>
   );
@@ -829,11 +824,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
   return (
-    <div>
-      <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: 4 }}>
-        <input type="color" value={hex} onChange={(e) => onChange(e.target.value)} style={{ width: 32, height: 32, border: "none", background: "transparent", cursor: "pointer", padding: 0 }} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: T.text, fontFamily: "ui-monospace, monospace", fontSize: 12, padding: "4px 0" }} />
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6, padding: 2, minWidth: 0 }}>
+        <input type="color" value={hex} onChange={(e) => onChange(e.target.value)} style={{ width: 22, height: 22, border: "none", background: "transparent", cursor: "pointer", padding: 0, flexShrink: 0 }} />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} style={{ flex: 1, minWidth: 0, background: "transparent", border: "none", outline: "none", color: T.text, fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "3px 0" }} />
       </div>
     </div>
   );
@@ -841,9 +836,9 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 
 function ColorGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>{title}</div>
-      <div style={{ display: "grid", gap: 10 }}>{children}</div>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 10 }}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>{title}</div>
+      {children}
     </div>
   );
 }
@@ -851,11 +846,11 @@ function ColorGroup({ title, children }: { title: string; children: React.ReactN
 function ImageField({ label, value, onChange, compact }: { label: string; value: string; onChange: (v: string) => void; compact?: boolean }) {
   return (
     <div>
-      <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
-      <div style={{ display: "flex", gap: 10 }}>
-        <div style={{ width: compact ? 56 : 72, height: compact ? 56 : 72, borderRadius: 8, background: `url('${value}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}`, flexShrink: 0 }} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://..."
-          style={{ flex: 1, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", outline: "none" }} />
+      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{label}</div>
+      <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
+        <div style={{ width: compact ? 32 : 56, height: compact ? 32 : 56, borderRadius: 6, background: `url('${value}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}`, flexShrink: 0 }} />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="/logos/..."
+          style={{ flex: 1, minWidth: 0, padding: "7px 10px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, color: T.text, fontSize: 11, fontFamily: "ui-monospace, monospace", outline: "none" }} />
       </div>
     </div>
   );
@@ -865,11 +860,11 @@ function SecretField({ label, help, value, onChange }: { label: string; help?: s
   const [visible, setVisible] = useState(false);
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1 }}>{label}</div>
-        {help && <div style={{ fontSize: 10, color: T.textMuted }}>{help}</div>}
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 3 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
+        {help && <div style={{ fontSize: 9, color: T.textMuted }}>{help}</div>}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "0 10px 0 12px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, padding: "0 8px 0 10px" }}>
         <input
           type={visible ? "text" : "password"}
           value={value}
@@ -877,12 +872,12 @@ function SecretField({ label, help, value, onChange }: { label: string; help?: s
           placeholder="••••••••••••"
           autoComplete="off"
           spellCheck={false}
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", padding: "10px 0", letterSpacing: visible ? 0 : 2 }}
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: T.text, fontSize: 11, fontFamily: "ui-monospace, monospace", padding: "7px 0", letterSpacing: visible ? 0 : 2 }}
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          style={{ background: "transparent", border: "none", color: T.textDim, cursor: "pointer", fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", padding: "6px 4px" }}
+          style={{ background: "transparent", border: "none", color: T.textDim, cursor: "pointer", fontSize: 9, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", padding: "4px 2px" }}
         >
           {visible ? "Hide" : "Show"}
         </button>
