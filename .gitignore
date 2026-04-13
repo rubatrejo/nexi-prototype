@@ -32,3 +32,8 @@ next-env.d.ts
 
 # Claude Code local state
 .claude/
+.env*.local
+
+# Playwright MCP test artifacts (session-only screenshots and temp files)
+.playwright-mcp/
+/*.png
