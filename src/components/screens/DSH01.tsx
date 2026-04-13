@@ -78,7 +78,7 @@ function ModuleIcon({ name, size = 20 }: { name: string; size?: number }) {
 export default function DashboardScreen() {
   const { navigate, guestName, roomNumber, roomType, checkOutDate, guestMode } = useKiosk();
   const { t } = useI18n();
-  const { brand } = useHotel();
+  const { brand, images } = useHotel();
   const isCheckedIn = !guestMode && !!roomNumber;
   const [showAd, setShowAd] = useState(false);
   const [adDismissed, setAdDismissed] = useState(false);
@@ -107,7 +107,7 @@ export default function DashboardScreen() {
           >
             <div style={{
               position: "absolute", inset: 0,
-              background: "url('/images/unsplash/photo-1551882547-ff40c63fe5fa.jpg') center/cover",
+              background: `url('${images.heroLobby}') center/cover`,
               animation: "kenBurns 20s ease-in-out infinite alternate",
             }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.6))" }} />

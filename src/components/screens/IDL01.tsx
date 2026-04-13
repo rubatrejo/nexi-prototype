@@ -10,7 +10,7 @@ import BrandLogo from "@/components/ui/BrandLogo";
 export default function IdleScreen() {
   const { navigate } = useKiosk();
   const { t } = useI18n();
-  const { brand } = useHotel();
+  const { brand, images } = useHotel();
   const tapCount = useRef(0);
   const tapTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -43,7 +43,7 @@ export default function IdleScreen() {
           position: "absolute",
           inset: 0,
           background:
-            "url('/images/unsplash/photo-1566073771259-6a8506099945.jpg') center/cover",
+            `url('${images.heroExterior}') center/cover`,
           animation: "kenBurns 20s ease-in-out infinite alternate",
         }}
       />

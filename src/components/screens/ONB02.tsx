@@ -3,6 +3,7 @@
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n, LOCALES } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
+import { useHotel } from "@/lib/theme-provider";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 const ACTIONS = [
@@ -59,10 +60,11 @@ const ACTIONS = [
 export default function OnboardingAction() {
   const { navigate } = useKiosk();
   const { locale, setLocale, t } = useI18n();
+  const { images } = useHotel();
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, background: "url('/images/unsplash/photo-1542314831-068cd1dbfeeb.jpg') center/cover", animation: "kenBurns 20s ease-in-out infinite alternate" }} />
+      <div style={{ position: "absolute", inset: 0, background: `url('${images.heroExterior}') center/cover`, animation: "kenBurns 20s ease-in-out infinite alternate" }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)" }} />
       <div className="grain" />
 
