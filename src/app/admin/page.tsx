@@ -143,14 +143,14 @@ export default function AdminCMS() {
   const [activeTab, setActiveTab] = useState<string>("client");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; tone: "success" | "error" | "info" } | null>(null);
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const flashToast = useCallback((msg: string) => {
-    setToast(msg);
+  const flashToast = useCallback((msg: string, tone: "success" | "error" | "info" = "success") => {
+    setToast({ msg, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2800);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
   }, []);
 
   useEffect(() => {
@@ -267,13 +267,13 @@ export default function AdminCMS() {
       if (!res.ok) throw new Error(await res.text());
       setSaveState("saved");
       setPreviewKey((k) => k + 1);
-      flashToast(`Saved "${current.slug}"`);
+      flashToast(`Client "${current.brand.name}" is now live at /?client=${current.slug}`, "success");
       const list = await fetch("/api/admin/configs").then((r) => r.json());
       setConfigs(list.configs ?? []);
       setTimeout(() => setSaveState("idle"), 2000);
     } catch {
       setSaveState("error");
-      flashToast("Save failed");
+      flashToast("We couldn't save your changes. Check your connection and try again.", "error");
       setTimeout(() => setSaveState("idle"), 3000);
     }
   };
@@ -286,9 +286,9 @@ export default function AdminCMS() {
       const list = await fetch("/api/admin/configs").then((r) => r.json());
       setConfigs(list.configs ?? []);
       setCurrent(null);
-      flashToast(`Deleted "${current.slug}"`);
+      flashToast(`Deleted "${current.slug}"`, "info");
     } catch {
-      flashToast("Delete failed");
+      flashToast("Couldn't delete this client. Try again.", "error");
     }
   };
 
@@ -300,7 +300,7 @@ export default function AdminCMS() {
     if (!current?.slug) return;
     const url = `${window.location.origin}/?client=${encodeURIComponent(current.slug)}`;
     await navigator.clipboard.writeText(url);
-    flashToast("Link copied");
+    flashToast("Kiosk link copied to clipboard", "info");
   };
 
   const previewUrl = useMemo(
@@ -395,7 +395,7 @@ export default function AdminCMS() {
             </div>
           </div>
         </div>
-        {toast && <ToastBar msg={toast} />}
+        {toast && <ToastBar msg={toast.msg} tone={toast.tone} />}
       </div>
     );
   }
@@ -658,12 +658,13 @@ export default function AdminCMS() {
         </div>
       </div>
 
-      {toast && <ToastBar msg={toast} />}
+      {toast && <ToastBar msg={toast.msg} tone={toast.tone} />}
 
       <style>{`
         input:focus, select:focus { border-color: ${T.accent} !important; }
         button:hover { filter: brightness(1.02); }
-        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @keyframes toastBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes toastCardIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
       `}</style>
     </div>
   );
@@ -990,14 +991,109 @@ function ColorGroup({ title, children }: { title: string; children: React.ReactN
   );
 }
 
+const MAX_UPLOAD_BYTES = 2 * 1024 * 1024; // 2 MB hard cap
+const WARN_UPLOAD_BYTES = 500 * 1024; // 500 KB soft warning
+
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 function ImageField({ label, value, onChange, compact }: { label: string; value: string; onChange: (v: string) => void; compact?: boolean }) {
+  const [dragOver, setDragOver] = useState(false);
+  const [status, setStatus] = useState<{ kind: "idle" | "warn" | "error"; msg: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setStatus({ kind: "error", msg: "Not an image" });
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setStatus({ kind: "error", msg: `Too large (${(file.size / 1024 / 1024).toFixed(1)}MB · max 2MB)` });
+      return;
+    }
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      onChange(dataUrl);
+      if (file.size > WARN_UPLOAD_BYTES) {
+        setStatus({ kind: "warn", msg: `${(file.size / 1024).toFixed(0)}KB — consider compressing` });
+      } else {
+        setStatus({ kind: "idle", msg: `${file.name} · ${(file.size / 1024).toFixed(0)}KB` });
+        setTimeout(() => setStatus(null), 2400);
+      }
+    } catch {
+      setStatus({ kind: "error", msg: "Read failed" });
+    }
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
+  };
+
+  const isDataUrl = value.startsWith("data:");
+  const displayValue = isDataUrl ? `📎 uploaded (${Math.round(value.length / 1024)}KB)` : value;
+
   return (
     <div>
       <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{label}</div>
-      <div style={{ display: "flex", gap: 8, minWidth: 0 }}>
-        <div style={{ width: compact ? 32 : 56, height: compact ? 32 : 56, borderRadius: 6, background: `url('${value}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}`, flexShrink: 0 }} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="/logos/..."
-          style={{ flex: 1, minWidth: 0, padding: "7px 10px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, color: T.text, fontSize: 11, fontFamily: "ui-monospace, monospace", outline: "none" }} />
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={onDrop}
+        style={{
+          display: "flex", gap: 8, minWidth: 0, padding: 4, borderRadius: 8,
+          background: dragOver ? `${T.accent}10` : "transparent",
+          border: `1.5px dashed ${dragOver ? T.accent : "transparent"}`,
+          transition: "all 120ms",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          title="Click to upload or drop an image here"
+          style={{
+            width: compact ? 32 : 56, height: compact ? 32 : 56, borderRadius: 6,
+            background: value ? `url('${value}') center/cover, ${T.surfaceHi}` : T.surfaceHi,
+            border: `1px solid ${T.border}`, flexShrink: 0, cursor: "pointer", padding: 0,
+            position: "relative", overflow: "hidden",
+          }}
+        >
+          {!value && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: T.textMuted }}>
+              <svg width={compact ? 14 : 20} height={compact ? 14 : 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+            </div>
+          )}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.currentTarget.value = ""; }}
+        />
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+          <input
+            type="text"
+            value={displayValue}
+            onChange={(e) => { if (!isDataUrl) onChange(e.target.value); }}
+            readOnly={isDataUrl}
+            placeholder="Drop file or paste URL"
+            style={{ flex: 1, minWidth: 0, padding: "7px 10px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, color: T.text, fontSize: 11, fontFamily: "ui-monospace, monospace", outline: "none", cursor: isDataUrl ? "default" : "text" }}
+          />
+          {status && (
+            <div style={{ fontSize: 9, color: status.kind === "error" ? T.error : status.kind === "warn" ? "#D4960A" : T.textMuted, paddingLeft: 4 }}>
+              {status.msg}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1112,14 +1208,62 @@ function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFra
   );
 }
 
-function ToastBar({ msg }: { msg: string }) {
+function ToastBar({ msg, tone = "success" }: { msg: string; tone?: "success" | "error" | "info" }) {
+  const accentColor = tone === "error" ? T.error : tone === "info" ? T.accent : T.success;
+  const title = tone === "error" ? "Something went wrong" : tone === "info" ? "Done" : "Changes saved";
   return (
     <div style={{
-      position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
-      background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-      padding: "12px 20px", fontSize: 13, fontWeight: 600, color: T.text,
-      boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)", zIndex: 100,
-      animation: "toastIn 200ms ease",
-    }}>{msg}</div>
+      position: "fixed", inset: 0, zIndex: 1000,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      pointerEvents: "none",
+      background: "rgba(15, 15, 20, 0.28)",
+      backdropFilter: "blur(3px)",
+      WebkitBackdropFilter: "blur(3px)",
+      animation: "toastBackdropIn 180ms ease",
+    }}>
+      <div style={{
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 20,
+        padding: "32px 44px 30px",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+        minWidth: 320, maxWidth: 420,
+        boxShadow: "0 24px 80px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.08)",
+        animation: "toastCardIn 220ms cubic-bezier(0.22, 1, 0.36, 1)",
+        pointerEvents: "auto",
+      }}>
+        <div style={{
+          width: 68, height: 68, borderRadius: "50%",
+          background: `${accentColor}14`, border: `1.5px solid ${accentColor}38`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: accentColor,
+        }}>
+          {tone === "error" ? (
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          ) : (
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+          )}
+        </div>
+        <div style={{
+          fontFamily: T.fontDisplay, fontSize: 20, fontWeight: 800,
+          color: T.text, letterSpacing: "-0.01em", textAlign: "center",
+        }}>
+          {title}
+        </div>
+        <div style={{
+          fontSize: 13, color: T.textDim, textAlign: "center",
+          lineHeight: 1.5, maxWidth: 320,
+        }}>
+          {msg}
+        </div>
+      </div>
+    </div>
   );
 }
