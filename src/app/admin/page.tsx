@@ -523,8 +523,8 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        {/* Preview panel — bottom 60%, iframe only (no wrapper chrome) */}
-        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden" }}>
+        {/* Preview panel — bottom 60%, iframe with breathing room */}
+        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", padding: "32px 48px 40px" }}>
           <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
         </div>
       </div>
