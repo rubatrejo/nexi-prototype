@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
-import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset } from "@/lib/hotel-config";
+import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset, AdItem, AdsConfig } from "@/lib/hotel-config";
 
 // ─── design tokens (light Nordic, matches kiosk theme) ────────────────
 const T = {
@@ -44,6 +44,7 @@ const ICONS: Record<string, React.ReactNode> = {
   apis: <svg {...sp}><rect x="2" y="9" width="20" height="6" rx="2" /><path d="M6 12h.01M10 12h.01M14 12h.01" /><path d="M18 12h2" /></svg>,
   languages: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
   policies: <svg {...sp}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>,
+  ads: <svg {...sp}><path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 11-5.8-1.6" /></svg>,
 };
 
 const ADMIN_LOCALES: { code: string; label: string; name: string; flag: string }[] = [
@@ -68,6 +69,7 @@ const SECTIONS = [
   { key: "apis", num: "10", label: "API Credentials", title: "API Credentials", desc: "Third-party service keys used by this client. Stored privately, never rendered on the kiosk." },
   { key: "languages", num: "11", label: "Languages", title: "Supported Languages", desc: "Pick which locales the language picker exposes on the kiosk." },
   { key: "policies", num: "12", label: "Policies", title: "Hotel Policies", desc: "Upload the PDF or Word document guests sign on check-in, or paste the text inline." },
+  { key: "ads", num: "13", label: "Ads", title: "Advertisements", desc: "Manage the promotional popups shown on the dashboard when the Ads module is enabled." },
 ];
 
 // ─── presets: signature fields only, rest inherits from defaultConfig ──
@@ -297,6 +299,65 @@ export default function AdminCMS() {
     setCurrent((c) => (c ? { ...c, policies: { ...(c.policies ?? {}), ...p } } : c));
   }, []);
 
+  const DEFAULT_ADS: AdsConfig = {
+    items: [],
+    showOnDashboard: true,
+    dashboardDelayMs: 3000,
+    autoDismissMs: 0,
+    rotation: "first",
+  };
+
+  const patchAds = useCallback((p: Partial<AdsConfig>) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.ads ?? DEFAULT_ADS;
+      return { ...c, ads: { ...base, ...p } };
+    });
+  }, []);
+
+  const updateAdItem = useCallback((i: number, p: Partial<AdItem>) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.ads ?? DEFAULT_ADS;
+      const items = base.items.map((it, idx) => idx === i ? { ...it, ...p } : it);
+      return { ...c, ads: { ...base, items } };
+    });
+  }, []);
+
+  const addAdItem = useCallback(() => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.ads ?? DEFAULT_ADS;
+      const newItem: AdItem = {
+        id: `ad-${Date.now()}`,
+        title: "New Offer",
+        subtitle: "",
+        image: c.images.heroSpa || c.images.heroExterior || "",
+        ctaLabel: "Book Now",
+        ctaTarget: "UPS-01",
+        dismissLabel: "Maybe Later",
+        enabled: true,
+      };
+      return { ...c, ads: { ...base, items: [...base.items, newItem] } };
+    });
+  }, []);
+
+  const removeAdItem = useCallback((i: number) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.ads ?? DEFAULT_ADS;
+      return { ...c, ads: { ...base, items: base.items.filter((_, idx) => idx !== i) } };
+    });
+  }, []);
+
+  const reorderAds = useCallback((arr: AdItem[]) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.ads ?? DEFAULT_ADS;
+      return { ...c, ads: { ...base, items: arr } };
+    });
+  }, []);
+
   const setKioskTheme = useCallback((theme: "light" | "dark") => {
     setPreviewTheme(theme);
     const win = iframeRef.current?.contentWindow;
@@ -489,10 +550,16 @@ export default function AdminCMS() {
 
   const c = current;
   const languagesModuleOn = c.modules.find((m) => m.id === "languages")?.enabled !== false;
-  const visibleSections = SECTIONS.filter((s) => s.key !== "languages" || languagesModuleOn);
+  const adsModuleOn = c.modules.find((m) => m.id === "ads")?.enabled !== false;
+  const visibleSections = SECTIONS.filter((s) => {
+    if (s.key === "languages" && !languagesModuleOn) return false;
+    if (s.key === "ads" && !adsModuleOn) return false;
+    return true;
+  });
   if (activeTab === "languages" && !languagesModuleOn) {
-    // user just disabled the Languages module while on that tab — bounce
-    // back to Client so the UI doesn't show a header for a hidden section
+    setTimeout(() => setActiveTab("client"), 0);
+  }
+  if (activeTab === "ads" && !adsModuleOn) {
     setTimeout(() => setActiveTab("client"), 0);
   }
   const activeSection = visibleSections.find((s) => s.key === activeTab) ?? SECTIONS[0];
@@ -826,6 +893,17 @@ export default function AdminCMS() {
 
             {activeTab === "policies" && (
               <PoliciesTab policies={c.policies} onPatch={patchPolicies} onToastError={(msg) => flashToast(msg, "error")} />
+            )}
+
+            {activeTab === "ads" && adsModuleOn && (
+              <AdsTab
+                ads={c.ads ?? DEFAULT_ADS}
+                onPatch={patchAds}
+                onUpdateItem={updateAdItem}
+                onAdd={addAdItem}
+                onRemove={removeAdItem}
+                onReorder={reorderAds}
+              />
             )}
           </div>
         </div>
@@ -1715,6 +1793,163 @@ function HeroExteriorEditor({ imageUrl, asset, onImageChange, onAssetChange, onT
             }}
           />
         </div>
+      )}
+    </div>
+  );
+}
+
+function AdsTab({ ads, onPatch, onUpdateItem, onAdd, onRemove, onReorder }: {
+  ads: AdsConfig;
+  onPatch: (p: Partial<AdsConfig>) => void;
+  onUpdateItem: (i: number, p: Partial<AdItem>) => void;
+  onAdd: () => void;
+  onRemove: (i: number) => void;
+  onReorder: (arr: AdItem[]) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      {/* Global settings */}
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Global settings</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, alignItems: "start" }}>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Show on Dashboard</div>
+            <Toggle on={ads.showOnDashboard} onClick={(e) => { e.stopPropagation(); onPatch({ showOnDashboard: !ads.showOnDashboard }); }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>
+              First ad delay: {(ads.dashboardDelayMs / 1000).toFixed(1)}s
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={15000}
+              step={500}
+              value={ads.dashboardDelayMs}
+              onChange={(e) => onPatch({ dashboardDelayMs: Number(e.target.value) })}
+              style={{ width: "100%", accentColor: T.accent }}
+            />
+          </div>
+          <div>
+            <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>
+              Auto-dismiss: {ads.autoDismissMs === 0 ? "off" : `${(ads.autoDismissMs / 1000).toFixed(1)}s`}
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={30000}
+              step={1000}
+              value={ads.autoDismissMs}
+              onChange={(e) => onPatch({ autoDismissMs: Number(e.target.value) })}
+              style={{ width: "100%", accentColor: T.accent }}
+            />
+          </div>
+          <div style={{ gridColumn: "span 3" }}>
+            <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>Rotation</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {(["first", "random"] as const).map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => onPatch({ rotation: opt })}
+                  style={{
+                    padding: "6px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer",
+                    background: ads.rotation === opt ? T.accent : "transparent",
+                    color: ads.rotation === opt ? "#fff" : T.textDim,
+                    border: `1px solid ${ads.rotation === opt ? T.accent : T.border}`,
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {opt === "first" ? "Always first" : "Random"}
+                </button>
+              ))}
+              <div style={{ fontSize: 10, color: T.textMuted, alignSelf: "center", marginLeft: 6 }}>
+                {ads.rotation === "first" ? "Only shows the first enabled ad." : "Picks one at random on each dashboard mount."}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Items list */}
+      <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+            {ads.items.length} ads
+          </div>
+          <div style={{ fontSize: 10, color: T.textMuted }}>Drag to reorder</div>
+        </div>
+        {ads.items.length > 0 ? (
+          <Reorder.Group axis="y" values={ads.items} onReorder={onReorder} style={{ display: "grid", gap: 10, listStyle: "none", padding: 0, margin: 0 }}>
+            {ads.items.map((ad, i) => (
+              <Reorder.Item key={ad.id} value={ad} style={{ listStyle: "none" }}>
+                <AdCard ad={ad} onChange={(p) => onUpdateItem(i, p)} onRemove={() => onRemove(i)} />
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
+        ) : (
+          <div style={{ padding: 24, textAlign: "center", background: T.surface, border: `1.5px dashed ${T.borderHi}`, borderRadius: 10, color: T.textDim, fontSize: 12 }}>
+            No ads yet. Add one below.
+          </div>
+        )}
+        <button onClick={onAdd} style={addCardBtn}>+ Add ad</button>
+      </div>
+    </div>
+  );
+}
+
+function AdCard({ ad, onChange, onRemove }: { ad: AdItem; onChange: (p: Partial<AdItem>) => void; onRemove: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: "flex", gap: 14, padding: 14, background: T.surface,
+        border: `1px solid ${ad.enabled ? T.border : T.border}`,
+        borderRadius: 12, position: "relative",
+        opacity: ad.enabled ? 1 : 0.55,
+      }}
+    >
+      <DroppableImage value={ad.image} onChange={(v) => onChange({ image: v })} spec={SPEC_HERO} empty="Ad photo" />
+      <div style={{ flex: 1, display: "grid", gap: 8, minWidth: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 10, alignItems: "start" }}>
+          <input
+            style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, padding: 0, letterSpacing: "-0.01em" }}
+            value={ad.title}
+            onChange={(e) => onChange({ title: e.target.value })}
+            placeholder="Ad title"
+          />
+          <Toggle on={ad.enabled} onClick={(e) => { e.stopPropagation(); onChange({ enabled: !ad.enabled }); }} />
+        </div>
+        <input
+          style={{ background: "transparent", border: "none", outline: "none", fontSize: 12, color: T.textDim, padding: 0, width: "100%" }}
+          value={ad.subtitle ?? ""}
+          onChange={(e) => onChange({ subtitle: e.target.value })}
+          placeholder="Subtitle (e.g. 20% off today)"
+        />
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 2 }}>
+          <input
+            style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.text, outline: "none" }}
+            value={ad.ctaLabel ?? ""}
+            onChange={(e) => onChange({ ctaLabel: e.target.value })}
+            placeholder="CTA label"
+          />
+          <input
+            style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.text, outline: "none", fontFamily: "ui-monospace, monospace" }}
+            value={ad.ctaTarget ?? ""}
+            onChange={(e) => onChange({ ctaTarget: e.target.value })}
+            placeholder="Target screen (e.g. UPS-01)"
+          />
+          <input
+            style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.text, outline: "none" }}
+            value={ad.dismissLabel ?? ""}
+            onChange={(e) => onChange({ dismissLabel: e.target.value })}
+            placeholder="Dismiss label"
+          />
+        </div>
+      </div>
+      {hover && (
+        <button onClick={onRemove} style={{ position: "absolute", top: 10, right: 46, width: 26, height: 26, borderRadius: 7, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
       )}
     </div>
   );

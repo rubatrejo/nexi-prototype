@@ -31,7 +31,8 @@ function ModuleIcon({ name, size = 20 }: { name: string; size?: number }) {
 export default function DashboardScreen() {
   const { navigate, guestName, roomNumber, roomType, checkOutDate, guestMode } = useKiosk();
   const { t } = useI18n();
-  const { brand, images, modules, upgrades, rooms } = useHotel();
+  const { brand, images, modules, upgrades, rooms, ads } = useHotel();
+  const adsModuleEnabled = modules.find((m) => m.id === "ads")?.enabled !== false;
   const isCheckedIn = !guestMode && !!roomNumber;
   const [showAd, setShowAd] = useState(false);
   const [adDismissed, setAdDismissed] = useState(false);
@@ -48,9 +49,18 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     if (adDismissed) return;
-    const timer = setTimeout(() => setShowAd(true), 3000);
+    // Respect both the module toggle and the per-client ads config.
+    if (!adsModuleEnabled) return;
+    if (ads && ads.showOnDashboard === false) return;
+    const enabledItems = ads?.items?.filter((i) => i.enabled) ?? [];
+    // Legacy configs without any ads array still get the default timer
+    // so nothing regresses — ADS01 itself will fall back to its old
+    // hardcoded spa offer when the filtered list is empty.
+    if (ads && enabledItems.length === 0) return;
+    const delay = ads?.dashboardDelayMs ?? 3000;
+    const timer = setTimeout(() => setShowAd(true), delay);
     return () => clearTimeout(timer);
-  }, [adDismissed]);
+  }, [adDismissed, adsModuleEnabled, ads]);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>

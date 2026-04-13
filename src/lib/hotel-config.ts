@@ -45,6 +45,38 @@ export interface HotelIntegrations {
 }
 
 /**
+ * One advertisement shown on the dashboard popup or idle overlay.
+ * Managed from the /admin Ads tab when the "ads" module is enabled.
+ */
+export interface AdItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  image: string;           // data URL or external URL
+  ctaLabel?: string;       // primary button text (e.g. "Book Now")
+  ctaTarget?: string;      // screen ID to navigate to (e.g. "UPS-01") or "" for dismiss-only
+  dismissLabel?: string;   // secondary button text (e.g. "Maybe Later")
+  enabled: boolean;
+}
+
+/**
+ * Dashboard advertisement configuration. Keeping shape conservative
+ * for the prototype — one popup pattern with a list of variants and
+ * global timing knobs.
+ */
+export interface AdsConfig {
+  items: AdItem[];
+  /** Show the popup on DSH-01 after the guest lands on the dashboard. */
+  showOnDashboard: boolean;
+  /** Milliseconds after DSH-01 mounts before the first ad appears. */
+  dashboardDelayMs: number;
+  /** Optional auto-dismiss timer; 0 disables. */
+  autoDismissMs: number;
+  /** How to pick the ad when multiple are enabled. */
+  rotation: "first" | "random";
+}
+
+/**
  * Hotel policies document uploaded by the client. Rendered on the
  * check-in signature screen (CKI-08). Either a data URL for a PDF
  * or Word document, or a plain text block the kiosk renders inline.
@@ -263,6 +295,12 @@ export interface HotelConfig {
    * check-in signature screen.
    */
   policies?: HotelPolicies;
+  /**
+   * Dashboard ads configuration. Ignored when the "ads" module is
+   * disabled. Undefined on legacy configs — the app falls back to
+   * a single default ad matching the old hardcoded popup.
+   */
+  ads?: AdsConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -503,4 +541,23 @@ export const hotelConfig: HotelConfig = {
   customFonts: [],
 
   policies: { text: "" },
+
+  ads: {
+    items: [
+      {
+        id: "spa-offer",
+        title: "Exclusive Spa Offer",
+        subtitle: "20% off all treatments today",
+        image: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
+        ctaLabel: "Book Now",
+        ctaTarget: "UPS-01",
+        dismissLabel: "Maybe Later",
+        enabled: true,
+      },
+    ],
+    showOnDashboard: true,
+    dashboardDelayMs: 3000,
+    autoDismissMs: 0,
+    rotation: "first",
+  },
 };
