@@ -296,26 +296,47 @@ export default function AdminCMS() {
     borderRadius: 7, color: T.text, fontSize: 12, fontFamily: T.fontBody, outline: "none",
   };
 
-  // ═══════ EMPTY STATE — preset gallery ═══════
+  // ═══════ EMPTY STATE — saved clients + preset gallery ═══════
   if (!current) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
-        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("client"); }} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
-        <div style={{ flex: 1, overflow: "auto", padding: "48px 40px" }}>
-          <div style={{ maxWidth: 980, margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: 48 }}>
-              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, borderRadius: 18, background: `${T.accent}14`, border: `1px solid ${T.accent}28`, marginBottom: 24, color: T.accent }}>
-                <svg {...sp} width={28} height={28}><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M3 9h18M9 21V9" /></svg>
-              </div>
+        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("client"); }} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <div style={{ flex: 1, overflow: "auto", padding: "40px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ maxWidth: 1000, width: "100%", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 40, display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <img src="/logos/nexi-logo-dark.svg" alt="NEXI" style={{ height: 56, width: "auto", marginBottom: 10, display: "block" }} />
+              <img src="/logos/powered-by-trueomni-dark.svg" alt="Powered by TrueOmni" style={{ height: 14, width: "auto", marginBottom: 28, display: "block", opacity: 0.8 }} />
               <h1 style={{ fontFamily: T.fontDisplay, fontSize: 38, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 12, lineHeight: 1.1 }}>
                 Configure a client, ship the kiosk.
               </h1>
               <p style={{ fontSize: 15, color: T.textDim, lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
-                Start from a template below, or build from scratch. Every kiosk rebrands in real time — no rebuild, no redeploy.
+                Pick a saved client below, start from a template, or build from scratch. Every kiosk rebrands in real time — no rebuild, no redeploy.
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 1000, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, margin: "0 auto" }}>
+              {configs.map((cfg) => (
+                <button key={cfg.slug} onClick={() => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }} style={{
+                  display: "flex", flexDirection: "column", textAlign: "left",
+                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
+                  overflow: "hidden", cursor: "pointer", padding: 0,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 180ms",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 14px 40px rgba(0,0,0,0.10)"; e.currentTarget.style.borderColor = T.borderHi; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = T.border; }}
+                >
+                  <div style={{ height: 150, background: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.35)), url('${cfg.images.heroExterior}') center/cover, ${T.surfaceHi}`, position: "relative" }}>
+                    <div style={{ position: "absolute", bottom: 12, left: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 14, height: 14, borderRadius: 4, background: cfg.colors.primary, boxShadow: "0 0 0 2px rgba(255,255,255,0.9)" }} />
+                      <div style={{ color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>Client</div>
+                    </div>
+                  </div>
+                  <div style={{ padding: "16px 18px 18px" }}>
+                    <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.brand.name}</div>
+                    <div style={{ fontSize: 11, color: T.textMuted, fontFamily: "ui-monospace, monospace" }}>{cfg.slug}</div>
+                  </div>
+                </button>
+              ))}
               {PRESETS.map((p) => (
                 <button key={p.key} onClick={() => handlePreset(p)} style={{
                   display: "flex", flexDirection: "column", textAlign: "left",
@@ -372,6 +393,7 @@ export default function AdminCMS() {
         configs={configs}
         currentSlug={c.slug}
         onSelectClient={(cfg) => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }}
+        onSelectPreset={handlePreset}
         onSave={handleSave}
         onDelete={handleDelete}
         onOpen={handleOpenKiosk}
@@ -724,10 +746,11 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onBrandNameChange, disabled }: {
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onBrandNameChange, disabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
+  onSelectPreset?: (p: Preset) => void;
   onBrandNameChange?: (v: string) => void; disabled?: boolean;
 }) {
   return (
@@ -742,7 +765,7 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
         </div>
       </div>
 
-      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} />
+      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} />
 
       {!disabled && (
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
@@ -787,8 +810,9 @@ function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" })
   return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 4 }}>{cfg.label}</div>;
 }
 
-function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
+function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset }: {
   configs: HotelConfig[]; currentSlug: string | null; onSelect: (c: HotelConfig) => void; onNew: () => void;
+  onSelectPreset?: (p: Preset) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -837,6 +861,26 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
               </button>
             );
           })}
+          {onSelectPreset && (
+            <>
+              <div style={{ height: 1, background: T.border, margin: "6px 4px" }} />
+              <div style={{ padding: "6px 10px 4px", fontSize: 9, fontWeight: 700, color: T.textMuted, letterSpacing: 1.2, textTransform: "uppercase" }}>
+                Templates
+              </div>
+              {PRESETS.map((p) => (
+                <button key={p.key} onClick={() => { onSelectPreset(p); setOpen(false); }} style={{
+                  display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "9px 10px", borderRadius: 7,
+                  border: "none", background: "transparent", color: T.text, cursor: "pointer", textAlign: "left",
+                }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 6, background: p.primary, flexShrink: 0 }} />
+                  <div style={{ overflow: "hidden", flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: T.text, fontFamily: T.fontDisplay, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.label}</div>
+                    <div style={{ fontSize: 10, color: T.textMuted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.tag}</div>
+                  </div>
+                </button>
+              ))}
+            </>
+          )}
           <div style={{ height: 1, background: T.border, margin: "6px 4px" }} />
           <button onClick={() => { onNew(); setOpen(false); }} style={{
             display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
@@ -846,7 +890,7 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
             <div style={{ width: 26, height: 26, borderRadius: 6, background: `${T.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.accent}44` }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             </div>
-            New client
+            Blank — start from scratch
           </button>
         </div>
       )}
