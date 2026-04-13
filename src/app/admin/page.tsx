@@ -120,6 +120,39 @@ function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
 
+/**
+ * Merge a HotelConfig loaded from KV with the current defaultConfig so
+ * any new fields added since the config was last saved get populated.
+ * Shallow per-section merge — preserves saved values but backfills
+ * anything missing.
+ */
+function normalizeConfig(cfg: HotelConfig): HotelConfig {
+  const d = defaultConfig;
+  return {
+    ...d,
+    ...cfg,
+    brand: { ...d.brand, ...(cfg.brand ?? {}) },
+    colors: {
+      ...d.colors,
+      ...(cfg.colors ?? {}),
+      light: { ...d.colors.light, ...((cfg.colors as HotelConfig["colors"] | undefined)?.light ?? {}) },
+      dark: { ...d.colors.dark, ...((cfg.colors as HotelConfig["colors"] | undefined)?.dark ?? {}) },
+    },
+    fonts: { ...d.fonts, ...(cfg.fonts ?? {}) },
+    images: { ...d.images, ...(cfg.images ?? {}) },
+    info: { ...d.info, ...(cfg.info ?? {}), wifi: { ...d.info.wifi, ...(cfg.info?.wifi ?? {}) } },
+    inactivity: { ...d.inactivity, ...(cfg.inactivity ?? {}) },
+    integrations: { ...d.integrations, ...(cfg.integrations ?? {}) },
+    modules: cfg.modules && cfg.modules.length ? cfg.modules : d.modules,
+    rooms: cfg.rooms ?? d.rooms,
+    upgrades: cfg.upgrades ?? d.upgrades,
+    guestDefaults: { ...d.guestDefaults, ...(cfg.guestDefaults ?? {}) },
+    enabledLocales: cfg.enabledLocales ?? d.enabledLocales,
+    customFonts: cfg.customFonts ?? [],
+    policies: cfg.policies ?? d.policies,
+  };
+}
+
 function makeBlankConfig(baseSlug: string): HotelConfig {
   return {
     ...structuredClone(defaultConfig),
@@ -351,7 +384,7 @@ export default function AdminCMS() {
   if (!current) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
-        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("client"); }} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(normalizeConfig(structuredClone(c))); setActiveTab("client"); }} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
         <div style={{ flex: 1, overflow: "auto", padding: "40px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ maxWidth: 1000, width: "100%", margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 40, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -371,7 +404,7 @@ export default function AdminCMS() {
                 const roomCount = cfg.rooms?.length ?? 0;
                 const upgradeCount = cfg.upgrades?.length ?? 0;
                 return (
-                <button key={cfg.slug} onClick={() => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }} style={{
+                <button key={cfg.slug} onClick={() => { setCurrent(normalizeConfig(structuredClone(cfg))); setActiveTab("client"); }} style={{
                   display: "flex", flexDirection: "column", textAlign: "left",
                   background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16,
                   overflow: "hidden", cursor: "pointer", padding: 0,
@@ -471,7 +504,7 @@ export default function AdminCMS() {
         saveState={saveState}
         configs={configs}
         currentSlug={c.slug}
-        onSelectClient={(cfg) => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }}
+        onSelectClient={(cfg) => { setCurrent(normalizeConfig(structuredClone(cfg))); setActiveTab("client"); }}
         onSelectPreset={handlePreset}
         onSave={handleSave}
         onDelete={handleDelete}
@@ -901,7 +934,8 @@ function ModuleGlyph({ icon }: { icon: string }) {
   return <>{G[icon] ?? <circle cx="12" cy="12" r="10" />}</>;
 }
 
-function DroppableImage({ value, onChange, spec = SPEC_HERO, width = 160, height = 100, empty = "+ Drop image" }: { value: string; onChange: (v: string) => void; spec?: UploadSpec; width?: number; height?: number; empty?: string }) {
+function DroppableImage({ value: rawValue, onChange, spec = SPEC_HERO, width = 160, height = 100, empty = "+ Drop image" }: { value: string | undefined; onChange: (v: string) => void; spec?: UploadSpec; width?: number; height?: number; empty?: string }) {
+  const value = rawValue ?? "";
   const [dragOver, setDragOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const handleFile = async (file: File) => {
@@ -1268,7 +1302,8 @@ function formatBytes(n: number): string {
   return `${(n / 1024 / KB).toFixed(1)} MB`;
 }
 
-function ImageField({ label, value, onChange, compact, spec = SPEC_DEFAULT }: { label: string; value: string; onChange: (v: string) => void; compact?: boolean; spec?: UploadSpec }) {
+function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEFAULT }: { label: string; value: string | undefined; onChange: (v: string) => void; compact?: boolean; spec?: UploadSpec }) {
+  const value = rawValue ?? "";
   const [dragOver, setDragOver] = useState(false);
   const [status, setStatus] = useState<{ kind: "idle" | "warn" | "error"; msg: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
