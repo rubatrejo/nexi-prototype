@@ -147,6 +147,12 @@ export interface HotelInfo {
 }
 
 export interface HotelConfig {
+  /**
+   * URL-friendly identifier used as the KV key (`config:{slug}`) and as
+   * the `?client={slug}` query param on the kiosk. Must be lowercase with
+   * hyphens only, e.g. "hilton-miami-downtown".
+   */
+  slug: string;
   brand: HotelBrand;
   colors: HotelColors;
   fonts: HotelFonts;
@@ -168,6 +174,7 @@ export interface HotelConfig {
 // ---------------------------------------------------------------------------
 
 export const hotelConfig: HotelConfig = {
+  slug: "nexi-demo-hotel",
   brand: {
     name: "NEXI Demo Hotel",
     tagline: "Your Stay, Your Way",
