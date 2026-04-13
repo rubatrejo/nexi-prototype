@@ -30,6 +30,24 @@ export interface HotelIntegrations {
   resendApiKey: string;
 }
 
+/**
+ * Custom font imported by the client via the /admin Fonts tab.
+ * Injected into document.head at runtime by ThemeProvider so the
+ * kiosk can use any Google Fonts, Adobe Fonts (Typekit), or
+ * manually uploaded .woff2/.woff/.ttf/.otf file.
+ */
+export interface CustomFont {
+  /** Font-family value used in CSS (e.g. "Playfair Display"). */
+  family: string;
+  source: "google" | "adobe" | "upload";
+  /**
+   * - google : full Google Fonts CSS URL (fonts.googleapis.com/css2?family=...)
+   * - adobe  : full Typekit CSS URL (use.typekit.net/{id}.css)
+   * - upload : data URL of the font file (data:font/woff2;base64,...)
+   */
+  url: string;
+}
+
 export interface HotelColors {
   primary: string;
   primaryHover: string;
@@ -184,6 +202,11 @@ export interface HotelConfig {
    * legacy configs stored in KV before this field existed.
    */
   enabledLocales?: string[];
+  /**
+   * Fonts imported by the client via /admin Fonts tab. ThemeProvider
+   * injects these into document.head so the kiosk can render with them.
+   */
+  customFonts?: CustomFont[];
 }
 
 // ---------------------------------------------------------------------------
@@ -389,4 +412,6 @@ export const hotelConfig: HotelConfig = {
   },
 
   enabledLocales: ["en", "es", "fr", "ja"],
+
+  customFonts: [],
 };

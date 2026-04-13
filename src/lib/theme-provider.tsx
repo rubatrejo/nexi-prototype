@@ -1,7 +1,45 @@
 "use client";
 
 import { createContext, useContext, useEffect, ReactNode } from "react";
-import { hotelConfig, type HotelConfig } from "./hotel-config";
+import { hotelConfig, type HotelConfig, type CustomFont } from "./hotel-config";
+
+const CUSTOM_FONT_ATTR = "data-nexi-custom-font";
+
+/**
+ * Inject (and re-sync) custom fonts from a HotelConfig into document.head.
+ * Google and Adobe entries become <link rel="stylesheet">; upload entries
+ * become <style>@font-face</style>. All injected nodes carry a
+ * data-nexi-custom-font attribute so subsequent runs can clean up
+ * stale ones when the config changes.
+ */
+function applyCustomFonts(fonts: CustomFont[] | undefined) {
+  if (typeof document === "undefined") return;
+  // Remove previously injected nodes — config changes should never
+  // leave orphaned font tags behind.
+  document.querySelectorAll(`[${CUSTOM_FONT_ATTR}]`).forEach((n) => n.remove());
+  if (!fonts || fonts.length === 0) return;
+  for (const f of fonts) {
+    if (!f.family || !f.url) continue;
+    if (f.source === "google" || f.source === "adobe") {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = f.url;
+      link.setAttribute(CUSTOM_FONT_ATTR, f.family);
+      document.head.appendChild(link);
+    } else if (f.source === "upload") {
+      // Guess format from the data URL mime; default to woff2.
+      let format = "woff2";
+      if (f.url.includes("font/woff2") || f.url.includes("woff2")) format = "woff2";
+      else if (f.url.includes("font/woff") || f.url.includes("woff")) format = "woff";
+      else if (f.url.includes("font/ttf") || f.url.includes("truetype")) format = "truetype";
+      else if (f.url.includes("font/otf") || f.url.includes("opentype")) format = "opentype";
+      const style = document.createElement("style");
+      style.setAttribute(CUSTOM_FONT_ATTR, f.family);
+      style.textContent = `@font-face { font-family: "${f.family}"; src: url("${f.url}") format("${format}"); font-display: swap; }`;
+      document.head.appendChild(style);
+    }
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Context
@@ -67,6 +105,9 @@ export function ThemeProvider({ children, config }: ThemeProviderProps) {
     if (activeConfig.fonts.mono) {
       root.style.setProperty("--font-mono", activeConfig.fonts.mono);
     }
+
+    // Inject / refresh custom fonts imported via /admin
+    applyCustomFonts(activeConfig.customFonts);
   }, [activeConfig]);
 
   // Listen for theme changes to re-apply mode colors
