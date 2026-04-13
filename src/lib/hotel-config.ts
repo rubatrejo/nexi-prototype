@@ -13,12 +13,21 @@
 export interface HotelBrand {
   name: string;
   tagline: string;
+  website: string;     // Hotel's own marketing site (internal, not shown in kiosk)
+  notes: string;       // Internal sales/onboarding notes — never rendered in kiosk
   logo: string;        // Primary logo (for light backgrounds)
   logoWhite: string;   // White logo (for dark backgrounds / photo overlays)
   icon: string;        // Square icon (favicon, app icon)
   iconWhite: string;
   poweredBy: string;   // "Powered by" badge
   poweredByWhite: string;
+}
+
+export interface HotelIntegrations {
+  heygenApiKey: string;
+  tavusApiKey: string;
+  didApiKey: string;
+  resendApiKey: string;
 }
 
 export interface HotelColors {
@@ -167,6 +176,7 @@ export interface HotelConfig {
     resetAfterMs: number;     // Reset to idle after warning (default 30s)
   };
   orientation: "landscape" | "portrait";
+  integrations: HotelIntegrations;
 }
 
 // ---------------------------------------------------------------------------
@@ -178,6 +188,8 @@ export const hotelConfig: HotelConfig = {
   brand: {
     name: "NEXI Demo Hotel",
     tagline: "Your Stay, Your Way",
+    website: "",
+    notes: "",
     logo: "/logos/nexi-logo-full.svg",
     logoWhite: "/logos/nexi-logo-full.svg",
     icon: "/logos/nexi-icon.svg",
@@ -360,4 +372,11 @@ export const hotelConfig: HotelConfig = {
   },
 
   orientation: "landscape",
+
+  integrations: {
+    heygenApiKey: "",
+    tavusApiKey: "",
+    didApiKey: "",
+    resendApiKey: "",
+  },
 };

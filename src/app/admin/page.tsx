@@ -32,7 +32,7 @@ const T = {
 // ─── inline section icons (stroke 1.6, 24x24 viewBox) ────────────────
 const sp = { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 const ICONS: Record<string, React.ReactNode> = {
-  brand: <svg {...sp}><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.83z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>,
+  client: <svg {...sp}><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>,
   colors: <svg {...sp}><circle cx="13.5" cy="6.5" r="1.5" /><circle cx="17.5" cy="10.5" r="1.5" /><circle cx="8.5" cy="7.5" r="1.5" /><circle cx="6.5" cy="12.5" r="1.5" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.6 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.6-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.9-4.5-8.8-10-8.8z" /></svg>,
   fonts: <svg {...sp}><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>,
   images: <svg {...sp}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>,
@@ -41,12 +41,13 @@ const ICONS: Record<string, React.ReactNode> = {
   upgrades: <svg {...sp}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>,
   info: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>,
   timers: <svg {...sp}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+  apis: <svg {...sp}><rect x="2" y="9" width="20" height="6" rx="2" /><path d="M6 12h.01M10 12h.01M14 12h.01" /><path d="M18 12h2" /></svg>,
 };
 
 const GOOGLE_FONTS = ["Mona Sans", "Inter", "Playfair Display", "Space Grotesk", "DM Sans", "Manrope", "Instrument Serif", "Cormorant Garamond", "Fraunces", "Geist"];
 
 const SECTIONS = [
-  { key: "brand", num: "01", label: "Brand", title: "Brand Identity", desc: "The hotel's name, tagline and logo assets." },
+  { key: "client", num: "01", label: "Client", title: "Client Profile", desc: "Who the client is — identity, logos, internal notes and the slug used to route the kiosk." },
   { key: "colors", num: "02", label: "Colors", title: "Colors", desc: "Primary accent and the light/dark surface palettes." },
   { key: "fonts", num: "03", label: "Typography", title: "Typography", desc: "Google Fonts for display and body across the kiosk." },
   { key: "images", num: "04", label: "Images", title: "Hero Imagery", desc: "Hotel photography used on idle, dashboard and action screens." },
@@ -55,6 +56,7 @@ const SECTIONS = [
   { key: "upgrades", num: "07", label: "Upgrades", title: "Upgrades & Offers", desc: "Paid extras shown in the dashboard sidebar after check-in." },
   { key: "info", num: "08", label: "Info", title: "Hotel Information", desc: "Operational details the kiosk shows to guests." },
   { key: "timers", num: "09", label: "Timers", title: "Inactivity Timers", desc: "Tune the auto-reset thresholds for your lobby traffic." },
+  { key: "apis", num: "10", label: "API Credentials", title: "API Credentials", desc: "Third-party service keys used by this client. Stored privately, never rendered on the kiosk." },
 ];
 
 // ─── presets: signature fields only, rest inherits from defaultConfig ──
@@ -129,7 +131,7 @@ function applyPreset(preset: Preset): HotelConfig {
 export default function AdminCMS() {
   const [configs, setConfigs] = useState<HotelConfig[]>([]);
   const [current, setCurrent] = useState<HotelConfig | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("brand");
+  const [activeTab, setActiveTab] = useState<string>("client");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
@@ -171,6 +173,13 @@ export default function AdminCMS() {
   }, []);
   const patchInfo = useCallback((k: keyof HotelConfig["info"], v: string) => {
     setCurrent((c) => (c ? { ...c, info: { ...c.info, [k]: v } } : c));
+  }, []);
+  const patchIntegrations = useCallback((k: keyof NonNullable<HotelConfig["integrations"]>, v: string) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.integrations ?? { heygenApiKey: "", tavusApiKey: "", didApiKey: "", resendApiKey: "" };
+      return { ...c, integrations: { ...base, [k]: v } };
+    });
   }, []);
 
   const toggleModule = useCallback((id: string) => {
@@ -227,8 +236,8 @@ export default function AdminCMS() {
     }
   };
 
-  const handleNew = () => { setCurrent(makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`)); setActiveTab("brand"); };
-  const handlePreset = (p: Preset) => { setCurrent(applyPreset(p)); setActiveTab("brand"); };
+  const handleNew = () => { setCurrent(makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`)); setActiveTab("client"); };
+  const handlePreset = (p: Preset) => { setCurrent(applyPreset(p)); setActiveTab("client"); };
 
   const handleOpenKiosk = () => { if (current?.slug) window.open(`/?client=${encodeURIComponent(current.slug)}`, "_blank"); };
   const handleCopyLink = async () => {
@@ -253,7 +262,7 @@ export default function AdminCMS() {
   if (!current) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
-        <TopBar slug="" saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("brand"); }} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("client"); }} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
         <div style={{ flex: 1, overflow: "auto", padding: "48px 40px" }}>
           <div style={{ maxWidth: 980, margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 48 }}>
@@ -320,18 +329,16 @@ export default function AdminCMS() {
   return (
     <div style={{ height: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <TopBar
-        slug={c.slug}
         brandName={c.brand.name}
         saveState={saveState}
         configs={configs}
         currentSlug={c.slug}
-        onSelectClient={(cfg) => { setCurrent(structuredClone(cfg)); setActiveTab("brand"); }}
+        onSelectClient={(cfg) => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }}
         onSave={handleSave}
         onDelete={handleDelete}
         onOpen={handleOpenKiosk}
         onCopy={handleCopyLink}
         onNew={handleNew}
-        onSlugChange={(v) => patch("slug", slugify(v))}
         onBrandNameChange={(v) => patchBrand("name", v)}
       />
 
@@ -358,16 +365,22 @@ export default function AdminCMS() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
-        {/* Form panel */}
-        <div style={{ flex: 1, overflow: "auto", padding: "40px 48px 80px", background: T.bg }}>
-          <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
+        {/* Form panel — top 35% */}
+        <div style={{ flex: "0 0 35%", overflow: "auto", padding: "32px 48px 48px", background: T.bg, minHeight: 0 }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <SectionHeader section={activeSection} />
 
-            {activeTab === "brand" && (
+            {activeTab === "client" && (
               <div style={{ display: "grid", gap: 16 }}>
-                <Field label="Brand Name"><input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} /></Field>
-                <Field label="Tagline"><input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} /></Field>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <Field label="Hotel / Client Name"><input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} /></Field>
+                  <Field label="Tagline"><input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} /></Field>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <Field label="Website"><input style={input} type="url" placeholder="https://www.hotel.com" value={c.brand.website ?? ""} onChange={(e) => patchBrand("website", e.target.value)} /></Field>
+                  <Field label="Kiosk Slug"><input style={{ ...input, fontFamily: "ui-monospace, monospace" }} placeholder="hotel-slug" value={c.slug} onChange={(e) => patch("slug", slugify(e.target.value))} /></Field>
+                </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <ImageField label="Logo (light bg)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact />
                   <ImageField label="Logo (dark bg)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact />
@@ -376,6 +389,14 @@ export default function AdminCMS() {
                   <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact />
                   <ImageField label="Icon white" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact />
                 </div>
+                <Field label="Important Notes (internal)">
+                  <textarea
+                    style={{ ...input, minHeight: 110, fontFamily: T.fontBody, resize: "vertical", lineHeight: 1.5 }}
+                    placeholder="Sales context, decision-makers, onboarding quirks, deal size, integration requirements…"
+                    value={c.brand.notes ?? ""}
+                    onChange={(e) => patchBrand("notes", e.target.value)}
+                  />
+                </Field>
               </div>
             )}
 
@@ -490,25 +511,22 @@ export default function AdminCMS() {
                 </Field>
               </div>
             )}
+
+            {activeTab === "apis" && (
+              <div style={{ display: "grid", gap: 14 }}>
+                <SecretField label="HeyGen API Key" help="Streaming avatar (AI concierge)." value={c.integrations?.heygenApiKey ?? ""} onChange={(v) => patchIntegrations("heygenApiKey", v)} />
+                <SecretField label="Tavus API Key" help="Tavus conversational video." value={c.integrations?.tavusApiKey ?? ""} onChange={(v) => patchIntegrations("tavusApiKey", v)} />
+                <SecretField label="D-ID API Key" help="D-ID avatar streaming fallback." value={c.integrations?.didApiKey ?? ""} onChange={(v) => patchIntegrations("didApiKey", v)} />
+                <SecretField label="Resend API Key" help="Transactional email (welcome / receipts)." value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Preview panel — always visible, never scrolls */}
-        <div style={{ width: 480, borderLeft: `1px solid ${T.border}`, background: T.bg, display: "flex", flexDirection: "column", flexShrink: 0 }}>
-          <div style={{ padding: "16px 20px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <div style={{ fontSize: 10, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Live Preview</div>
-              <div style={{ fontSize: 12, color: T.textDim, marginTop: 2 }}>Updates on Save</div>
-            </div>
-            <button onClick={() => setPreviewKey((k) => k + 1)} style={{ padding: "7px 12px", borderRadius: 7, fontSize: 11, fontWeight: 600, background: T.surface, border: `1px solid ${T.border}`, color: T.text, cursor: "pointer" }}>⟳ Refresh</button>
-          </div>
-          <div style={{ flex: 1, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
-            <div style={{ width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)", background: T.bg }}>
-              <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none" }} title="Kiosk preview" />
-            </div>
-          </div>
-          <div style={{ padding: "12px 20px", borderTop: `1px solid ${T.border}`, fontSize: 11, color: T.textMuted, fontFamily: "ui-monospace, monospace", textAlign: "center" }}>
-            /?client={c.slug}
+        {/* Preview panel — bottom 65%, frame only */}
+        <div style={{ flex: "0 0 65%", borderTop: `1px solid ${T.border}`, background: T.bg, padding: 24, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
+          <div style={{ height: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)", background: T.bg }}>
+            <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block" }} title="Kiosk preview" />
           </div>
         </div>
       </div>
@@ -671,11 +689,11 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSlugChange, onBrandNameChange, disabled }: {
-  slug: string; brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onBrandNameChange, disabled }: {
+  brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
-  onSlugChange?: (v: string) => void; onBrandNameChange?: (v: string) => void; disabled?: boolean;
+  onBrandNameChange?: (v: string) => void; disabled?: boolean;
 }) {
   return (
     <div style={{ height: 64, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0 }}>
@@ -695,9 +713,6 @@ function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClie
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <input value={brandName ?? ""} onChange={(e) => onBrandNameChange?.(e.target.value)} placeholder="Hotel name"
             style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 700, color: T.text, letterSpacing: "-0.01em", minWidth: 0, flex: 1, padding: 0 }} />
-          <div style={{ color: T.borderHi, fontSize: 12 }}>/</div>
-          <input value={slug} onChange={(e) => onSlugChange?.(e.target.value)} placeholder="slug"
-            style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 10px", fontFamily: "ui-monospace, monospace", fontSize: 11, color: T.textDim, outline: "none", width: 160, flexShrink: 0 }} />
         </div>
       )}
       {disabled && <div style={{ flex: 1 }} />}
@@ -843,6 +858,36 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
         <div style={{ width: compact ? 56 : 72, height: compact ? 56 : 72, borderRadius: 8, background: `url('${value}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}`, flexShrink: 0 }} />
         <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://..."
           style={{ flex: 1, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", outline: "none" }} />
+      </div>
+    </div>
+  );
+}
+
+function SecretField({ label, help, value, onChange }: { label: string; help?: string; value: string; onChange: (v: string) => void }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1 }}>{label}</div>
+        {help && <div style={{ fontSize: 10, color: T.textMuted }}>{help}</div>}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "0 10px 0 12px" }}>
+        <input
+          type={visible ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="••••••••••••"
+          autoComplete="off"
+          spellCheck={false}
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", padding: "10px 0", letterSpacing: visible ? 0 : 2 }}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          style={{ background: "transparent", border: "none", color: T.textDim, cursor: "pointer", fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", padding: "6px 4px" }}
+        >
+          {visible ? "Hide" : "Show"}
+        </button>
       </div>
     </div>
   );
