@@ -645,32 +645,39 @@ export default function AdminCMS() {
               />
             )}
 
-            {activeTab === "images" && (
-              <div style={{ display: "grid", gap: 14 }}>
-                <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Hotel venue</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
-                    <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact spec={SPEC_HERO} />
+            {activeTab === "images" && (() => {
+              const heroSpecLine = `${SPEC_HERO.formats} · max ${formatBytes(SPEC_HERO.maxBytes)}${SPEC_HERO.ratio ? ` · ${SPEC_HERO.ratio}` : ""}`;
+              return (
+                <div style={{ display: "grid", gap: 14 }}>
+                  <div style={{ fontSize: 10, color: T.textMuted, padding: "0 2px", display: "flex", alignItems: "center", gap: 8 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                    All hero images share the same spec: <strong style={{ color: T.textDim, fontWeight: 700 }}>{heroSpecLine}</strong>. Click any thumbnail to zoom.
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Hotel venue</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+                      <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Flow backdrops</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
+                      <ImageField label="Welcome (check-in intro)" value={c.images.heroWelcome} onChange={(v) => patchImages("heroWelcome", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Success / Confirmation" value={c.images.heroSuccess} onChange={(v) => patchImages("heroSuccess", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Duplicate Key" value={c.images.heroKey} onChange={(v) => patchImages("heroKey", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Night / Late stay" value={c.images.heroNight} onChange={(v) => patchImages("heroNight", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Booking flow" value={c.images.heroBooking} onChange={(v) => patchImages("heroBooking", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Loading / Processing" value={c.images.heroLoading} onChange={(v) => patchImages("heroLoading", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                      <ImageField label="Events" value={c.images.heroEvents} onChange={(v) => patchImages("heroEvents", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Flow backdrops</div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
-                    <ImageField label="Welcome (check-in intro)" value={c.images.heroWelcome} onChange={(v) => patchImages("heroWelcome", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Success / Confirmation" value={c.images.heroSuccess} onChange={(v) => patchImages("heroSuccess", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Duplicate Key" value={c.images.heroKey} onChange={(v) => patchImages("heroKey", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Night / Late stay" value={c.images.heroNight} onChange={(v) => patchImages("heroNight", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Booking flow" value={c.images.heroBooking} onChange={(v) => patchImages("heroBooking", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Loading / Processing" value={c.images.heroLoading} onChange={(v) => patchImages("heroLoading", v)} compact spec={SPEC_HERO} />
-                    <ImageField label="Events" value={c.images.heroEvents} onChange={(v) => patchImages("heroEvents", v)} compact spec={SPEC_HERO} />
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })()}
 
             {activeTab === "modules" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
@@ -1302,10 +1309,11 @@ function formatBytes(n: number): string {
   return `${(n / 1024 / KB).toFixed(1)} MB`;
 }
 
-function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEFAULT }: { label: string; value: string | undefined; onChange: (v: string) => void; compact?: boolean; spec?: UploadSpec }) {
+function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEFAULT, hideSpec, thumbSize }: { label: string; value: string | undefined; onChange: (v: string) => void; compact?: boolean; spec?: UploadSpec; hideSpec?: boolean; thumbSize?: number }) {
   const value = rawValue ?? "";
   const [dragOver, setDragOver] = useState(false);
   const [status, setStatus] = useState<{ kind: "idle" | "warn" | "error"; msg: string } | null>(null);
+  const [zoomOpen, setZoomOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (file: File) => {
@@ -1341,14 +1349,23 @@ function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEF
   const isDataUrl = value.startsWith("data:");
   const displayValue = isDataUrl ? `📎 uploaded (${Math.round(value.length / KB)} KB)` : value;
   const specLine = `${spec.formats} · max ${formatBytes(spec.maxBytes)}${spec.ratio ? ` · ${spec.ratio}` : ""}`;
+  const size = thumbSize ?? (compact ? 32 : 56);
+
+  // Click opens zoom modal if there's a value; otherwise opens file picker.
+  const handleThumbClick = () => {
+    if (value) setZoomOpen(true);
+    else fileInputRef.current?.click();
+  };
 
   return (
     <div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 4, minWidth: 0 }}>
         <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, flexShrink: 0 }}>{label}</div>
-        <div style={{ fontSize: 9, color: T.textMuted, fontFamily: T.fontBody, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "right" }} title={specLine}>
-          {specLine}
-        </div>
+        {!hideSpec && (
+          <div style={{ fontSize: 9, color: T.textMuted, fontFamily: T.fontBody, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "right" }} title={specLine}>
+            {specLine}
+          </div>
+        )}
       </div>
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -1363,10 +1380,10 @@ function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEF
       >
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
-          title={`Click to upload or drop an image here — ${specLine}`}
+          onClick={handleThumbClick}
+          title={value ? "Click to zoom · drop to replace" : `Click to upload or drop an image here — ${specLine}`}
           style={{
-            width: compact ? 32 : 56, height: compact ? 32 : 56, borderRadius: 6,
+            width: size, height: size, borderRadius: 8,
             background: value ? `url('${value}') center/cover, ${T.surfaceHi}` : T.surfaceHi,
             border: `1px solid ${T.border}`, flexShrink: 0, cursor: "pointer", padding: 0,
             position: "relative", overflow: "hidden",
@@ -1374,7 +1391,7 @@ function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEF
         >
           {!value && (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: T.textMuted }}>
-              <svg width={compact ? 14 : 20} height={compact ? 14 : 20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+              <svg width={Math.min(size * 0.35, 22)} height={Math.min(size * 0.35, 22)} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
             </div>
           )}
         </button>
@@ -1399,6 +1416,88 @@ function ImageField({ label, value: rawValue, onChange, compact, spec = SPEC_DEF
               {status.msg}
             </div>
           )}
+        </div>
+      </div>
+      {zoomOpen && value && (
+        <ImageZoomModal
+          src={value}
+          label={label}
+          spec={specLine}
+          onClose={() => setZoomOpen(false)}
+          onReplace={() => { setZoomOpen(false); fileInputRef.current?.click(); }}
+          onRemove={() => { onChange(""); setZoomOpen(false); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ImageZoomModal({ src, label, spec, onClose, onReplace, onRemove }: {
+  src: string;
+  label: string;
+  spec: string;
+  onClose: () => void;
+  onReplace: () => void;
+  onRemove: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 1100,
+        background: "rgba(15, 15, 20, 0.55)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+        padding: "48px 64px",
+        animation: "toastBackdropIn 180ms ease",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          display: "flex", flexDirection: "column", gap: 16,
+          maxWidth: "90vw", maxHeight: "90vh",
+          animation: "toastCardIn 240ms cubic-bezier(0.22, 1, 0.36, 1)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontFamily: T.fontDisplay, fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: "-0.01em" }}>{label}</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 2 }}>{spec}</div>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={onReplace}
+              style={{ padding: "8px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: "#fff", border: "1px solid rgba(255,255,255,0.2)", color: T.text }}
+            >Replace</button>
+            <button
+              onClick={onRemove}
+              style={{ padding: "8px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#fff" }}
+            >Remove</button>
+            <button
+              onClick={onClose}
+              title="Close (Esc)"
+              style={{ width: 36, height: 36, borderRadius: 8, background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#fff", cursor: "pointer", fontSize: 18, lineHeight: 1, padding: 0 }}
+            >×</button>
+          </div>
+        </div>
+        {/* Image */}
+        <div style={{
+          background: "rgba(0,0,0,0.4)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 14, padding: 8,
+          boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
+          overflow: "hidden",
+        }}>
+          <img src={src} alt={label} style={{ display: "block", maxWidth: "100%", maxHeight: "72vh", borderRadius: 8, objectFit: "contain" }} />
         </div>
       </div>
     </div>
