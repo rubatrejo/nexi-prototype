@@ -2,10 +2,15 @@
 
 import { NexiIcon } from "@/components/ui/Icons";
 import { useHotel } from "@/lib/theme-provider";
+import { useI18n } from "@/lib/i18n";
+import { useClock, formatLongDate, formatClock12h } from "@/lib/use-clock";
 
 export default function GlobalHeader({ variant }: { variant?: "default" | "cinematic" } = {}) {
   const isCinematic = variant === "cinematic";
   const { brand } = useHotel();
+  const { locale } = useI18n();
+  const now = useClock();
+  const localeTag = locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : locale === "ja" ? "ja-JP" : "en-US";
 
   return (
     <div
@@ -40,9 +45,9 @@ export default function GlobalHeader({ variant }: { variant?: "default" | "cinem
         </span>
       </div>
 
-      {/* Center — Date/Time */}
+      {/* Center — Date/Time (live) */}
       <span style={{ fontSize: "0.75rem", color: isCinematic ? "rgba(255,255,255,0.6)" : "var(--text-secondary)" }}>
-        Saturday, February 22 &mdash; 10:45 AM
+        {formatLongDate(now, localeTag)} &mdash; {formatClock12h(now, localeTag)}
       </span>
 
       {/* Right — Weather */}

@@ -4,13 +4,16 @@ import { useRef, useCallback } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
 import { useHotel } from "@/lib/theme-provider";
+import { useClock, formatLongDate, formatClockHHMM } from "@/lib/use-clock";
 import { PoweredByTrueOmni } from "@/components/ui/Icons";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function IdleScreen() {
   const { navigate } = useKiosk();
-  const { t } = useI18n();
+  const { locale, t } = useI18n();
   const { brand, images } = useHotel();
+  const now = useClock();
+  const localeTag = locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : locale === "ja" ? "ja-JP" : "en-US";
   const tapCount = useRef(0);
   const tapTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -86,7 +89,7 @@ export default function IdleScreen() {
           }}
         >
           <span>72°F Partly Cloudy</span>
-          <span>Saturday, February 22</span>
+          <span>{formatLongDate(now, localeTag)}</span>
           <span
             style={{
               fontFamily: "var(--font-display)",
@@ -95,7 +98,7 @@ export default function IdleScreen() {
               letterSpacing: -0.5,
             }}
           >
-            10:45
+            {formatClockHHMM(now)}
           </span>
         </div>
       </div>
