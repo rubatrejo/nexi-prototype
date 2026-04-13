@@ -94,7 +94,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
           borderRadius: "12px",
           overflow: "hidden",
           position: "relative",
-          zoom: 1.4,
+          zoom: 1,
           boxShadow: "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
           background: "var(--bg)",
           flexShrink: 0,
