@@ -94,27 +94,41 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
           borderRadius: "12px",
           overflow: "hidden",
           position: "relative",
-          zoom: 1,
           boxShadow: "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
           background: "var(--bg)",
           flexShrink: 0,
         }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentScreen}
-            initial={motionProps.initial}
-            animate={{ ...motionProps.animate, transition: motionProps.transition }}
-            exit={{ ...motionProps.exit, transition: motionProps.exitTransition || { duration: 0.15 } }}
-            style={{ width: "100%", height: "100%", position: "relative" }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        {/* Inner content scale: screens render at 125% of frame size and are
+            then downscaled with transform:scale(0.8) so content has ~25% more
+            breathing room inside the frame without touching any screen file. */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "125%",
+            height: "125%",
+            transformOrigin: "top left",
+            transform: "scale(0.8)",
+          }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentScreen}
+              initial={motionProps.initial}
+              animate={{ ...motionProps.animate, transition: motionProps.transition }}
+              exit={{ ...motionProps.exit, transition: motionProps.exitTransition || { duration: 0.15 } }}
+              style={{ width: "100%", height: "100%", position: "relative" }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
 
-        <ErrorModal />
-        <AIConcierge />
-        <InactivityModal />
+          <ErrorModal />
+          <AIConcierge />
+          <InactivityModal />
+        </div>
       </div>
 
       {/* Footer — fixed bottom, shifts with nav panel */}
