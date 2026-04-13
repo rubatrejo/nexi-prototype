@@ -5,6 +5,7 @@ import { useI18n, LOCALES } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 import { useHotel } from "@/lib/theme-provider";
 import BrandLogo from "@/components/ui/BrandLogo";
+import HeroAsset from "@/components/ui/HeroAsset";
 
 const ACTIONS = [
   {
@@ -69,7 +70,7 @@ export default function OnboardingAction() {
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, background: `url('${images.heroExterior}') center/cover`, animation: "kenBurns 20s ease-in-out infinite alternate" }} />
+      <HeroAsset asset={images.heroExteriorAsset} fallbackUrl={images.heroExterior} withKenBurns />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%)" }} />
       <div className="grain" />
 

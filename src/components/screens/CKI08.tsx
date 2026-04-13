@@ -5,6 +5,7 @@ import { useI18n } from "@/lib/i18n";
 import { useHotel } from "@/lib/theme-provider";
 import { useRef, useState, useCallback, useEffect } from "react";
 import GlobalHeader from "@/components/layout/GlobalHeader";
+import HeroAsset from "@/components/ui/HeroAsset";
 
 const POLICIES_FALLBACK = `Hotel Policies & Terms of Stay
 
@@ -100,7 +101,7 @@ export default function TermsSignature() {
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, background: `url('${images.heroExterior}') center/cover` }} />
+      <HeroAsset asset={images.heroExteriorAsset} fallbackUrl={images.heroExterior} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.75))" }} />
       <div className="grain" />
 

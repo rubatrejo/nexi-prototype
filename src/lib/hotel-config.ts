@@ -155,9 +155,24 @@ export interface UpgradeOption {
   gallery?: string[];    // optional gallery shown when guest taps the upgrade
 }
 
+/**
+ * Rich asset union for hero backgrounds. Currently only `heroExterior`
+ * supports this via the optional `heroExteriorAsset` field below — other
+ * heroes stay as plain strings. When set, `heroExteriorAsset` takes
+ * precedence over the plain `heroExterior` string which is kept as a
+ * poster / fallback / backward-compat anchor.
+ */
+export type HeroAsset =
+  | { kind: "image"; url: string }
+  | { kind: "slideshow"; images: string[]; intervalMs?: number }
+  | { kind: "video"; url: string; poster?: string }
+  | { kind: "gradient"; from: string; to: string; angle?: number };
+
 export interface HotelImages {
   // Main hero photos — shown on idle, dashboard, etc.
   heroExterior: string;
+  /** Optional rich asset for the idle/attract screen. Falls back to heroExterior. */
+  heroExteriorAsset?: HeroAsset;
   heroLobby: string;
   heroPool: string;
   heroSpa: string;

@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
-import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont } from "@/lib/hotel-config";
+import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset } from "@/lib/hotel-config";
 
 // ─── design tokens (light Nordic, matches kiosk theme) ────────────────
 const T = {
@@ -468,7 +468,7 @@ export default function AdminCMS() {
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
                 background: "transparent", border: `1.5px dashed ${T.borderHi}`, borderRadius: 16,
                 cursor: "pointer", padding: "24px 16px", aspectRatio: "16/9", color: T.textDim,
-                transition: "all 180ms", gridColumn: "span 2",
+                transition: "all 180ms",
               }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.textDim; }}
@@ -653,10 +653,16 @@ export default function AdminCMS() {
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
                     All hero images share the same spec: <strong style={{ color: T.textDim, fontWeight: 700 }}>{heroSpecLine}</strong>. Click any thumbnail to zoom.
                   </div>
+                  <HeroExteriorEditor
+                    imageUrl={c.images.heroExterior}
+                    asset={c.images.heroExteriorAsset}
+                    onImageChange={(v) => patchImages("heroExterior", v)}
+                    onAssetChange={(a) => setCurrent((x) => x ? { ...x, images: { ...x.images, heroExteriorAsset: a } } : x)}
+                    onToastError={(msg) => flashToast(msg, "error")}
+                  />
                   <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Hotel venue</div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Hotel venue (static)</div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
-                      <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
                       <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
                       <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
                       <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} spec={SPEC_HERO} hideSpec thumbSize={88} />
@@ -1543,6 +1549,174 @@ function Toggle({ on, onClick }: { on: boolean; onClick: (e: React.MouseEvent) =
     }}>
       <div style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 150ms" }} />
     </button>
+  );
+}
+
+function HeroExteriorEditor({ imageUrl, asset, onImageChange, onAssetChange, onToastError }: {
+  imageUrl: string;
+  asset?: HeroAsset;
+  onImageChange: (v: string) => void;
+  onAssetChange: (a: HeroAsset | undefined) => void;
+  onToastError: (msg: string) => void;
+}) {
+  // Derive the active kind. When `asset` is undefined, we're in the legacy
+  // "just a plain string" path and treat that as the Image tab.
+  const activeKind: HeroAsset["kind"] = asset?.kind ?? "image";
+
+  // When the user switches type, seed sensible defaults for the new kind.
+  const switchTo = (kind: HeroAsset["kind"]) => {
+    if (kind === "image") {
+      // Image mode = no asset object, we just use the plain imageUrl string.
+      onAssetChange(undefined);
+      return;
+    }
+    if (kind === "slideshow") {
+      if (asset?.kind === "slideshow") return;
+      // Seed with the current image URL as the first slide so the user
+      // sees something familiar before adding more.
+      onAssetChange({ kind: "slideshow", images: imageUrl ? [imageUrl] : [], intervalMs: 4500 });
+      return;
+    }
+    if (kind === "video") {
+      if (asset?.kind === "video") return;
+      onAssetChange({ kind: "video", url: "", poster: imageUrl });
+      return;
+    }
+    if (kind === "gradient") {
+      if (asset?.kind === "gradient") return;
+      onAssetChange({ kind: "gradient", from: "#0F172A", to: "#1288FF", angle: 180 });
+      return;
+    }
+  };
+
+  const pill = (kind: HeroAsset["kind"], label: string): React.CSSProperties => ({
+    padding: "6px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer",
+    background: activeKind === kind ? T.accent : "transparent",
+    color: activeKind === kind ? "#fff" : T.textDim,
+    border: `1px solid ${activeKind === kind ? T.accent : T.border}`,
+    letterSpacing: 0.3,
+  });
+
+  // Size warning for slideshow
+  const slideshowBytes = asset?.kind === "slideshow"
+    ? asset.images.reduce((sum, s) => sum + (s?.length ?? 0), 0)
+    : 0;
+  const slideshowWarn = slideshowBytes > 600 * 1024;
+
+  return (
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, gap: 8 }}>
+        <div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+            Hero Exterior (idle / attract)
+          </div>
+          <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2 }}>
+            Used by IDL-01, ONB-02 and CKI-08. Pick a type below to switch the renderer.
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button onClick={() => switchTo("image")}     style={pill("image", "Image")}>Image</button>
+          <button onClick={() => switchTo("slideshow")} style={pill("slideshow", "Slideshow")}>Slideshow</button>
+          <button onClick={() => switchTo("video")}     style={pill("video", "Video")}>Video</button>
+          <button onClick={() => switchTo("gradient")}  style={pill("gradient", "Gradient")}>Gradient</button>
+        </div>
+      </div>
+
+      {activeKind === "image" && (
+        <ImageField
+          label="Image URL or upload"
+          value={imageUrl}
+          onChange={onImageChange}
+          spec={SPEC_HERO}
+          thumbSize={88}
+        />
+      )}
+
+      {activeKind === "slideshow" && asset?.kind === "slideshow" && (
+        <div style={{ display: "grid", gap: 8 }}>
+          <GalleryStrip
+            gallery={asset.images}
+            onChange={(next) => onAssetChange({ ...asset, images: next })}
+            spec={SPEC_HERO}
+          />
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ fontSize: 10, color: T.textDim, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8, flexShrink: 0 }}>
+              Interval: {Math.round((asset.intervalMs ?? 4500) / 100) / 10}s
+            </div>
+            <input
+              type="range"
+              min={2000}
+              max={10000}
+              step={500}
+              value={asset.intervalMs ?? 4500}
+              onChange={(e) => onAssetChange({ ...asset, intervalMs: Number(e.target.value) })}
+              style={{ flex: 1, accentColor: T.accent }}
+            />
+          </div>
+          <div style={{ fontSize: 10, color: slideshowWarn ? "#D4960A" : T.textMuted }}>
+            {slideshowWarn
+              ? `⚠ Slideshow is ${Math.round(slideshowBytes / 1024)} KB — close to the 1 MB KV limit. Consider fewer or smaller photos.`
+              : `Total size: ${Math.round(slideshowBytes / 1024)} KB`}
+          </div>
+        </div>
+      )}
+
+      {activeKind === "video" && asset?.kind === "video" && (
+        <div style={{ display: "grid", gap: 10 }}>
+          <Field label="Video URL (mp4 / webm, hosted externally)">
+            <input
+              type="url"
+              value={asset.url}
+              onChange={(e) => onAssetChange({ ...asset, url: e.target.value })}
+              placeholder="https://storage.googleapis.com/.../attract.mp4"
+              style={{ width: "100%", padding: "7px 10px", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 7, color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", outline: "none" }}
+            />
+          </Field>
+          <ImageField
+            label="Poster (shown while video loads)"
+            value={asset.poster ?? ""}
+            onChange={(v) => onAssetChange({ ...asset, poster: v })}
+            spec={SPEC_HERO}
+            thumbSize={64}
+          />
+          <div style={{ fontSize: 10, color: T.textMuted, lineHeight: 1.5 }}>
+            Direct video URL only — Vimeo / Mux / Cloudinary / any public mp4.
+            Autoplay muted loop on the kiosk. YouTube links will not work.
+          </div>
+        </div>
+      )}
+
+      {activeKind === "gradient" && asset?.kind === "gradient" && (
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <ColorField label="From" value={asset.from} onChange={(v) => onAssetChange({ ...asset, from: v })} />
+            <ColorField label="To" value={asset.to} onChange={(v) => onAssetChange({ ...asset, to: v })} />
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ fontSize: 10, color: T.textDim, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.8, flexShrink: 0 }}>
+              Angle: {asset.angle ?? 180}°
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={360}
+              step={5}
+              value={asset.angle ?? 180}
+              onChange={(e) => onAssetChange({ ...asset, angle: Number(e.target.value) })}
+              style={{ flex: 1, accentColor: T.accent }}
+            />
+          </div>
+          <div
+            style={{
+              height: 88,
+              borderRadius: 8,
+              border: `1px solid ${T.border}`,
+              background: `linear-gradient(${asset.angle ?? 180}deg, ${asset.from}, ${asset.to})`,
+            }}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 

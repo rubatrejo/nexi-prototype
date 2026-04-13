@@ -7,6 +7,7 @@ import { useHotel } from "@/lib/theme-provider";
 import { useClock, formatLongDate, formatClockHHMM } from "@/lib/use-clock";
 import { PoweredByTrueOmni } from "@/components/ui/Icons";
 import BrandLogo from "@/components/ui/BrandLogo";
+import HeroAsset from "@/components/ui/HeroAsset";
 
 export default function IdleScreen() {
   const { navigate } = useKiosk();
@@ -40,15 +41,11 @@ export default function IdleScreen() {
         cursor: "pointer",
       }}
     >
-      {/* Background Photo + Ken Burns */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            `url('${images.heroExterior}') center/cover`,
-          animation: "kenBurns 20s ease-in-out infinite alternate",
-        }}
+      {/* Background asset + Ken Burns (image / slideshow / video / gradient) */}
+      <HeroAsset
+        asset={images.heroExteriorAsset}
+        fallbackUrl={images.heroExterior}
+        withKenBurns
       />
       {/* Overlay */}
       <div
