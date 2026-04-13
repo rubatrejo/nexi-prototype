@@ -220,9 +220,20 @@ export default function AdminCMS() {
         minHeight: "100vh", background: T.bg, color: T.text,
         fontFamily: T.fontBody, display: "flex", flexDirection: "column",
       }}>
-        <TopBar slug="" saveState="idle" onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <TopBar
+          slug=""
+          saveState="idle"
+          configs={configs}
+          currentSlug={null}
+          onSelectClient={(c) => setCurrent(structuredClone(c))}
+          onNew={handleNew}
+          onSave={() => {}}
+          onDelete={() => {}}
+          onOpen={() => {}}
+          onCopy={() => {}}
+          disabled
+        />
         <div style={{ flex: 1, display: "flex" }}>
-          <Sidebar configs={configs} currentSlug={null} onSelect={(c) => setCurrent(structuredClone(c))} onNew={handleNew} />
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 48 }}>
             <div style={{ maxWidth: 520, textAlign: "center" }}>
               <div style={{
@@ -261,6 +272,9 @@ export default function AdminCMS() {
         slug={c.slug}
         brandName={c.brand.name}
         saveState={saveState}
+        configs={configs}
+        currentSlug={c.slug}
+        onSelectClient={(cfg) => setCurrent(structuredClone(cfg))}
         onSave={handleSave}
         onDelete={handleDelete}
         onOpen={handleOpenKiosk}
@@ -271,8 +285,6 @@ export default function AdminCMS() {
       />
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        <Sidebar configs={configs} currentSlug={c.slug} onSelect={(cfg) => setCurrent(structuredClone(cfg))} onNew={handleNew} />
-
         {/* ── Form ── */}
         <div style={{ flex: 1, overflow: "auto", padding: "32px 40px", background: T.bg }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -509,15 +521,16 @@ export default function AdminCMS() {
 
 // ─── subcomponents ────────────────────────────────────────────────────
 
-function TopBar({ slug, brandName, saveState, onSave, onDelete, onOpen, onCopy, onNew, onSlugChange, onBrandNameChange, disabled }: {
+function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSlugChange, onBrandNameChange, disabled }: {
   slug: string; brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
+  configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
   onSlugChange?: (v: string) => void; onBrandNameChange?: (v: string) => void; disabled?: boolean;
 }) {
   return (
     <div style={{
       height: 64, borderBottom: `1px solid ${T.border}`, background: T.bg,
-      display: "flex", alignItems: "center", padding: "0 24px", gap: 20, flexShrink: 0,
+      display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0,
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 28, height: 28, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -529,9 +542,10 @@ function TopBar({ slug, brandName, saveState, onSave, onDelete, onOpen, onCopy, 
         </div>
       </div>
 
+      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} />
+
       {!disabled && (
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12, marginLeft: 20 }}>
-          <div style={{ fontSize: 11, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Editing</div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <input
             value={brandName ?? ""}
             onChange={(e) => onBrandNameChange?.(e.target.value)}
@@ -539,7 +553,7 @@ function TopBar({ slug, brandName, saveState, onSave, onDelete, onOpen, onCopy, 
             style={{
               background: "transparent", border: "none", outline: "none",
               fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 700, color: T.text,
-              letterSpacing: "-0.01em", minWidth: 200, padding: 0,
+              letterSpacing: "-0.01em", minWidth: 0, flex: 1, padding: 0,
             }}
           />
           <div style={{ color: T.borderHi, fontSize: 12 }}>/</div>
@@ -550,11 +564,12 @@ function TopBar({ slug, brandName, saveState, onSave, onDelete, onOpen, onCopy, 
             style={{
               background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6,
               padding: "6px 10px", fontFamily: "ui-monospace, monospace", fontSize: 11,
-              color: T.textDim, outline: "none", width: 180,
+              color: T.textDim, outline: "none", width: 160, flexShrink: 0,
             }}
           />
         </div>
       )}
+      {disabled && <div style={{ flex: 1 }} />}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
         {!disabled && (
@@ -586,42 +601,100 @@ function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" })
   return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 8 }}>{cfg.label}</div>;
 }
 
-function Sidebar({ configs, currentSlug, onSelect, onNew }: {
+function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
   configs: HotelConfig[]; currentSlug: string | null; onSelect: (c: HotelConfig) => void; onNew: () => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
+
+  const currentLabel = currentSlug
+    ? configs.find((c) => c.slug === currentSlug)?.brand.name ?? "Unsaved"
+    : "Select client…";
+
   return (
-    <div style={{ width: 240, borderRight: `1px solid ${T.border}`, background: T.surface, display: "flex", flexDirection: "column", flexShrink: 0 }}>
-      <div style={{ padding: "18px 16px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>Clients</div>
-        <button onClick={onNew} style={{
-          width: 22, height: 22, borderRadius: 6, background: T.accent, color: "#fff",
-          border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
-        }}>+</button>
-      </div>
-      <div style={{ flex: 1, overflow: "auto", padding: "0 10px 16px" }}>
-        {configs.length === 0 ? (
-          <div style={{ padding: "12px 6px", fontSize: 11, color: T.textMuted, fontStyle: "italic" }}>No clients yet.</div>
-        ) : (
-          configs.map((cfg) => {
+    <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: "flex", alignItems: "center", gap: 8,
+          height: 38, padding: "0 12px 0 10px", borderRadius: 8,
+          background: T.surface, border: `1px solid ${open ? T.accent : T.border}`,
+          color: T.text, cursor: "pointer", fontFamily: T.fontBody,
+          fontSize: 12, fontWeight: 600, minWidth: 200, maxWidth: 260,
+          transition: "border-color 150ms",
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M3 7h18M3 12h18M3 17h18" />
+        </svg>
+        <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {currentLabel}
+        </span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 150ms" }}>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open && (
+        <div style={{
+          position: "absolute", top: 44, left: 0, minWidth: 280,
+          background: T.surfaceHi, border: `1px solid ${T.borderHi}`, borderRadius: 10,
+          boxShadow: "0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset",
+          padding: 6, zIndex: 50, maxHeight: 420, overflow: "auto",
+        }}>
+          <div style={{ padding: "6px 10px 4px", fontSize: 9, fontWeight: 700, color: T.textMuted, letterSpacing: 1.2, textTransform: "uppercase" }}>
+            {configs.length === 0 ? "No saved clients" : `${configs.length} saved`}
+          </div>
+          {configs.map((cfg) => {
             const active = cfg.slug === currentSlug;
             return (
-              <button key={cfg.slug} onClick={() => onSelect(cfg)} style={{
-                display: "flex", alignItems: "center", gap: 10, width: "100%",
-                padding: "10px 10px", borderRadius: 8, border: `1px solid ${active ? T.borderHi : "transparent"}`,
-                background: active ? T.surfaceHi : "transparent", color: T.text,
-                cursor: "pointer", textAlign: "left", marginBottom: 2,
-                transition: "all 120ms",
-              }}>
-                <div style={{ width: 28, height: 28, borderRadius: 6, background: cfg.colors.primary, flexShrink: 0 }} />
-                <div style={{ overflow: "hidden", flex: 1 }}>
+              <button
+                key={cfg.slug}
+                onClick={() => { onSelect(cfg); setOpen(false); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 10, width: "100%",
+                  padding: "9px 10px", borderRadius: 7, border: "none",
+                  background: active ? `${T.accent}18` : "transparent", color: T.text,
+                  cursor: "pointer", textAlign: "left",
+                  transition: "background 120ms",
+                }}
+                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = T.surface; }}
+                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
+              >
+                <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.colors.primary, flexShrink: 0, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)" }} />
+                <div style={{ overflow: "hidden", flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: T.text, fontFamily: T.fontDisplay, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.brand.name}</div>
                   <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "ui-monospace, monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.slug}</div>
                 </div>
+                {active && <div style={{ fontSize: 10, color: T.accent, fontWeight: 700 }}>●</div>}
               </button>
             );
-          })
-        )}
-      </div>
+          })}
+          <div style={{ height: 1, background: T.border, margin: "6px 4px" }} />
+          <button
+            onClick={() => { onNew(); setOpen(false); }}
+            style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%",
+              padding: "10px 10px", borderRadius: 7, border: "none",
+              background: "transparent", color: T.accent, cursor: "pointer", textAlign: "left",
+              fontFamily: T.fontBody, fontSize: 12, fontWeight: 700, letterSpacing: 0.3,
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = `${T.accent}14`}
+            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+          >
+            <div style={{ width: 26, height: 26, borderRadius: 6, background: `${T.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.accent}44` }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            </div>
+            New client
+          </button>
+        </div>
+      )}
     </div>
   );
 }
