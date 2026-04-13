@@ -101,7 +101,7 @@ export default function AVT02() {
                 padding: "6px 12px", borderRadius: "9999px",
                 border: "1px solid var(--border)", background: "var(--bg-card)",
                 fontSize: "0.5625rem", color: "var(--text-secondary)",
-                cursor: "pointer", fontFamily: "'Inter', sans-serif",
+                cursor: "pointer", fontFamily: "var(--font-body), sans-serif",
               }}>
                 {s}
               </button>

@@ -218,7 +218,7 @@ export default function RSV03() {
             {/* Special instructions */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: "0.5625rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>Special Instructions</div>
-              <textarea placeholder="E.g. extra egg in my omelette, no ice in drinks..." style={{ width: "100%", height: 48, padding: "8px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.625rem", resize: "none", outline: "none", fontFamily: "'Inter', sans-serif" }} />
+              <textarea placeholder="E.g. extra egg in my omelette, no ice in drinks..." style={{ width: "100%", height: 48, padding: "8px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.625rem", resize: "none", outline: "none", fontFamily: "var(--font-body), sans-serif" }} />
             </div>
 
             {/* Actions */}

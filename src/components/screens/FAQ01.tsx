@@ -72,7 +72,7 @@ export default function FAQ01() {
                   fontSize: "0.6875rem",
                   fontWeight: 700,
                   cursor: "pointer",
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "var(--font-body), sans-serif",
                 }}
               >
                 {cat}
@@ -91,11 +91,11 @@ export default function FAQ01() {
                     padding: "14px 0", background: "none", border: "none", cursor: "pointer", textAlign: "left", gap: 12,
                   }}
                 >
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: "0.8125rem", color: "var(--text)" }}>{faq.q}</span>
+                  <span style={{ fontFamily: "var(--font-body), sans-serif", fontWeight: 600, fontSize: "0.8125rem", color: "var(--text)" }}>{faq.q}</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2.5" strokeLinecap="round" style={{ transform: open === i ? "rotate(180deg)" : "none", transition: "transform 200ms", flexShrink: 0 }}><path d="M6 9l6 6 6-6"/></svg>
                 </button>
                 {open === i && (
-                  <div style={{ padding: "0 0 14px", fontSize: "0.75rem", color: "var(--text-secondary)", lineHeight: 1.7, fontFamily: "'Inter', sans-serif" }}>{faq.a}</div>
+                  <div style={{ padding: "0 0 14px", fontSize: "0.75rem", color: "var(--text-secondary)", lineHeight: 1.7, fontFamily: "var(--font-body), sans-serif" }}>{faq.a}</div>
                 )}
               </div>
             ))}

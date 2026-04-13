@@ -54,7 +54,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
                 <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
               )}
             </svg>
-            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: theme === "light" ? "#1A1A1A" : "#fff", fontFamily: "'Inter', sans-serif" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 600, color: theme === "light" ? "#1A1A1A" : "#fff", fontFamily: "var(--font-body), sans-serif" }}>
               {theme === "light" ? "Light" : "Dark"}
             </span>
           </button>
@@ -67,7 +67,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
                 border: "none", cursor: "pointer",
                 fontSize: "0.75rem", fontWeight: 600,
                 color: guestMode ? "#fff" : "#6B7280",
-                fontFamily: "'Inter', sans-serif", transition: "all 200ms",
+                fontFamily: "var(--font-body), sans-serif", transition: "all 200ms",
               }}
             >Guest</button>
             <button
@@ -77,7 +77,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
                 border: "none", borderLeft: "1px solid #D4D4CF", cursor: "pointer",
                 fontSize: "0.75rem", fontWeight: 600,
                 color: !guestMode ? "#fff" : "#6B7280",
-                fontFamily: "'Inter', sans-serif", transition: "all 200ms",
+                fontFamily: "var(--font-body), sans-serif", transition: "all 200ms",
               }}
             >Reservation</button>
           </div>
@@ -147,7 +147,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
                 color: "#6B7280",
                 fontSize: "0.6875rem",
                 fontWeight: 500,
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "var(--font-body), sans-serif",
                 transition: "all 200ms",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A1A1A"; e.currentTarget.style.color = "#1A1A1A"; }}
@@ -171,7 +171,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
                   color: "#fff",
                   fontSize: "0.6875rem",
                   fontWeight: 600,
-                  fontFamily: "'Inter', sans-serif",
+                  fontFamily: "var(--font-body), sans-serif",
                   transition: "all 200ms",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.background = "#0A6FDB"; }}

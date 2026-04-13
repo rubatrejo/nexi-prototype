@@ -26,7 +26,7 @@ export default function ROICalculator({ leadName, onBack, onBookDemo }: Props) {
   return (
     <div style={{
       width: "100vw", minHeight: "100vh", position: "relative",
-      background: "#E8E8E3", fontFamily: "'Inter', sans-serif",
+      background: "#E8E8E3", fontFamily: "var(--font-body), sans-serif",
       display: "flex", flexDirection: "column", alignItems: "center",
       overflow: "auto",
     }}>
@@ -95,7 +95,7 @@ export default function ROICalculator({ leadName, onBack, onBookDemo }: Props) {
               color: "#6B7280",
               fontSize: "0.6875rem",
               fontWeight: 500,
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "var(--font-body), sans-serif",
               transition: "all 200ms",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#1A1A1A"; e.currentTarget.style.color = "#1A1A1A"; }}
@@ -118,7 +118,7 @@ export default function ROICalculator({ leadName, onBack, onBookDemo }: Props) {
               color: "#fff",
               fontSize: "0.6875rem",
               fontWeight: 600,
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "var(--font-body), sans-serif",
               transition: "all 200ms",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "#0A6FDB"; }}

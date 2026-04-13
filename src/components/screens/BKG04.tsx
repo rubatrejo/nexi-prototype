@@ -39,7 +39,7 @@ export default function GuestInformation() {
                 <input
                   readOnly
                   value={field.value}
-                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.6875rem", outline: "none", fontFamily: "'Inter', sans-serif" }}
+                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.6875rem", outline: "none", fontFamily: "var(--font-body), sans-serif" }}
                 />
               </div>
             ))}
@@ -50,7 +50,7 @@ export default function GuestInformation() {
             <textarea
               readOnly
               value="Late check-in, high floor preferred"
-              style={{ width: "100%", height: 44, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.6875rem", resize: "none", outline: "none", fontFamily: "'Inter', sans-serif" }}
+              style={{ width: "100%", height: 44, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.6875rem", resize: "none", outline: "none", fontFamily: "var(--font-body), sans-serif" }}
             />
           </div>
 

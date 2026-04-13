@@ -102,7 +102,7 @@ export default function RSV02() {
                 color: activeCat === cat ? "#fff" : "var(--text-secondary)",
                 border: "none", cursor: "pointer", textAlign: "left",
                 fontWeight: activeCat === cat ? 600 : 400,
-                fontSize: "0.6875rem", fontFamily: "'Inter', sans-serif",
+                fontSize: "0.6875rem", fontFamily: "var(--font-body), sans-serif",
                 transition: "all 150ms",
               }}
             >

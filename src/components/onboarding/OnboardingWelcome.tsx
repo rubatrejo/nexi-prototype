@@ -46,7 +46,7 @@ export default function OnboardingWelcome({ onNext }: { onNext: (name: string, d
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden", fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ width: "100vw", height: "100vh", position: "relative", overflow: "hidden", fontFamily: "var(--font-body), sans-serif" }}>
       {/* Full-screen background image */}
       <div style={{
         position: "absolute", inset: 0,
@@ -67,7 +67,7 @@ export default function OnboardingWelcome({ onNext }: { onNext: (name: string, d
       {/* Language Toggle — Inside card, top-right area */}
 
       {/* Content layer */}
-      <div className="onb-content-wrap" style={{ fontFamily: "'Inter', sans-serif" }}>
+      <div className="onb-content-wrap" style={{ fontFamily: "var(--font-body), sans-serif" }}>
         {/* Left — 65% Text */}
         <div className="onb-welcome-left">
           <div style={{ marginBottom: 20 }}>

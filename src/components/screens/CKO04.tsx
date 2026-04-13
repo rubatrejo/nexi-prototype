@@ -207,7 +207,7 @@ export default function FeedbackRating() {
                   onClick={() => toggleTag(tag)}
                   style={{
                     padding: "3px 10px", borderRadius: 9999,
-                    fontSize: "0.5625rem", fontWeight: 500, fontFamily: "'Inter', sans-serif",
+                    fontSize: "0.5625rem", fontWeight: 500, fontFamily: "var(--font-body), sans-serif",
                     background: isActive ? "color-mix(in srgb, var(--primary) 10%, transparent)" : "transparent",
                     border: `1px solid ${isActive ? "var(--primary)" : "var(--border)"}`,
                     color: isActive ? "var(--primary)" : "var(--text-secondary)",

@@ -89,7 +89,7 @@ export default function OnboardingSlides({ slide, onClick, onComplete }: Props) 
         <div style={{
           width: "100%", height: "100%", background: "#0C0C0E", position: "relative",
           display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          padding: "48px 80px", cursor: "pointer", fontFamily: "'Inter', sans-serif",
+          padding: "48px 80px", cursor: "pointer", fontFamily: "var(--font-body), sans-serif",
         }} onClick={onClick}>
           {/* Subtle background photo */}
           <div style={{

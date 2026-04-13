@@ -71,7 +71,7 @@ export default class ErrorBoundary extends Component<Props, State> {
           </div>
           <h2
             style={{
-              fontFamily: "'Mona Sans', sans-serif",
+              fontFamily: "var(--font-display), sans-serif",
               fontSize: "1.25rem",
               fontWeight: 700,
               color: "var(--text)",

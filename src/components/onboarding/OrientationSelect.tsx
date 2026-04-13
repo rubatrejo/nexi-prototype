@@ -10,7 +10,7 @@ export default function OrientationSelect({ name, onSelect }: { name?: string; o
     <div style={{
       width: "100vw", height: "100vh", background: "#F5F5F0",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      fontFamily: "'Inter', sans-serif",
+      fontFamily: "var(--font-body), sans-serif",
       transition: "padding 400ms ease",
       paddingBottom: selected === "landscape" ? 80 : 0,
     }}>
