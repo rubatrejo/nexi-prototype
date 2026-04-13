@@ -11,7 +11,8 @@
 ```
 PROJECT:   nexi-prototype — Next.js 16 + React 19 + Tailwind v4 + TypeScript
 PORT:      3100 (npm run dev)
-DEPLOY:    vercel --prod --yes --force
+DEPLOY:    git push origin main  (auto-deploys via Vercel Git integration)
+           vercel --prod --yes --force  (manual fallback, needs .vercel/project.json)
 DEMO:      https://nexi-prototype.vercel.app
 REPO:      https://github.com/rubatrejo/nexi-prototype
 
