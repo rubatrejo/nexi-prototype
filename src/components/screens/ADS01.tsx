@@ -11,10 +11,12 @@ export default function ADS01({ onClose }: { onClose?: () => void }) {
   const hotel = useHotel();
   const dismiss = onClose || goBack;
 
-  // Pick the ad to show from config. Rotation: "first" always shows the
-  // first enabled item; "random" picks one at random each mount.
+  // Pick the popup ad to show from config. Non-popup types (hero,
+  // bottomBar, sideBanner) are rendered by AdOverlays, not here.
+  // Rotation: "first" always shows the first enabled popup item;
+  // "random" picks one at random each mount.
   const ad: AdItem | null = useMemo(() => {
-    const items = hotel.ads?.items?.filter((i) => i.enabled) ?? [];
+    const items = hotel.ads?.items?.filter((i) => i.enabled && (i.type ?? "popup") === "popup") ?? [];
     if (items.length === 0) return null;
     if (hotel.ads?.rotation === "random") {
       return items[Math.floor(Math.random() * items.length)];

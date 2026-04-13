@@ -45,11 +45,22 @@ export interface HotelIntegrations {
 }
 
 /**
- * One advertisement shown on the dashboard popup or idle overlay.
- * Managed from the /admin Ads tab when the "ads" module is enabled.
+ * Visual variants for an ad.
+ * - popup      : center-screen modal with header photo + body (legacy behaviour)
+ * - hero       : 16:9 centered card, background photo with overlaid text + CTA
+ * - bottomBar  : full-width strip fixed to the bottom of the kiosk frame
+ * - sideBanner : tall narrow strip fixed to the left or right edge
+ */
+export type AdType = "popup" | "hero" | "bottomBar" | "sideBanner";
+
+/**
+ * One advertisement shown on the dashboard popup, as an inline hero
+ * card, a bottom bar, or a side banner. Managed from the /admin Ads
+ * tab when the "ads" module is enabled.
  */
 export interface AdItem {
   id: string;
+  type?: AdType;           // defaults "popup" for legacy items
   title: string;
   subtitle?: string;
   image: string;           // data URL or external URL
@@ -57,6 +68,19 @@ export interface AdItem {
   ctaTarget?: string;      // screen ID to navigate to (e.g. "UPS-01") or "" for dismiss-only
   dismissLabel?: string;   // secondary button text (e.g. "Maybe Later")
   enabled: boolean;
+  /**
+   * Pattern matched against the current screen id. Supports:
+   *   "*"                  — every screen
+   *   "DSH-01"             — exact match
+   *   "CKI-*"              — prefix wildcard
+   *   "DSH-01,IDL-01"      — comma-separated list
+   * Popup ads ignore this (they trigger on dashboard mount via the
+   * global settings) and default to "DSH-01"; overlay ads default
+   * to "*".
+   */
+  screenPattern?: string;
+  /** Only honoured when type === "sideBanner". Default "right". */
+  side?: "left" | "right";
 }
 
 /**
@@ -546,6 +570,7 @@ export const hotelConfig: HotelConfig = {
     items: [
       {
         id: "spa-offer",
+        type: "popup",
         title: "Exclusive Spa Offer",
         subtitle: "20% off all treatments today",
         image: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
@@ -553,6 +578,7 @@ export const hotelConfig: HotelConfig = {
         ctaTarget: "UPS-01",
         dismissLabel: "Maybe Later",
         enabled: true,
+        screenPattern: "DSH-01",
       },
     ],
     showOnDashboard: true,

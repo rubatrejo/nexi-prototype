@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
-import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset, AdItem, AdsConfig } from "@/lib/hotel-config";
+import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset, AdItem, AdsConfig, AdType } from "@/lib/hotel-config";
 
 // ─── design tokens (light Nordic, matches kiosk theme) ────────────────
 const T = {
@@ -330,6 +330,7 @@ export default function AdminCMS() {
       const base = c.ads ?? DEFAULT_ADS;
       const newItem: AdItem = {
         id: `ad-${Date.now()}`,
+        type: "popup",
         title: "New Offer",
         subtitle: "",
         image: c.images.heroSpa || c.images.heroExterior || "",
@@ -337,6 +338,8 @@ export default function AdminCMS() {
         ctaTarget: "UPS-01",
         dismissLabel: "Maybe Later",
         enabled: true,
+        screenPattern: "DSH-01",
+        side: "right",
       };
       return { ...c, ads: { ...base, items: [...base.items, newItem] } };
     });
@@ -1897,15 +1900,32 @@ function AdsTab({ ads, onPatch, onUpdateItem, onAdd, onRemove, onReorder }: {
   );
 }
 
+const AD_TYPE_LABELS: Record<AdType, string> = {
+  popup: "Popup",
+  hero: "Hero card",
+  bottomBar: "Bottom bar",
+  sideBanner: "Side banner",
+};
+
 function AdCard({ ad, onChange, onRemove }: { ad: AdItem; onChange: (p: Partial<AdItem>) => void; onRemove: () => void }) {
   const [hover, setHover] = useState(false);
+  const currentType: AdType = ad.type ?? "popup";
+
+  const typePill = (t: AdType): React.CSSProperties => ({
+    padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer",
+    background: currentType === t ? T.accent : "transparent",
+    color: currentType === t ? "#fff" : T.textDim,
+    border: `1px solid ${currentType === t ? T.accent : T.border}`,
+    letterSpacing: 0.3, whiteSpace: "nowrap",
+  });
+
   return (
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       style={{
         display: "flex", gap: 14, padding: 14, background: T.surface,
-        border: `1px solid ${ad.enabled ? T.border : T.border}`,
+        border: `1px solid ${T.border}`,
         borderRadius: 12, position: "relative",
         opacity: ad.enabled ? 1 : 0.55,
       }}
@@ -1927,7 +1947,17 @@ function AdCard({ ad, onChange, onRemove }: { ad: AdItem; onChange: (p: Partial<
           onChange={(e) => onChange({ subtitle: e.target.value })}
           placeholder="Subtitle (e.g. 20% off today)"
         />
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 2 }}>
+
+        {/* Type pills */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.8, marginRight: 2 }}>Type</div>
+          {(["popup", "hero", "bottomBar", "sideBanner"] as AdType[]).map((t) => (
+            <button key={t} onClick={() => onChange({ type: t })} style={typePill(t)}>{AD_TYPE_LABELS[t]}</button>
+          ))}
+        </div>
+
+        {/* CTA + dismiss row */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
           <input
             style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.text, outline: "none" }}
             value={ad.ctaLabel ?? ""}
@@ -1946,6 +1976,43 @@ function AdCard({ ad, onChange, onRemove }: { ad: AdItem; onChange: (p: Partial<
             onChange={(e) => onChange({ dismissLabel: e.target.value })}
             placeholder="Dismiss label"
           />
+        </div>
+
+        {/* Screen pattern + (sideBanner only) side selector */}
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+            <input
+              style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.text, outline: "none", fontFamily: "ui-monospace, monospace", width: "100%" }}
+              value={ad.screenPattern ?? (currentType === "popup" ? "DSH-01" : "*")}
+              onChange={(e) => onChange({ screenPattern: e.target.value })}
+              placeholder="Show on screen(s): * or DSH-01 or CKI-* or DSH-01,IDL-01"
+            />
+            <div style={{ fontSize: 9, color: T.textMuted, paddingLeft: 4 }}>
+              {currentType === "popup"
+                ? "Popup only triggers on its first screen in the list (typically DSH-01)."
+                : "Overlay shows on any screen matching the pattern. Use * for all screens or prefix-*."}
+            </div>
+          </div>
+          {currentType === "sideBanner" && (
+            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+              {(["left", "right"] as const).map((s) => {
+                const isActive = (ad.side ?? "right") === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => onChange({ side: s })}
+                    style={{
+                      padding: "5px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer",
+                      background: isActive ? T.accent : "transparent",
+                      color: isActive ? "#fff" : T.textDim,
+                      border: `1px solid ${isActive ? T.accent : T.border}`,
+                      textTransform: "capitalize",
+                    }}
+                  >{s}</button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
       {hover && (

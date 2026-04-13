@@ -52,11 +52,10 @@ export default function DashboardScreen() {
     // Respect both the module toggle and the per-client ads config.
     if (!adsModuleEnabled) return;
     if (ads && ads.showOnDashboard === false) return;
-    const enabledItems = ads?.items?.filter((i) => i.enabled) ?? [];
-    // Legacy configs without any ads array still get the default timer
-    // so nothing regresses — ADS01 itself will fall back to its old
-    // hardcoded spa offer when the filtered list is empty.
-    if (ads && enabledItems.length === 0) return;
+    // Only the "popup" type triggers the DSH-01 modal. Hero / bottom /
+    // side banner ads render inline via AdOverlays inside KioskFrame.
+    const popupItems = ads?.items?.filter((i) => i.enabled && (i.type ?? "popup") === "popup") ?? [];
+    if (ads && popupItems.length === 0) return;
     const delay = ads?.dashboardDelayMs ?? 3000;
     const timer = setTimeout(() => setShowAd(true), delay);
     return () => clearTimeout(timer);
