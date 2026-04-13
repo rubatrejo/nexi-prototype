@@ -2,17 +2,16 @@
 
 /**
  * NEXI CMS — single-page white-label configuration studio.
- *
- * Split layout: client list (left) · form editor (center) · live preview (right).
- * Dark theme by design: this is a TrueOmni internal tool, sessions are long,
- * and the look sets it apart from the light kiosk it configures.
+ * Horizontal tabs layout: topbar + tab bar + (tab content | live preview).
+ * Preview is always visible, never scrolls out.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Reorder } from "framer-motion";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
 import type { HotelConfig, HotelModule, RoomType, UpgradeOption } from "@/lib/hotel-config";
 
-// ─── design tokens (light surface palette, matches kiosk Nordic theme) ────
+// ─── design tokens (light Nordic, matches kiosk theme) ────────────────
 const T = {
   bg: "#F5F5F0",
   surface: "#FFFFFF",
@@ -30,16 +29,85 @@ const T = {
   fontBody: "'Inter', sans-serif",
 };
 
-const GOOGLE_FONTS = [
-  "Mona Sans", "Inter", "Playfair Display", "Space Grotesk", "DM Sans",
-  "Manrope", "Instrument Serif", "Cormorant Garamond", "Fraunces", "Geist",
+// ─── inline section icons (stroke 1.6, 24x24 viewBox) ────────────────
+const sp = { width: 24, height: 24, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+const ICONS: Record<string, React.ReactNode> = {
+  brand: <svg {...sp}><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.83z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg>,
+  colors: <svg {...sp}><circle cx="13.5" cy="6.5" r="1.5" /><circle cx="17.5" cy="10.5" r="1.5" /><circle cx="8.5" cy="7.5" r="1.5" /><circle cx="6.5" cy="12.5" r="1.5" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.6 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.6-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.9-4.5-8.8-10-8.8z" /></svg>,
+  fonts: <svg {...sp}><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" y1="20" x2="15" y2="20" /><line x1="12" y1="4" x2="12" y2="20" /></svg>,
+  images: <svg {...sp}><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>,
+  modules: <svg {...sp}><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>,
+  rooms: <svg {...sp}><path d="M2 4v16" /><path d="M22 4v16" /><path d="M2 11h20" /><path d="M2 8h14a4 4 0 014 4v-1" /><path d="M6 11V8" /></svg>,
+  upgrades: <svg {...sp}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>,
+  info: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>,
+  timers: <svg {...sp}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+};
+
+const GOOGLE_FONTS = ["Mona Sans", "Inter", "Playfair Display", "Space Grotesk", "DM Sans", "Manrope", "Instrument Serif", "Cormorant Garamond", "Fraunces", "Geist"];
+
+const SECTIONS = [
+  { key: "brand", num: "01", label: "Brand", title: "Brand Identity", desc: "The hotel's name, tagline and logo assets." },
+  { key: "colors", num: "02", label: "Colors", title: "Colors", desc: "Primary accent and the light/dark surface palettes." },
+  { key: "fonts", num: "03", label: "Typography", title: "Typography", desc: "Google Fonts for display and body across the kiosk." },
+  { key: "images", num: "04", label: "Images", title: "Hero Imagery", desc: "Hotel photography used on idle, dashboard and action screens." },
+  { key: "modules", num: "05", label: "Modules", title: "Kiosk Modules", desc: "What the guest can access. Pin modules to the dashboard grid." },
+  { key: "rooms", num: "06", label: "Rooms", title: "Rooms", desc: "Available room types shown during the booking flow." },
+  { key: "upgrades", num: "07", label: "Upgrades", title: "Upgrades & Offers", desc: "Paid extras shown in the dashboard sidebar after check-in." },
+  { key: "info", num: "08", label: "Info", title: "Hotel Information", desc: "Operational details the kiosk shows to guests." },
+  { key: "timers", num: "09", label: "Timers", title: "Inactivity Timers", desc: "Tune the auto-reset thresholds for your lobby traffic." },
+];
+
+// ─── presets: signature fields only, rest inherits from defaultConfig ──
+type Preset = {
+  key: string;
+  label: string;
+  tag: string;
+  hero: string;
+  primary: string;
+  template?: {
+    brand?: Partial<HotelConfig["brand"]>;
+    colors?: { primary?: string; primaryHover?: string };
+    images?: Partial<HotelConfig["images"]>;
+  };
+};
+const PRESETS: Preset[] = [
+  {
+    key: "hilton", label: "Hilton Miami", tag: "Urban luxury",
+    hero: "/images/unsplash/photo-1551882547-ff40c63fe5fa.jpg",
+    primary: "#1B4F9E",
+    template: {
+      brand: { name: "Hilton Miami Downtown", tagline: "Oceanfront Luxury" },
+      colors: { primary: "#1B4F9E", primaryHover: "#143C78" },
+      images: { heroExterior: "/images/unsplash/photo-1551882547-ff40c63fe5fa.jpg", heroLobby: "/images/unsplash/photo-1564501049412-61c2a3083791.jpg" },
+    },
+  },
+  {
+    key: "marriott", label: "Marriott Grand", tag: "Classic hospitality",
+    hero: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+    primary: "#A81E26",
+    template: {
+      brand: { name: "Marriott Grand Plaza", tagline: "Where business meets comfort" },
+      colors: { primary: "#A81E26", primaryHover: "#7D161C" },
+      images: { heroExterior: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg", heroLobby: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg" },
+    },
+  },
+  {
+    key: "boutique", label: "Boutique Coast", tag: "Small & intentional",
+    hero: "/images/unsplash/photo-1566073771259-6a8506099945.jpg",
+    primary: "#B8885E",
+    template: {
+      brand: { name: "Coastal Haven Boutique", tagline: "Intimate. Considered. Yours." },
+      colors: { primary: "#B8885E", primaryHover: "#8F6642" },
+      images: { heroExterior: "/images/unsplash/photo-1566073771259-6a8506099945.jpg", heroLobby: "/images/unsplash/photo-1542314831-068cd1dbfeeb.jpg" },
+    },
+  },
 ];
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 64);
 }
 
-function makeBlankConfig(baseSlug = "new-client"): HotelConfig {
+function makeBlankConfig(baseSlug: string): HotelConfig {
   return {
     ...structuredClone(defaultConfig),
     slug: baseSlug,
@@ -47,9 +115,21 @@ function makeBlankConfig(baseSlug = "new-client"): HotelConfig {
   };
 }
 
+function applyPreset(preset: Preset): HotelConfig {
+  const base = structuredClone(defaultConfig);
+  const t = preset.template ?? {};
+  if (t.brand) base.brand = { ...base.brand, ...t.brand };
+  if (t.colors?.primary) base.colors.primary = t.colors.primary;
+  if (t.colors?.primaryHover) base.colors.primaryHover = t.colors.primaryHover;
+  if (t.images) base.images = { ...base.images, ...t.images };
+  base.slug = `${preset.key}-${Date.now().toString(36).slice(-4)}`;
+  return base;
+}
+
 export default function AdminCMS() {
   const [configs, setConfigs] = useState<HotelConfig[]>([]);
   const [current, setCurrent] = useState<HotelConfig | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("brand");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
@@ -61,23 +141,17 @@ export default function AdminCMS() {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   }, []);
 
-  // ─── initial load ────────────────────────────────────────────────────
   useEffect(() => {
-    fetch("/api/admin/configs")
-      .then((r) => r.json())
-      .then((data) => setConfigs(data.configs ?? []))
-      .catch(() => {});
+    fetch("/api/admin/configs").then((r) => r.json()).then((d) => setConfigs(d.configs ?? [])).catch(() => {});
   }, []);
 
-  // ─── patch helper: shallow+nested updates ───────────────────────────
+  // ─── patchers ────────────────────────────────────────────────────
   const patch = useCallback(<K extends keyof HotelConfig>(key: K, value: HotelConfig[K]) => {
     setCurrent((c) => (c ? { ...c, [key]: value } : c));
   }, []);
-
   const patchBrand = useCallback((k: keyof HotelConfig["brand"], v: string) => {
     setCurrent((c) => (c ? { ...c, brand: { ...c.brand, [k]: v } } : c));
   }, []);
-
   const patchColors = useCallback((path: string, v: string) => {
     setCurrent((c) => {
       if (!c) return c;
@@ -89,20 +163,16 @@ export default function AdminCMS() {
       return next;
     });
   }, []);
-
   const patchFonts = useCallback((k: keyof HotelConfig["fonts"], v: string) => {
     setCurrent((c) => (c ? { ...c, fonts: { ...c.fonts, [k]: v } } : c));
   }, []);
-
   const patchImages = useCallback((k: keyof HotelConfig["images"], v: string) => {
     setCurrent((c) => (c ? { ...c, images: { ...c.images, [k]: v as string & string[] } } : c));
   }, []);
-
   const patchInfo = useCallback((k: keyof HotelConfig["info"], v: string) => {
     setCurrent((c) => (c ? { ...c, info: { ...c.info, [k]: v } } : c));
   }, []);
 
-  // ─── module actions ─────────────────────────────────────────────────
   const toggleModule = useCallback((id: string) => {
     setCurrent((c) => c ? { ...c, modules: c.modules.map((m) => m.id === id ? { ...m, enabled: !m.enabled } : m) } : c);
   }, []);
@@ -114,34 +184,29 @@ export default function AdminCMS() {
     });
   }, []);
 
-  // ─── rooms / upgrades CRUD ──────────────────────────────────────────
-  const updateRoom = (i: number, patch: Partial<RoomType>) => setCurrent((c) => c ? { ...c, rooms: c.rooms.map((r, idx) => idx === i ? { ...r, ...patch } : r) } : c);
+  const updateRoom = (i: number, p: Partial<RoomType>) => setCurrent((c) => c ? { ...c, rooms: c.rooms.map((r, idx) => idx === i ? { ...r, ...p } : r) } : c);
   const addRoom = () => setCurrent((c) => c ? { ...c, rooms: [...c.rooms, { id: `room-${Date.now()}`, name: "New Room", description: "", maxGuests: 2, bedType: "King", sizeSqFt: 400, baseRate: 200, currency: "USD", image: defaultConfig.images.roomDeluxe }] } : c);
   const removeRoom = (i: number) => setCurrent((c) => c ? { ...c, rooms: c.rooms.filter((_, idx) => idx !== i) } : c);
+  const reorderRooms = (arr: RoomType[]) => setCurrent((c) => c ? { ...c, rooms: arr } : c);
 
-  const updateUpgrade = (i: number, patch: Partial<UpgradeOption>) => setCurrent((c) => c ? { ...c, upgrades: c.upgrades.map((u, idx) => idx === i ? { ...u, ...patch } : u) } : c);
+  const updateUpgrade = (i: number, p: Partial<UpgradeOption>) => setCurrent((c) => c ? { ...c, upgrades: c.upgrades.map((u, idx) => idx === i ? { ...u, ...p } : u) } : c);
   const addUpgrade = () => setCurrent((c) => c ? { ...c, upgrades: [...c.upgrades, { id: `upgrade-${Date.now()}`, title: "New Upgrade", description: "", price: "$0", image: defaultConfig.images.heroSpa }] } : c);
   const removeUpgrade = (i: number) => setCurrent((c) => c ? { ...c, upgrades: c.upgrades.filter((_, idx) => idx !== i) } : c);
+  const reorderUpgrades = (arr: UpgradeOption[]) => setCurrent((c) => c ? { ...c, upgrades: arr } : c);
 
-  // ─── save / delete / new ────────────────────────────────────────────
   const handleSave = async () => {
     if (!current) return;
     setSaveState("saving");
     try {
-      const res = await fetch("/api/admin/configs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(current),
-      });
+      const res = await fetch("/api/admin/configs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
       if (!res.ok) throw new Error(await res.text());
       setSaveState("saved");
       setPreviewKey((k) => k + 1);
       flashToast(`Saved "${current.slug}"`);
-      // refresh list
       const list = await fetch("/api/admin/configs").then((r) => r.json());
       setConfigs(list.configs ?? []);
       setTimeout(() => setSaveState("idle"), 2000);
-    } catch (e) {
+    } catch {
       setSaveState("error");
       flashToast("Save failed");
       setTimeout(() => setSaveState("idle"), 3000);
@@ -162,13 +227,10 @@ export default function AdminCMS() {
     }
   };
 
-  const handleNew = () => setCurrent(makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`));
+  const handleNew = () => { setCurrent(makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`)); setActiveTab("brand"); };
+  const handlePreset = (p: Preset) => { setCurrent(applyPreset(p)); setActiveTab("brand"); };
 
-  const handleOpenKiosk = () => {
-    if (!current?.slug) return;
-    window.open(`/?client=${encodeURIComponent(current.slug)}`, "_blank");
-  };
-
+  const handleOpenKiosk = () => { if (current?.slug) window.open(`/?client=${encodeURIComponent(current.slug)}`, "_blank"); };
   const handleCopyLink = async () => {
     if (!current?.slug) return;
     const url = `${window.location.origin}/?client=${encodeURIComponent(current.slug)}`;
@@ -181,100 +243,89 @@ export default function AdminCMS() {
     [current?.slug, previewKey]
   );
 
-  // ─── styles ─────────────────────────────────────────────────────────
+  // ─── shared styles ──────────────────────────────────────────────
   const input: React.CSSProperties = {
     width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`,
     borderRadius: 8, color: T.text, fontSize: 13, fontFamily: T.fontBody, outline: "none",
-    transition: "border-color 150ms",
   };
-  const label: React.CSSProperties = {
-    fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase",
-    letterSpacing: 1, marginBottom: 6, fontFamily: T.fontBody, display: "block",
-  };
-  const sectionCard: React.CSSProperties = {
-    background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
-    padding: 24, marginBottom: 16,
-  };
-  const sectionTitle: React.CSSProperties = {
-    fontFamily: T.fontDisplay, fontSize: 18, fontWeight: 700, color: T.text,
-    marginBottom: 4, letterSpacing: "-0.01em",
-  };
-  const sectionHint: React.CSSProperties = {
-    fontSize: 12, color: T.textDim, marginBottom: 20, fontFamily: T.fontBody,
-  };
-  const btn = (variant: "primary" | "ghost" | "danger" = "ghost"): React.CSSProperties => ({
-    padding: "9px 16px", borderRadius: 8, fontSize: 12, fontWeight: 600,
-    fontFamily: T.fontBody, cursor: "pointer", transition: "all 150ms",
-    display: "inline-flex", alignItems: "center", gap: 6, border: "1px solid",
-    ...(variant === "primary"
-      ? { background: T.accent, borderColor: T.accent, color: "#fff" }
-      : variant === "danger"
-      ? { background: "transparent", borderColor: T.border, color: T.error }
-      : { background: T.surface, borderColor: T.border, color: T.text }),
-  });
 
-  // ─── empty state ────────────────────────────────────────────────────
+  // ═══════ EMPTY STATE — preset gallery ═══════
   if (!current) {
     return (
-      <div style={{
-        minHeight: "100vh", background: T.bg, color: T.text,
-        fontFamily: T.fontBody, display: "flex", flexDirection: "column",
-      }}>
-        <TopBar
-          slug=""
-          saveState="idle"
-          configs={configs}
-          currentSlug={null}
-          onSelectClient={(c) => setCurrent(structuredClone(c))}
-          onNew={handleNew}
-          onSave={() => {}}
-          onDelete={() => {}}
-          onOpen={() => {}}
-          onCopy={() => {}}
-          disabled
-        />
-        <div style={{ flex: 1, display: "flex" }}>
-          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 48 }}>
-            <div style={{ maxWidth: 520, textAlign: "center" }}>
-              <div style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: 72, height: 72, borderRadius: 20, background: `${T.accent}14`,
-                border: `1px solid ${T.accent}28`, marginBottom: 24,
-              }}>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="4" />
-                  <path d="M3 9h18M9 21V9" />
-                </svg>
+      <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
+        <TopBar slug="" saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(structuredClone(c)); setActiveTab("brand"); }} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <div style={{ flex: 1, overflow: "auto", padding: "48px 40px" }}>
+          <div style={{ maxWidth: 980, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 64, height: 64, borderRadius: 18, background: `${T.accent}14`, border: `1px solid ${T.accent}28`, marginBottom: 24, color: T.accent }}>
+                <svg {...sp} width={28} height={28}><rect x="3" y="3" width="18" height="18" rx="4" /><path d="M3 9h18M9 21V9" /></svg>
               </div>
-              <h1 style={{ fontFamily: T.fontDisplay, fontSize: 34, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 12, lineHeight: 1.1 }}>
+              <h1 style={{ fontFamily: T.fontDisplay, fontSize: 38, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 12, lineHeight: 1.1 }}>
                 Configure a client, ship the kiosk.
               </h1>
-              <p style={{ fontSize: 15, color: T.textDim, lineHeight: 1.6, marginBottom: 32, maxWidth: 440, margin: "0 auto 32px" }}>
-                Load a hotel&rsquo;s brand, colors, rooms and modules. Click save. Send a link. The kiosk is branded in real time — no rebuild, no redeploy.
+              <p style={{ fontSize: 15, color: T.textDim, lineHeight: 1.6, maxWidth: 560, margin: "0 auto" }}>
+                Start from a template below, or build from scratch. Every kiosk rebrands in real time — no rebuild, no redeploy.
               </p>
-              <button onClick={handleNew} style={{ ...btn("primary"), padding: "14px 28px", fontSize: 13 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-                New Client Configuration
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, maxWidth: 1000, margin: "0 auto" }}>
+              {PRESETS.map((p) => (
+                <button key={p.key} onClick={() => handlePreset(p)} style={{
+                  display: "flex", flexDirection: "column", textAlign: "left",
+                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
+                  overflow: "hidden", cursor: "pointer", padding: 0,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 180ms",
+                }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 14px 40px rgba(0,0,0,0.10)"; e.currentTarget.style.borderColor = T.borderHi; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = T.border; }}
+                >
+                  <div style={{ height: 150, background: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.35)), url('${p.hero}') center/cover`, position: "relative" }}>
+                    <div style={{ position: "absolute", bottom: 12, left: 14, display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 14, height: 14, borderRadius: 4, background: p.primary, boxShadow: "0 0 0 2px rgba(255,255,255,0.9)" }} />
+                      <div style={{ color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>Template</div>
+                    </div>
+                  </div>
+                  <div style={{ padding: "16px 18px 18px" }}>
+                    <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", marginBottom: 4 }}>{p.label}</div>
+                    <div style={{ fontSize: 12, color: T.textDim }}>{p.tag}</div>
+                  </div>
+                </button>
+              ))}
+              <button onClick={handleNew} style={{
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
+                background: "transparent", border: `1.5px dashed ${T.borderHi}`, borderRadius: 14,
+                cursor: "pointer", padding: "24px 16px", minHeight: 240, color: T.textDim,
+                transition: "all 180ms",
+              }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.textDim; }}
+              >
+                <div style={{ width: 48, height: 48, borderRadius: 14, border: `1.5px dashed currentColor`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                  <svg {...sp} width={22} height={22}><path d="M12 5v14M5 12h14" /></svg>
+                </div>
+                <div style={{ fontFamily: T.fontDisplay, fontSize: 16, fontWeight: 800, color: T.text, marginBottom: 4 }}>Blank</div>
+                <div style={{ fontSize: 12, color: T.textDim }}>Start from scratch</div>
               </button>
             </div>
           </div>
         </div>
+        {toast && <ToastBar msg={toast} />}
       </div>
     );
   }
 
   const c = current;
-  const cssPrimary = c.colors.primary;
+  const activeSection = SECTIONS.find((s) => s.key === activeTab)!;
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
+    <div style={{ height: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column", overflow: "hidden" }}>
       <TopBar
         slug={c.slug}
         brandName={c.brand.name}
         saveState={saveState}
         configs={configs}
         currentSlug={c.slug}
-        onSelectClient={(cfg) => setCurrent(structuredClone(cfg))}
+        onSelectClient={(cfg) => { setCurrent(structuredClone(cfg)); setActiveTab("brand"); }}
         onSave={handleSave}
         onDelete={handleDelete}
         onOpen={handleOpenKiosk}
@@ -284,64 +335,77 @@ export default function AdminCMS() {
         onBrandNameChange={(v) => patchBrand("name", v)}
       />
 
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-        {/* ── Form ── */}
-        <div style={{ flex: 1, overflow: "auto", padding: "32px 40px", background: T.bg }}>
+      {/* Tab bar */}
+      <div style={{ height: 52, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 2, flexShrink: 0, overflowX: "auto", scrollbarWidth: "none" }}>
+        <style>{`.tabs-strip::-webkit-scrollbar{display:none}`}</style>
+        <div className="tabs-strip" style={{ display: "flex", gap: 2, height: "100%" }}>
+          {SECTIONS.map((s) => {
+            const active = s.key === activeTab;
+            return (
+              <button key={s.key} onClick={() => setActiveTab(s.key)} style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "0 16px",
+                height: "100%", background: "transparent", border: "none", cursor: "pointer",
+                color: active ? T.accent : T.textDim,
+                fontSize: 12, fontWeight: active ? 700 : 500, fontFamily: T.fontBody,
+                borderBottom: `2px solid ${active ? T.accent : "transparent"}`,
+                marginBottom: -1, whiteSpace: "nowrap", transition: "color 120ms",
+              }}>
+                <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10, fontWeight: 700, opacity: 0.6 }}>{s.num}</span>
+                {s.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+        {/* Form panel */}
+        <div style={{ flex: 1, overflow: "auto", padding: "40px 48px 80px", background: T.bg }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
+            <SectionHeader section={activeSection} />
 
-            {/* Brand Identity */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Brand Identity</div>
-              <div style={sectionHint}>The hotel&rsquo;s name, tagline and logo assets.</div>
-              <div style={{ display: "grid", gap: 14 }}>
-                <Field label="Brand Name">
-                  <input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} />
-                </Field>
-                <Field label="Tagline">
-                  <input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} />
-                </Field>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                  <LogoField label="Logo (light bg)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} />
-                  <LogoField label="Logo (dark bg)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} />
+            {activeTab === "brand" && (
+              <div style={{ display: "grid", gap: 16 }}>
+                <Field label="Brand Name"><input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} /></Field>
+                <Field label="Tagline"><input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} /></Field>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <ImageField label="Logo (light bg)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact />
+                  <ImageField label="Logo (dark bg)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                  <LogoField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} />
-                  <LogoField label="Icon white" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} />
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact />
+                  <ImageField label="Icon white" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact />
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Colors */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Colors</div>
-              <div style={sectionHint}>Primary accent is the dominant brand color. Light/dark surfaces flip with the kiosk theme toggle.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-                <ColorField label="Primary" value={c.colors.primary} onChange={(v) => patchColors("primary", v)} />
-                <ColorField label="Primary Hover" value={c.colors.primaryHover} onChange={(v) => patchColors("primaryHover", v)} />
-                <ColorField label="Amber Accent" value={c.colors.amber} onChange={(v) => patchColors("amber", v)} />
-                <ColorField label="Purple Accent" value={c.colors.purple} onChange={(v) => patchColors("purple", v)} />
+            {activeTab === "colors" && (
+              <div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+                  <ColorField label="Primary" value={c.colors.primary} onChange={(v) => patchColors("primary", v)} />
+                  <ColorField label="Primary Hover" value={c.colors.primaryHover} onChange={(v) => patchColors("primaryHover", v)} />
+                  <ColorField label="Amber Accent" value={c.colors.amber} onChange={(v) => patchColors("amber", v)} />
+                  <ColorField label="Purple Accent" value={c.colors.purple} onChange={(v) => patchColors("purple", v)} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  <ColorGroup title="Light Mode">
+                    <ColorField label="Background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
+                    <ColorField label="Card" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
+                    <ColorField label="Text" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
+                    <ColorField label="Border" value={c.colors.light.border} onChange={(v) => patchColors("light.border", v)} />
+                  </ColorGroup>
+                  <ColorGroup title="Dark Mode">
+                    <ColorField label="Background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
+                    <ColorField label="Card" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
+                    <ColorField label="Text" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
+                    <ColorField label="Border" value={c.colors.dark.border} onChange={(v) => patchColors("dark.border", v)} />
+                  </ColorGroup>
+                </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-                <ColorGroup title="Light Mode">
-                  <ColorField label="Background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
-                  <ColorField label="Card" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
-                  <ColorField label="Text" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
-                  <ColorField label="Border" value={c.colors.light.border} onChange={(v) => patchColors("light.border", v)} />
-                </ColorGroup>
-                <ColorGroup title="Dark Mode">
-                  <ColorField label="Background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
-                  <ColorField label="Card" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
-                  <ColorField label="Text" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
-                  <ColorField label="Border" value={c.colors.dark.border} onChange={(v) => patchColors("dark.border", v)} />
-                </ColorGroup>
-              </div>
-            </div>
+            )}
 
-            {/* Fonts */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Typography</div>
-              <div style={sectionHint}>Loaded from Google Fonts. Display for headlines, body for everything else.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {activeTab === "fonts" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <Field label="Display Font">
                   <select style={input} value={c.fonts.display} onChange={(e) => patchFonts("display", e.target.value)}>
                     {GOOGLE_FONTS.map((f) => <option key={f} value={f}>{f}</option>)}
@@ -353,90 +417,56 @@ export default function AdminCMS() {
                   </select>
                 </Field>
               </div>
-            </div>
+            )}
 
-            {/* Hero Images */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Hero Imagery</div>
-              <div style={sectionHint}>URLs to hotel photography. Used on the idle screen, action select and dashboard welcome card.</div>
-              <div style={{ display: "grid", gap: 14 }}>
+            {activeTab === "images" && (
+              <div style={{ display: "grid", gap: 16 }}>
                 <ImageField label="Hero Exterior (idle splash)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} />
                 <ImageField label="Hero Lobby (dashboard welcome)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} />
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} />
                   <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} />
                 </div>
                 <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} />
               </div>
-            </div>
+            )}
 
-            {/* Modules */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Kiosk Modules</div>
-              <div style={sectionHint}>Toggle what the guest can access. &ldquo;On dashboard&rdquo; controls visibility in the DSH-01 grid.</div>
-              <div style={{ display: "grid", gap: 6 }}>
+            {activeTab === "modules" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
                 {c.modules.map((m) => (
-                  <ModuleRow key={m.id} module={m} onToggle={() => toggleModule(m.id)} onToggleDash={() => toggleModuleDash(m.id)} />
+                  <ModuleCard key={m.id} module={m} onToggle={() => toggleModule(m.id)} onToggleDash={() => toggleModuleDash(m.id)} />
                 ))}
               </div>
-            </div>
+            )}
 
-            {/* Rooms */}
-            <div style={sectionCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 20 }}>
-                <div>
-                  <div style={sectionTitle}>Rooms</div>
-                  <div style={{ ...sectionHint, marginBottom: 0 }}>Available room types shown in the booking flow.</div>
-                </div>
-                <button onClick={addRoom} style={btn("ghost")}>+ Add</button>
+            {activeTab === "rooms" && (
+              <div>
+                <Reorder.Group axis="y" values={c.rooms} onReorder={reorderRooms} style={{ display: "grid", gap: 12, listStyle: "none", padding: 0, margin: 0 }}>
+                  {c.rooms.map((r, i) => (
+                    <Reorder.Item key={r.id} value={r} style={{ listStyle: "none" }}>
+                      <RoomCard room={r} onChange={(p) => updateRoom(i, p)} onRemove={() => removeRoom(i)} />
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+                <button onClick={addRoom} style={addCardBtn}>+ Add room</button>
               </div>
-              <div style={{ display: "grid", gap: 12 }}>
-                {c.rooms.map((r, i) => (
-                  <ItemCard key={r.id} onRemove={() => removeRoom(i)}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 10 }}>
-                      <Field label="Name"><input style={input} value={r.name} onChange={(e) => updateRoom(i, { name: e.target.value })} /></Field>
-                      <Field label="Bed"><input style={input} value={r.bedType} onChange={(e) => updateRoom(i, { bedType: e.target.value })} /></Field>
-                      <Field label="Rate / Night"><input type="number" style={input} value={r.baseRate} onChange={(e) => updateRoom(i, { baseRate: Number(e.target.value) })} /></Field>
-                    </div>
-                    <Field label="Description"><input style={input} value={r.description} onChange={(e) => updateRoom(i, { description: e.target.value })} /></Field>
-                    <div style={{ marginTop: 10 }}>
-                      <ImageField label="Image" value={r.image} onChange={(v) => updateRoom(i, { image: v })} compact />
-                    </div>
-                  </ItemCard>
-                ))}
-              </div>
-            </div>
+            )}
 
-            {/* Upgrades */}
-            <div style={sectionCard}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 20 }}>
-                <div>
-                  <div style={sectionTitle}>Upgrades & Offers</div>
-                  <div style={{ ...sectionHint, marginBottom: 0 }}>Paid extras shown in the dashboard sidebar after check-in.</div>
-                </div>
-                <button onClick={addUpgrade} style={btn("ghost")}>+ Add</button>
+            {activeTab === "upgrades" && (
+              <div>
+                <Reorder.Group axis="y" values={c.upgrades} onReorder={reorderUpgrades} style={{ display: "grid", gap: 12, listStyle: "none", padding: 0, margin: 0 }}>
+                  {c.upgrades.map((u, i) => (
+                    <Reorder.Item key={u.id} value={u} style={{ listStyle: "none" }}>
+                      <UpgradeCard upgrade={u} onChange={(p) => updateUpgrade(i, p)} onRemove={() => removeUpgrade(i)} />
+                    </Reorder.Item>
+                  ))}
+                </Reorder.Group>
+                <button onClick={addUpgrade} style={addCardBtn}>+ Add upgrade</button>
               </div>
-              <div style={{ display: "grid", gap: 12 }}>
-                {c.upgrades.map((u, i) => (
-                  <ItemCard key={u.id} onRemove={() => removeUpgrade(i)}>
-                    <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 10, marginBottom: 10 }}>
-                      <Field label="Title"><input style={input} value={u.title} onChange={(e) => updateUpgrade(i, { title: e.target.value })} /></Field>
-                      <Field label="Price"><input style={input} value={u.price} onChange={(e) => updateUpgrade(i, { price: e.target.value })} /></Field>
-                    </div>
-                    <Field label="Description"><input style={input} value={u.description} onChange={(e) => updateUpgrade(i, { description: e.target.value })} /></Field>
-                    <div style={{ marginTop: 10 }}>
-                      <ImageField label="Image" value={u.image} onChange={(v) => updateUpgrade(i, { image: v })} compact />
-                    </div>
-                  </ItemCard>
-                ))}
-              </div>
-            </div>
+            )}
 
-            {/* Info */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Hotel Information</div>
-              <div style={sectionHint}>Operational details shown across the kiosk.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {activeTab === "info" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <Field label="Address"><input style={input} value={c.info.address} onChange={(e) => patchInfo("address", e.target.value)} /></Field>
                 <Field label="Phone"><input style={input} value={c.info.phone} onChange={(e) => patchInfo("phone", e.target.value)} /></Field>
                 <Field label="Email"><input style={input} value={c.info.email} onChange={(e) => patchInfo("email", e.target.value)} /></Field>
@@ -444,13 +474,10 @@ export default function AdminCMS() {
                 <Field label="Wi-Fi Network"><input style={input} value={c.info.wifi.networkName} onChange={(e) => setCurrent((x) => x ? { ...x, info: { ...x.info, wifi: { ...x.info.wifi, networkName: e.target.value } } } : x)} /></Field>
                 <Field label="Wi-Fi Password"><input style={input} value={c.info.wifi.password} onChange={(e) => setCurrent((x) => x ? { ...x, info: { ...x.info, wifi: { ...x.info.wifi, password: e.target.value } } } : x)} /></Field>
               </div>
-            </div>
+            )}
 
-            {/* Inactivity */}
-            <div style={sectionCard}>
-              <div style={sectionTitle}>Inactivity Timers</div>
-              <div style={sectionHint}>How long before the kiosk returns to idle. Tune for lobby traffic.</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {activeTab === "timers" && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
                 <Field label={`Warning after ${Math.round(c.inactivity.warningAfterMs / 1000)}s`}>
                   <input type="range" min={30} max={300} value={c.inactivity.warningAfterMs / 1000}
                     onChange={(e) => setCurrent((x) => x ? { ...x, inactivity: { ...x.inactivity, warningAfterMs: Number(e.target.value) * 1000 } } : x)}
@@ -462,64 +489,187 @@ export default function AdminCMS() {
                     style={{ width: "100%", accentColor: T.accent }} />
                 </Field>
               </div>
-            </div>
-
-            <div style={{ height: 40 }} />
+            )}
           </div>
         </div>
 
-        {/* ── Preview ── */}
-        <div style={{ width: 440, borderLeft: `1px solid ${T.border}`, background: T.bg, display: "flex", flexDirection: "column" }}>
+        {/* Preview panel — always visible, never scrolls */}
+        <div style={{ width: 480, borderLeft: `1px solid ${T.border}`, background: T.bg, display: "flex", flexDirection: "column", flexShrink: 0 }}>
           <div style={{ padding: "16px 20px", borderBottom: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <div>
               <div style={{ fontSize: 10, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>Live Preview</div>
               <div style={{ fontSize: 12, color: T.textDim, marginTop: 2 }}>Updates on Save</div>
             </div>
-            <button onClick={() => setPreviewKey((k) => k + 1)} style={btn("ghost")}>⟳ Refresh</button>
+            <button onClick={() => setPreviewKey((k) => k + 1)} style={{ padding: "7px 12px", borderRadius: 7, fontSize: 11, fontWeight: 600, background: T.surface, border: `1px solid ${T.border}`, color: T.text, cursor: "pointer" }}>⟳ Refresh</button>
           </div>
-          <div style={{ flex: 1, padding: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{
-              width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden",
-              border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
-              background: T.bg,
-            }}>
-              <iframe
-                key={previewKey}
-                src={previewUrl}
-                style={{ width: "100%", height: "100%", border: "none" }}
-                title="Kiosk preview"
-              />
+          <div style={{ flex: 1, padding: 20, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
+            <div style={{ width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)", background: T.bg }}>
+              <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none" }} title="Kiosk preview" />
             </div>
           </div>
-          <div style={{ padding: "12px 20px", borderTop: `1px solid ${T.border}`, fontSize: 11, color: T.textMuted, fontFamily: "monospace", textAlign: "center" }}>
+          <div style={{ padding: "12px 20px", borderTop: `1px solid ${T.border}`, fontSize: 11, color: T.textMuted, fontFamily: "ui-monospace, monospace", textAlign: "center" }}>
             /?client={c.slug}
           </div>
         </div>
       </div>
 
-      {toast && (
-        <div style={{
-          position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
-          background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-          padding: "12px 20px", fontSize: 13, fontWeight: 600, color: T.text,
-          boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)", zIndex: 100,
-          animation: "toastIn 200ms ease",
-        }}>
-          {toast}
-        </div>
-      )}
+      {toast && <ToastBar msg={toast} />}
 
       <style>{`
-        input::placeholder, select::placeholder { color: ${T.textMuted}; }
         input:focus, select:focus { border-color: ${T.accent} !important; }
-        button:hover { filter: brightness(1.1); }
+        button:hover { filter: brightness(1.02); }
         @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
       `}</style>
     </div>
   );
 }
 
-// ─── subcomponents ────────────────────────────────────────────────────
+// ═══════════════════ SUBCOMPONENTS ═══════════════════
+
+const addCardBtn: React.CSSProperties = {
+  width: "100%", marginTop: 12, padding: "14px 16px", borderRadius: 12,
+  background: "transparent", border: `1.5px dashed ${T.borderHi}`,
+  color: T.textDim, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody,
+  cursor: "pointer", transition: "all 150ms",
+};
+
+function SectionHeader({ section }: { section: typeof SECTIONS[number] }) {
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginBottom: 20 }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: `1px solid ${T.accent}28` }}>
+          {ICONS[section.key]}
+        </div>
+        <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: T.textMuted, letterSpacing: 1.5, textTransform: "uppercase", fontFamily: "ui-monospace, monospace", marginBottom: 6 }}>
+            {section.num} · {section.title.toUpperCase()}
+          </div>
+          <h1 style={{ fontFamily: T.fontDisplay, fontSize: 32, fontWeight: 800, color: T.text, letterSpacing: "-0.02em", lineHeight: 1.1, marginBottom: 8 }}>
+            {section.title}
+          </h1>
+          <p style={{ fontSize: 14, color: T.textDim, maxWidth: 560, lineHeight: 1.5 }}>
+            {section.desc}
+          </p>
+        </div>
+      </div>
+      <div style={{ height: 1, background: T.border }} />
+    </div>
+  );
+}
+
+function ModuleCard({ module, onToggle, onToggleDash }: { module: HotelModule; onToggle: () => void; onToggleDash: () => void }) {
+  const active = module.enabled;
+  return (
+    <div
+      onClick={onToggle}
+      style={{
+        position: "relative", padding: "16px 14px 14px", borderRadius: 12,
+        background: active ? `${T.accent}08` : T.surface,
+        border: `1px solid ${active ? T.accent : T.border}`,
+        cursor: "pointer", transition: "all 150ms",
+        opacity: active ? 1 : 0.55,
+        display: "flex", flexDirection: "column", gap: 10,
+        minHeight: 130,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ width: 36, height: 36, borderRadius: 9, background: active ? `${T.accent}18` : T.surfaceHi, color: active ? T.accent : T.textDim, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${active ? `${T.accent}30` : T.border}` }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><ModuleGlyph icon={module.icon} /></svg>
+        </div>
+        <Toggle on={active} onClick={(e) => { e.stopPropagation(); onToggle(); }} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontFamily: T.fontDisplay, fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 2, lineHeight: 1.2 }}>{module.label}</div>
+        <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "ui-monospace, monospace" }}>{module.entryScreen}</div>
+      </div>
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggleDash(); }}
+        disabled={!active}
+        style={{
+          padding: "5px 8px", borderRadius: 6, fontSize: 9, fontWeight: 700, letterSpacing: 0.5,
+          background: module.dashboardOrder != null ? `${T.accent}18` : "transparent",
+          border: `1px solid ${module.dashboardOrder != null ? T.accent : T.border}`,
+          color: module.dashboardOrder != null ? T.accent : T.textMuted,
+          cursor: active ? "pointer" : "not-allowed",
+          fontFamily: T.fontBody, textTransform: "uppercase", alignSelf: "flex-start",
+        }}
+      >
+        {module.dashboardOrder != null ? `● Dash #${module.dashboardOrder}` : "Off Dash"}
+      </button>
+    </div>
+  );
+}
+
+function ModuleGlyph({ icon }: { icon: string }) {
+  const G: Record<string, React.ReactNode> = {
+    "log-in": <><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></>,
+    "log-out": <><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>,
+    "calendar-plus": <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v6M9 17h6" /></>,
+    "concierge-bell": <><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></>,
+    "calendar": <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
+    "compass": <><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" /></>,
+    "map-pin": <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></>,
+    "wifi": <><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0" /><circle cx="12" cy="20" r="1" /></>,
+    "help-circle": <><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
+    "gift": <><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" /></>,
+    "megaphone": <><path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 11-5.8-1.6" /></>,
+    "credit-card": <><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
+    "clock": <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
+    "sunrise": <><path d="M17 18a5 5 0 00-10 0M12 2v7M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M8 6l4-4 4 4" /></>,
+    "key": <><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></>,
+    "bot": <><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><line x1="8" y1="16" x2="8" y2="16" /><line x1="16" y1="16" x2="16" y2="16" /></>,
+  };
+  return <>{G[icon] ?? <circle cx="12" cy="12" r="10" />}</>;
+}
+
+function RoomCard({ room, onChange, onRemove }: { room: RoomType; onChange: (p: Partial<RoomType>) => void; onRemove: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ display: "flex", gap: 14, padding: 14, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, position: "relative" }}>
+      <div style={{ width: 160, height: 100, borderRadius: 9, background: `url('${room.image}') center/cover, ${T.surfaceHi}`, flexShrink: 0, border: `1px solid ${T.border}` }} />
+      <div style={{ flex: 1, display: "grid", gap: 8, minWidth: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
+          <input style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, padding: 0, letterSpacing: "-0.01em" }} value={room.name} onChange={(e) => onChange({ name: e.target.value })} />
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4, color: T.accent, fontFamily: T.fontDisplay, fontWeight: 800, fontSize: 20, letterSpacing: "-0.01em" }}>
+            <span style={{ fontSize: 13, color: T.textMuted }}>$</span>
+            <input type="number" value={room.baseRate} onChange={(e) => onChange({ baseRate: Number(e.target.value) })} style={{ width: 62, background: "transparent", border: "none", outline: "none", color: T.accent, fontFamily: "inherit", fontWeight: 800, fontSize: 20, textAlign: "right" }} />
+            <span style={{ fontSize: 10, color: T.textMuted, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>/ night</span>
+          </div>
+        </div>
+        <input style={{ background: "transparent", border: "none", outline: "none", fontSize: 12, color: T.textDim, padding: 0, width: "100%" }} value={room.description} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description" />
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
+          <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", width: 100 }} value={room.bedType} onChange={(e) => onChange({ bedType: e.target.value })} placeholder="Bed" />
+          <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", flex: 1 }} value={room.image} onChange={(e) => onChange({ image: e.target.value })} placeholder="Image URL" />
+        </div>
+      </div>
+      {hover && (
+        <button onClick={onRemove} style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 7, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
+      )}
+    </div>
+  );
+}
+
+function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; onChange: (p: Partial<UpgradeOption>) => void; onRemove: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ display: "flex", gap: 14, padding: 14, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, position: "relative" }}>
+      <div style={{ width: 160, height: 100, borderRadius: 9, background: `url('${upgrade.image}') center/cover, ${T.surfaceHi}`, flexShrink: 0, border: `1px solid ${T.border}` }} />
+      <div style={{ flex: 1, display: "grid", gap: 8, minWidth: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
+          <input style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, padding: 0, letterSpacing: "-0.01em" }} value={upgrade.title} onChange={(e) => onChange({ title: e.target.value })} />
+          <input style={{ width: 110, background: "transparent", border: "none", outline: "none", color: T.accent, fontFamily: T.fontDisplay, fontWeight: 800, fontSize: 20, textAlign: "right", letterSpacing: "-0.01em" }} value={upgrade.price} onChange={(e) => onChange({ price: e.target.value })} />
+        </div>
+        <input style={{ background: "transparent", border: "none", outline: "none", fontSize: 12, color: T.textDim, padding: 0, width: "100%" }} value={upgrade.description} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description" />
+        <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", marginTop: 4 }} value={upgrade.image} onChange={(e) => onChange({ image: e.target.value })} placeholder="Image URL" />
+      </div>
+      {hover && (
+        <button onClick={onRemove} style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 7, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
+      )}
+    </div>
+  );
+}
 
 function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSlugChange, onBrandNameChange, disabled }: {
   slug: string; brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
@@ -528,10 +678,7 @@ function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClie
   onSlugChange?: (v: string) => void; onBrandNameChange?: (v: string) => void; disabled?: boolean;
 }) {
   return (
-    <div style={{
-      height: 64, borderBottom: `1px solid ${T.border}`, background: T.bg,
-      display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0,
-    }}>
+    <div style={{ height: 64, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 28, height: 28, borderRadius: 7, background: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" /></svg>
@@ -546,41 +693,25 @@ function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClie
 
       {!disabled && (
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <input
-            value={brandName ?? ""}
-            onChange={(e) => onBrandNameChange?.(e.target.value)}
-            placeholder="Hotel name"
-            style={{
-              background: "transparent", border: "none", outline: "none",
-              fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 700, color: T.text,
-              letterSpacing: "-0.01em", minWidth: 0, flex: 1, padding: 0,
-            }}
-          />
+          <input value={brandName ?? ""} onChange={(e) => onBrandNameChange?.(e.target.value)} placeholder="Hotel name"
+            style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 700, color: T.text, letterSpacing: "-0.01em", minWidth: 0, flex: 1, padding: 0 }} />
           <div style={{ color: T.borderHi, fontSize: 12 }}>/</div>
-          <input
-            value={slug}
-            onChange={(e) => onSlugChange?.(e.target.value)}
-            placeholder="slug"
-            style={{
-              background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6,
-              padding: "6px 10px", fontFamily: "ui-monospace, monospace", fontSize: 11,
-              color: T.textDim, outline: "none", width: 160, flexShrink: 0,
-            }}
-          />
+          <input value={slug} onChange={(e) => onSlugChange?.(e.target.value)} placeholder="slug"
+            style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "6px 10px", fontFamily: "ui-monospace, monospace", fontSize: 11, color: T.textDim, outline: "none", width: 160, flexShrink: 0 }} />
         </div>
       )}
       {disabled && <div style={{ flex: 1 }} />}
 
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {!disabled && (
           <>
             <SaveStatus state={saveState} />
-            <button onClick={onCopy} style={{ padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody, cursor: "pointer", background: T.surface, border: `1px solid ${T.border}`, color: T.text }}>Copy link</button>
-            <button onClick={onOpen} style={{ padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody, cursor: "pointer", background: T.surface, border: `1px solid ${T.border}`, color: T.text, display: "flex", alignItems: "center", gap: 6 }}>
+            <button onClick={onCopy} style={tbBtn}>Copy link</button>
+            <button onClick={onOpen} style={{ ...tbBtn, display: "flex", alignItems: "center", gap: 6 }}>
               Open kiosk
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10" /></svg>
             </button>
-            <button onClick={onDelete} style={{ padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody, cursor: "pointer", background: "transparent", border: `1px solid ${T.border}`, color: T.error }}>Delete</button>
+            <button onClick={onDelete} style={{ ...tbBtn, color: T.error }}>Delete</button>
             <button onClick={onSave} style={{ padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: T.accent, border: `1px solid ${T.accent}`, color: "#fff", boxShadow: `0 4px 14px ${T.accent}33` }}>
               {saveState === "saving" ? "Saving…" : "Save"}
             </button>
@@ -591,6 +722,11 @@ function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClie
   );
 }
 
+const tbBtn: React.CSSProperties = {
+  padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody, cursor: "pointer",
+  background: T.surface, border: `1px solid ${T.border}`, color: T.text,
+};
+
 function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" }) {
   if (state === "idle") return null;
   const cfg = {
@@ -598,7 +734,7 @@ function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" })
     saved: { color: T.success, label: "✓ Saved" },
     error: { color: T.error, label: "✗ Error" },
   }[state];
-  return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 8 }}>{cfg.label}</div>;
+  return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 4 }}>{cfg.label}</div>;
 }
 
 function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
@@ -606,7 +742,6 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!open) return;
     const h = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false); };
@@ -614,38 +749,23 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
     return () => document.removeEventListener("mousedown", h);
   }, [open]);
 
-  const currentLabel = currentSlug
-    ? configs.find((c) => c.slug === currentSlug)?.brand.name ?? "Unsaved"
-    : "Select client…";
+  const currentLabel = currentSlug ? configs.find((c) => c.slug === currentSlug)?.brand.name ?? "Unsaved" : "Select client…";
 
   return (
     <div ref={ref} style={{ position: "relative", flexShrink: 0 }}>
-      <button
-        onClick={() => setOpen((v) => !v)}
-        style={{
-          display: "flex", alignItems: "center", gap: 8,
-          height: 38, padding: "0 12px 0 10px", borderRadius: 8,
-          background: T.surface, border: `1px solid ${open ? T.accent : T.border}`,
-          color: T.text, cursor: "pointer", fontFamily: T.fontBody,
-          fontSize: 12, fontWeight: 600, minWidth: 200, maxWidth: 260,
-          transition: "border-color 150ms",
-        }}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-          <path d="M3 7h18M3 12h18M3 17h18" />
-        </svg>
-        <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {currentLabel}
-        </span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 150ms" }}>
-          <path d="M6 9l6 6 6-6" />
-        </svg>
+      <button onClick={() => setOpen((v) => !v)} style={{
+        display: "flex", alignItems: "center", gap: 8, height: 38, padding: "0 12px 0 10px", borderRadius: 8,
+        background: T.surface, border: `1px solid ${open ? T.accent : T.border}`, color: T.text, cursor: "pointer",
+        fontFamily: T.fontBody, fontSize: 12, fontWeight: 600, minWidth: 200, maxWidth: 260,
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M3 7h18M3 12h18M3 17h18" /></svg>
+        <span style={{ flex: 1, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{currentLabel}</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 150ms" }}><path d="M6 9l6 6 6-6" /></svg>
       </button>
       {open && (
         <div style={{
-          position: "absolute", top: 44, left: 0, minWidth: 280,
-          background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
-          boxShadow: "0 16px 50px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04)",
+          position: "absolute", top: 44, left: 0, minWidth: 280, background: T.surface,
+          border: `1px solid ${T.border}`, borderRadius: 10, boxShadow: "0 16px 50px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04)",
           padding: 6, zIndex: 50, maxHeight: 420, overflow: "auto",
         }}>
           <div style={{ padding: "6px 10px 4px", fontSize: 9, fontWeight: 700, color: T.textMuted, letterSpacing: 1.2, textTransform: "uppercase" }}>
@@ -654,20 +774,11 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
           {configs.map((cfg) => {
             const active = cfg.slug === currentSlug;
             return (
-              <button
-                key={cfg.slug}
-                onClick={() => { onSelect(cfg); setOpen(false); }}
-                style={{
-                  display: "flex", alignItems: "center", gap: 10, width: "100%",
-                  padding: "9px 10px", borderRadius: 7, border: "none",
-                  background: active ? `${T.accent}18` : "transparent", color: T.text,
-                  cursor: "pointer", textAlign: "left",
-                  transition: "background 120ms",
-                }}
-                onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = T.surface; }}
-                onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent"; }}
-              >
-                <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.colors.primary, flexShrink: 0, boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.08)" }} />
+              <button key={cfg.slug} onClick={() => { onSelect(cfg); setOpen(false); }} style={{
+                display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "9px 10px", borderRadius: 7,
+                border: "none", background: active ? `${T.accent}18` : "transparent", color: T.text, cursor: "pointer", textAlign: "left",
+              }}>
+                <div style={{ width: 26, height: 26, borderRadius: 6, background: cfg.colors.primary, flexShrink: 0 }} />
                 <div style={{ overflow: "hidden", flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: T.text, fontFamily: T.fontDisplay, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.brand.name}</div>
                   <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "ui-monospace, monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.slug}</div>
@@ -677,17 +788,11 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
             );
           })}
           <div style={{ height: 1, background: T.border, margin: "6px 4px" }} />
-          <button
-            onClick={() => { onNew(); setOpen(false); }}
-            style={{
-              display: "flex", alignItems: "center", gap: 10, width: "100%",
-              padding: "10px 10px", borderRadius: 7, border: "none",
-              background: "transparent", color: T.accent, cursor: "pointer", textAlign: "left",
-              fontFamily: T.fontBody, fontSize: 12, fontWeight: 700, letterSpacing: 0.3,
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = `${T.accent}14`}
-            onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-          >
+          <button onClick={() => { onNew(); setOpen(false); }} style={{
+            display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
+            border: "none", background: "transparent", color: T.accent, cursor: "pointer", textAlign: "left",
+            fontFamily: T.fontBody, fontSize: 12, fontWeight: 700,
+          }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: `${T.accent}22`, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.accent}44` }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             </div>
@@ -709,7 +814,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  // Normalize for <input type="color">: only accepts #RRGGBB
   const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
   return (
     <div>
@@ -724,7 +828,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 
 function ColorGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10, padding: 14 }}>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: 16 }}>
       <div style={{ fontSize: 10, fontWeight: 700, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 12 }}>{title}</div>
       <div style={{ display: "grid", gap: 10 }}>{children}</div>
     </div>
@@ -735,82 +839,35 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
   return (
     <div>
       <div style={{ fontSize: 10, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>{label}</div>
-      <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
-        <div style={{
-          width: compact ? 56 : 72, height: compact ? 56 : 72, borderRadius: 8,
-          background: `url('${value}') center/cover, ${T.surface}`,
-          border: `1px solid ${T.border}`, flexShrink: 0,
-        }} />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="https://..."
-          style={{ flex: 1, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", outline: "none" }}
-        />
+      <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ width: compact ? 56 : 72, height: compact ? 56 : 72, borderRadius: 8, background: `url('${value}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}`, flexShrink: 0 }} />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="https://..."
+          style={{ flex: 1, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 12, fontFamily: "ui-monospace, monospace", outline: "none" }} />
       </div>
     </div>
   );
 }
 
-function LogoField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  return <ImageField label={label} value={value} onChange={onChange} compact />;
-}
-
-function ModuleRow({ module, onToggle, onToggleDash }: { module: HotelModule; onToggle: () => void; onToggleDash: () => void }) {
-  return (
-    <div style={{
-      display: "flex", alignItems: "center", gap: 12,
-      padding: "10px 12px", borderRadius: 8,
-      background: module.enabled ? T.bg : "transparent",
-      border: `1px solid ${module.enabled ? T.border : "transparent"}`,
-      opacity: module.enabled ? 1 : 0.5, transition: "all 120ms",
-    }}>
-      <Toggle on={module.enabled} onClick={onToggle} />
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: T.fontBody }}>{module.label}</div>
-        <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "ui-monospace, monospace" }}>{module.id} · {module.entryScreen}</div>
-      </div>
-      <button onClick={onToggleDash} disabled={!module.enabled} style={{
-        padding: "5px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, letterSpacing: 0.5,
-        background: module.dashboardOrder != null ? `${T.accent}22` : "transparent",
-        border: `1px solid ${module.dashboardOrder != null ? T.accent : T.border}`,
-        color: module.dashboardOrder != null ? T.accent : T.textDim,
-        cursor: module.enabled ? "pointer" : "not-allowed",
-        fontFamily: T.fontBody, textTransform: "uppercase",
-      }}>
-        {module.dashboardOrder != null ? `On Dash #${module.dashboardOrder}` : "Off Dash"}
-      </button>
-    </div>
-  );
-}
-
-function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
+function Toggle({ on, onClick }: { on: boolean; onClick: (e: React.MouseEvent) => void }) {
   return (
     <button onClick={onClick} style={{
       width: 34, height: 20, borderRadius: 10, border: "none",
       background: on ? T.accent : T.borderHi, position: "relative",
-      cursor: "pointer", transition: "background 150ms", padding: 0,
-      flexShrink: 0,
+      cursor: "pointer", padding: 0, flexShrink: 0,
     }}>
-      <div style={{
-        position: "absolute", top: 2, left: on ? 16 : 2,
-        width: 16, height: 16, borderRadius: "50%", background: "#fff",
-        transition: "left 150ms",
-      }} />
+      <div style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 150ms" }} />
     </button>
   );
 }
 
-function ItemCard({ children, onRemove }: { children: React.ReactNode; onRemove: () => void }) {
+function ToastBar({ msg }: { msg: string }) {
   return (
-    <div style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, position: "relative" }}>
-      <button onClick={onRemove} style={{
-        position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: 6,
-        background: "transparent", border: `1px solid ${T.border}`, color: T.textDim,
-        cursor: "pointer", fontSize: 13, lineHeight: 1,
-      }}>×</button>
-      {children}
-    </div>
+    <div style={{
+      position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
+      background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
+      padding: "12px 20px", fontSize: 13, fontWeight: 600, color: T.text,
+      boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)", zIndex: 100,
+      animation: "toastIn 200ms ease",
+    }}>{msg}</div>
   );
 }
