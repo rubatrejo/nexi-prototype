@@ -69,7 +69,7 @@ These are non-negotiable. Breaking any of these is grounds for rejecting the wor
 These are mistakes that have happened before. Read them carefully.
 
 - **DON'T use heavy transitions.** No blur/scale effects on screen changes. Ruben explicitly rejected these. Transitions are subtle: opacity crossfade between modules, 40px slide within flows.
-- **DON'T change `zoom: 1.4` on KioskFrame** without testing extensively. It compensates for rem-based content sizing in a viewport-relative container.
+- **DON'T change `zoom` on KioskFrame** without testing extensively in both themes across multiple screens. The current value is `1`; it was previously `1.4` (reverted in 2026-04 because the kiosk felt too zoomed-in). If you change it, verify IDL-01, DSH-01, ONB-02 and a form-heavy screen like CKI-01 in light AND dark mode to catch overflow/legibility regressions.
 - **DON'T reverse the provider order.** `I18nProvider` MUST wrap `KioskProvider`. Reversing this breaks translations silently.
 - **DON'T confuse file names with Screen IDs.** Files omit the dash (`CKI01.tsx`), IDs include it (`"CKI-01"`). Getting this wrong causes screens to not load.
 - **DON'T use `as any` for Screen IDs.** Use the `ScreenId` type from `navigation.ts`. If a screen doesn't exist in the type, add it.
@@ -109,7 +109,7 @@ src/
 ├── components/
 │   ├── ScreenRouter.tsx            # Maps screen IDs → lazy-loaded components (with ErrorBoundary)
 │   ├── layout/
-│   │   ├── KioskFrame.tsx          # Main kiosk wrapper (zoom 1.4, theme toggle, footer)
+│   │   ├── KioskFrame.tsx          # Main kiosk wrapper (zoom 1, theme toggle, footer)
 │   │   ├── GlobalHeader.tsx        # Hotel name, date/time, weather (48px bar)
 │   │   └── ScreenLayout.tsx        # Shared layout wrapper
 │   ├── screens/                    # 82 screen files (CKI01.tsx → WIF01.tsx)
@@ -365,11 +365,11 @@ Direction is auto-detected from `FLOW_ORDER` in `transitions.ts`.
 
 ## KioskFrame Details
 
-- **Viewport:** `52vw / max-width: 980px` with `zoom: 1.4`
+- **Viewport:** `52vw / max-width: 980px` with `zoom: 1`
 - **Aspect ratio:** 16:9 (landscape)
 - **Theme:** `data-theme` attribute on the kiosk frame div — CSS variables respond automatically
 - **Background:** `#E8E8E3` (warm gray, outside the kiosk)
-- **CRITICAL:** Do not change `zoom: 1.4` without testing. It compensates for rem sizing in a viewport container.
+- **History:** The frame previously ran at `zoom: 1.4`; reverted to `1` in 2026-04 because the experience felt too zoomed-in. The zoom is a pure visual multiplier — nothing in the codebase depends on its value algorithmically, so adjusting it is safe as long as you verify multiple screens in both themes.
 
 ---
 
