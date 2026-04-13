@@ -465,10 +465,10 @@ export default function AdminCMS() {
                   <Field label="Kiosk Slug"><input style={{ ...input, fontFamily: "ui-monospace, monospace" }} placeholder="hotel-slug" value={c.slug} onChange={(e) => patch("slug", slugify(e.target.value))} /></Field>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
-                  <ImageField label="Logo (light)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact />
-                  <ImageField label="Logo (dark)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact />
-                  <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact />
-                  <ImageField label="Icon (white)" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact />
+                  <ImageField label="Logo (light)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact spec={SPEC_LOGO} />
+                  <ImageField label="Logo (dark)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact spec={SPEC_LOGO} />
+                  <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact spec={SPEC_ICON} />
+                  <ImageField label="Icon (white)" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact spec={SPEC_ICON} />
                 </div>
                 <Field label="Important Notes (internal)">
                   <textarea
@@ -527,11 +527,11 @@ export default function AdminCMS() {
 
             {activeTab === "images" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
-                <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact />
-                <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact />
-                <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact />
-                <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact />
-                <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact />
+                <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact spec={SPEC_HERO} />
+                <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact spec={SPEC_HERO} />
+                <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact spec={SPEC_HERO} />
+                <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact spec={SPEC_HERO} />
+                <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact spec={SPEC_HERO} />
               </div>
             )}
 
@@ -991,9 +991,6 @@ function ColorGroup({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-const MAX_UPLOAD_BYTES = 2 * 1024 * 1024; // 2 MB hard cap
-const WARN_UPLOAD_BYTES = 500 * 1024; // 500 KB soft warning
-
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1003,7 +1000,31 @@ function readFileAsDataURL(file: File): Promise<string> {
   });
 }
 
-function ImageField({ label, value, onChange, compact }: { label: string; value: string; onChange: (v: string) => void; compact?: boolean }) {
+type UploadSpec = {
+  /** Comma-separated MIME types for the native picker filter. */
+  accept: string;
+  /** Short human-readable list of accepted formats. */
+  formats: string;
+  /** Warning threshold (soft) — above this shows amber "consider compressing". */
+  warnBytes: number;
+  /** Hard cap — above this the upload is rejected outright. */
+  maxBytes: number;
+  /** Optional ratio / dimension hint shown to the user. */
+  ratio?: string;
+};
+
+const KB = 1024;
+const SPEC_LOGO: UploadSpec = { accept: "image/svg+xml,image/png", formats: "SVG · PNG (transparent)", warnBytes: 40 * KB, maxBytes: 200 * KB };
+const SPEC_ICON: UploadSpec = { accept: "image/svg+xml,image/png", formats: "SVG · PNG", warnBytes: 20 * KB, maxBytes: 100 * KB, ratio: "1:1 square" };
+const SPEC_HERO: UploadSpec = { accept: "image/jpeg,image/webp,image/png", formats: "JPG · WebP · PNG", warnBytes: 400 * KB, maxBytes: 1500 * KB, ratio: "16:9 · ≥1600×900" };
+const SPEC_DEFAULT: UploadSpec = { accept: "image/*", formats: "PNG · JPG · SVG · WebP", warnBytes: 500 * KB, maxBytes: 2000 * KB };
+
+function formatBytes(n: number): string {
+  if (n < 1000 * KB) return `${Math.round(n / KB)} KB`;
+  return `${(n / 1024 / KB).toFixed(1)} MB`;
+}
+
+function ImageField({ label, value, onChange, compact, spec = SPEC_DEFAULT }: { label: string; value: string; onChange: (v: string) => void; compact?: boolean; spec?: UploadSpec }) {
   const [dragOver, setDragOver] = useState(false);
   const [status, setStatus] = useState<{ kind: "idle" | "warn" | "error"; msg: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1013,17 +1034,17 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
       setStatus({ kind: "error", msg: "Not an image" });
       return;
     }
-    if (file.size > MAX_UPLOAD_BYTES) {
-      setStatus({ kind: "error", msg: `Too large (${(file.size / 1024 / 1024).toFixed(1)}MB · max 2MB)` });
+    if (file.size > spec.maxBytes) {
+      setStatus({ kind: "error", msg: `Too large (${formatBytes(file.size)} · max ${formatBytes(spec.maxBytes)})` });
       return;
     }
     try {
       const dataUrl = await readFileAsDataURL(file);
       onChange(dataUrl);
-      if (file.size > WARN_UPLOAD_BYTES) {
-        setStatus({ kind: "warn", msg: `${(file.size / 1024).toFixed(0)}KB — consider compressing` });
+      if (file.size > spec.warnBytes) {
+        setStatus({ kind: "warn", msg: `${formatBytes(file.size)} — over recommended ${formatBytes(spec.warnBytes)}, consider compressing` });
       } else {
-        setStatus({ kind: "idle", msg: `${file.name} · ${(file.size / 1024).toFixed(0)}KB` });
+        setStatus({ kind: "idle", msg: `${file.name} · ${formatBytes(file.size)}` });
         setTimeout(() => setStatus(null), 2400);
       }
     } catch {
@@ -1039,11 +1060,17 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
   };
 
   const isDataUrl = value.startsWith("data:");
-  const displayValue = isDataUrl ? `📎 uploaded (${Math.round(value.length / 1024)}KB)` : value;
+  const displayValue = isDataUrl ? `📎 uploaded (${Math.round(value.length / KB)} KB)` : value;
+  const specLine = `${spec.formats} · max ${formatBytes(spec.maxBytes)}${spec.ratio ? ` · ${spec.ratio}` : ""}`;
 
   return (
     <div>
-      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, marginBottom: 4, minWidth: 0 }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, flexShrink: 0 }}>{label}</div>
+        <div style={{ fontSize: 9, color: T.textMuted, fontFamily: T.fontBody, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "right" }} title={specLine}>
+          {specLine}
+        </div>
+      </div>
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
@@ -1058,7 +1085,7 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          title="Click to upload or drop an image here"
+          title={`Click to upload or drop an image here — ${specLine}`}
           style={{
             width: compact ? 32 : 56, height: compact ? 32 : 56, borderRadius: 6,
             background: value ? `url('${value}') center/cover, ${T.surfaceHi}` : T.surfaceHi,
@@ -1075,7 +1102,7 @@ function ImageField({ label, value, onChange, compact }: { label: string; value:
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept={spec.accept}
           style={{ display: "none" }}
           onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.currentTarget.value = ""; }}
         />
