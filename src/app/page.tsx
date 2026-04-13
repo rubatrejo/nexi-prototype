@@ -30,10 +30,13 @@ export default function Home() {
   const [clientConfig, setClientConfig] = useState<HotelConfig | null>(null);
   const [clientLoading, setClientLoading] = useState(false);
   const [clientSlug, setClientSlug] = useState<string | null>(null);
+  const [embedMode, setEmbedMode] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const slug = new URLSearchParams(window.location.search).get("client");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("embed") === "1") setEmbedMode(true);
+    const slug = params.get("client");
     if (!slug) return;
     setClientSlug(slug);
     setClientLoading(true);
@@ -95,12 +98,13 @@ export default function Home() {
         <I18nProvider>
           <KioskProvider guestNameOverride={leadName}>
             <KioskFrame
+              embed={embedMode}
               onBackToSelection={clientSlug ? undefined : () => setStep(4)}
               onGoToROI={clientSlug ? undefined : () => setStep(6)}
             >
               <ScreenRouter />
             </KioskFrame>
-            <ScreenNav />
+            {!embedMode && <ScreenNav />}
           </KioskProvider>
         </I18nProvider>
       </ThemeProvider>

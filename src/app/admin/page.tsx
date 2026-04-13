@@ -248,7 +248,7 @@ export default function AdminCMS() {
   };
 
   const previewUrl = useMemo(
-    () => current ? `/?client=${encodeURIComponent(current.slug)}&_v=${previewKey}` : "about:blank",
+    () => current ? `/?client=${encodeURIComponent(current.slug)}&embed=1&_v=${previewKey}` : "about:blank",
     [current?.slug, previewKey]
   );
 
@@ -366,8 +366,8 @@ export default function AdminCMS() {
       </div>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
-        {/* Form panel — top 35% */}
-        <div style={{ flex: "0 0 35%", overflow: "auto", padding: "32px 48px 48px", background: T.bg, minHeight: 0 }}>
+        {/* Form panel — top 40% */}
+        <div style={{ flex: "0 0 40%", overflow: "auto", padding: "32px 48px 48px", background: T.bg, minHeight: 0 }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
             <SectionHeader section={activeSection} />
 
@@ -523,11 +523,9 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        {/* Preview panel — bottom 65%, frame only */}
-        <div style={{ flex: "0 0 65%", borderTop: `1px solid ${T.border}`, background: T.bg, padding: 24, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0 }}>
-          <div style={{ height: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)", background: T.bg }}>
-            <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block" }} title="Kiosk preview" />
-          </div>
+        {/* Preview panel — bottom 60%, iframe only (no wrapper chrome) */}
+        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden" }}>
+          <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
         </div>
       </div>
 

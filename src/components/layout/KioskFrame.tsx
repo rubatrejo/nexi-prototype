@@ -10,7 +10,7 @@ import InactivityModal from "@/components/ui/InactivityModal";
 import { PoweredByTrueOmni } from "@/components/ui/Icons";
 import BrandLogo from "@/components/ui/BrandLogo";
 
-export default function KioskFrame({ children, onBackToSelection, onGoToROI }: { children: React.ReactNode; onBackToSelection?: () => void; onGoToROI?: () => void }) {
+export default function KioskFrame({ children, onBackToSelection, onGoToROI, embed = false }: { children: React.ReactNode; onBackToSelection?: () => void; onGoToROI?: () => void; embed?: boolean }) {
   const { currentScreen, previousScreen, theme, navOpen, toggleTheme, guestMode, toggleGuestMode } = useKiosk();
 
   const motionProps = useMemo(
@@ -30,11 +30,12 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
         paddingRight: navOpen ? 340 : 0,
         transition: "padding-right 0.3s ease",
         position: "relative",
-        gap: 32,
-        padding: "24px 0 100px",
+        gap: embed ? 0 : 32,
+        padding: embed ? 0 : "24px 0 100px",
       }}
     >
-      {/* Logo + Toggles */}
+      {/* Logo + Toggles — hidden in embed mode */}
+      {!embed && (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, flexShrink: 0 }}>
         <BrandLogo color="#1A1A1A" height={38} />
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
@@ -84,18 +85,20 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
           </div>
         </div>
       </div>
+      )}
 
       {/* Kiosk frame */}
       <div
         data-theme={theme}
         style={{
-          width: "52vw",
-          maxWidth: "980px",
+          width: embed ? "auto" : "52vw",
+          maxWidth: embed ? "none" : "980px",
+          height: embed ? "100vh" : undefined,
           aspectRatio: "16/9",
-          borderRadius: "12px",
+          borderRadius: embed ? 0 : "12px",
           overflow: "hidden",
           position: "relative",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
+          boxShadow: embed ? "none" : "0 24px 80px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06)",
           background: "var(--bg)",
           flexShrink: 0,
         }}
@@ -132,7 +135,8 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
         </div>
       </div>
 
-      {/* Footer — fixed bottom, shifts with nav panel */}
+      {/* Footer — fixed bottom, shifts with nav panel. Hidden in embed mode. */}
+      {!embed && (
       <div style={{ position: "fixed", bottom: 0, left: 0, right: navOpen ? 340 : 0, zIndex: 100, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, paddingBottom: 28, pointerEvents: "none", transition: "right 0.3s ease" }}>
         {onBackToSelection && (
           <div style={{ display: "flex", gap: 8, alignItems: "center", pointerEvents: "auto" }}>
@@ -190,6 +194,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
           <PoweredByTrueOmni variant="dark" />
         </div>
       </div>
+      )}
     </div>
   );
 }
