@@ -12,6 +12,7 @@ import OnboardingSlides from "@/components/onboarding/OnboardingSlides";
 import OrientationSelect from "@/components/onboarding/OrientationSelect";
 import OnboardingFooter from "@/components/onboarding/OnboardingFooter";
 import ROICalculator from "@/components/onboarding/ROICalculator";
+import type { HotelConfig } from "@/lib/hotel-config";
 
 // Steps: 0=Welcome, 1=Slide1, 2=Slide2, 3=Slide3, 4=Orientation, 5=Demo, 6=ROI Calculator
 const TOTAL_STEPS = 6;
@@ -20,6 +21,33 @@ export default function Home() {
   const [step, setStep] = useState(0);
   const [leadName, setLeadName] = useState("");
   const [leadData, setLeadData] = useState<{ name: string; email: string; hotel: string; rooms: string; title: string } | null>(null);
+
+  // CMS dynamic branding: when ?client={slug} is present on first load, fetch
+  // the matching HotelConfig from KV and apply it to the kiosk ThemeProvider.
+  // This is what makes shareable demo links work — a sales engineer can save
+  // a "hilton-miami" config in /admin and send the boss a link that goes
+  // straight into the kiosko already branded as Hilton.
+  const [clientConfig, setClientConfig] = useState<HotelConfig | null>(null);
+  const [clientLoading, setClientLoading] = useState(false);
+  const [clientSlug, setClientSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const slug = new URLSearchParams(window.location.search).get("client");
+    if (!slug) return;
+    setClientSlug(slug);
+    setClientLoading(true);
+    setStep(5); // skip onboarding entirely for shared demo links
+    fetch(`/api/admin/configs/${encodeURIComponent(slug)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.config) setClientConfig(data.config as HotelConfig);
+      })
+      .catch(() => {
+        /* fall back to default hotelConfig on any error */
+      })
+      .finally(() => setClientLoading(false));
+  }, []);
 
   const goNext = useCallback(() => {
     setStep((s) => Math.min(s + 1, TOTAL_STEPS));
@@ -42,11 +70,34 @@ export default function Home() {
 
   // Demo mode
   if (step === 5) {
+    // Still fetching a ?client={slug} config → minimal loading splash.
+    if (clientLoading) {
+      return (
+        <div
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#E8E8E3",
+            fontFamily: "'Inter', sans-serif",
+            color: "#6B7280",
+            fontSize: "0.875rem",
+            letterSpacing: "0.5px",
+          }}
+        >
+          Loading kiosk configuration{clientSlug ? ` for "${clientSlug}"` : ""}…
+        </div>
+      );
+    }
     return (
-      <ThemeProvider>
+      <ThemeProvider config={clientConfig ?? undefined}>
         <I18nProvider>
           <KioskProvider guestNameOverride={leadName}>
-            <KioskFrame onBackToSelection={() => setStep(4)} onGoToROI={() => setStep(6)}>
+            <KioskFrame
+              onBackToSelection={clientSlug ? undefined : () => setStep(4)}
+              onGoToROI={clientSlug ? undefined : () => setStep(6)}
+            >
               <ScreenRouter />
             </KioskFrame>
             <ScreenNav />
