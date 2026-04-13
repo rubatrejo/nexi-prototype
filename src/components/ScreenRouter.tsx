@@ -3,6 +3,7 @@
 import { useKiosk } from "@/lib/kiosk-context";
 import dynamic from "next/dynamic";
 import PlaceholderScreen from "./screens/Placeholder";
+import ErrorBoundary from "./ui/ErrorBoundary";
 
 // Lazy-load all screens
 const screens: Record<string, React.ComponentType> = {
@@ -110,5 +111,9 @@ const screens: Record<string, React.ComponentType> = {
 export default function ScreenRouter() {
   const { currentScreen } = useKiosk();
   const Screen = screens[currentScreen] || PlaceholderScreen;
-  return <Screen />;
+  return (
+    <ErrorBoundary key={currentScreen}>
+      <Screen />
+    </ErrorBoundary>
+  );
 }

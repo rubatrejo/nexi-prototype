@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+<title>NEXI Design System — Complete Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mona+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ════════════════════════════════════════════════════════════
+     NEXI DESIGN SYSTEM — CSS CUSTOM PROPERTIES (TOKENS)
+     ════════════════════════════════════════════════════════════ */
+
+  :root {
+    /* Backgrounds */
+    --bg: #F5F5F0;
+    --bg-card: #FFFFFF;
+    --bg-elevated: #FFFFFF;
+
+    /* Primary */
+    --primary: #1288FF;
+    --primary-hover: #0B6FD4;
+    --primary-light: rgba(18,136,255,0.08);
+    --primary-glow: rgba(18,136,255,0.25);
+
+    /* Semantic Colors */
+    --amber: #D4960A;
+    --amber-light: rgba(212,150,10,0.08);
+    --success: #16A34A;
+    --error: #DC2626;
+    --warning: #D4960A;
+    --purple: #8B5CF6;
+    --yellow: #FBBF24;
+    --orange: #F97316;
+
+    /* Text */
+    --text: #1A1A1A;
+    --text-secondary: #6B7280;
+    --text-tertiary: #9CA3AF;
+
+    /* Borders */
+    --border: #E8E8E3;
+    --border-hover: #D1D1CC;
+
+    /* Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+
+    /* Easing */
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Fonts */
+    --font-display: 'Mona Sans', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0C0C0E;
+    --bg-card: #1A1A1F;
+    --bg-elevated: #222228;
+    --primary-hover: #3DA0FF;
+    --primary-light: rgba(18,136,255,0.12);
+    --primary-glow: rgba(18,136,255,0.35);
+    --amber: #E5A91B;
+    --amber-light: rgba(229,169,27,0.12);
+    --text: #F0F0F0;
+    --text-secondary: #8E93A4;
+    --text-tertiary: #5A5E6E;
+    --border: #2A2A30;
+    --border-hover: #3A3A42;
+    --success: #22C55E;
+    --error: #EF4444;
+    --warning: #E5A91B;
+    --purple: #A78BFA;
+    --yellow: #FCD34D;
+    --orange: #FB923C;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     BUTTON CLASSES (from globals.css)
+     ════════════════════════════════════════════════════════════ */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 200ms ease;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    padding: 12px 24px;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .btn-lg { padding: 16px 32px; font-size: 1rem; border-radius: var(--radius-lg); }
+  .btn-sm { padding: 8px 16px; font-size: 0.75rem; }
+
+  /* ════════════════════════════════════════════════════════════
+     FILM GRAIN OVERLAY
+     ════════════════════════════════════════════════════════════ */
+
+  .grain {
+    position: absolute; inset: 0;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 50;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     GLASS CARD
+     ════════════════════════════════════════════════════════════ */
+
+  .glass-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     ANIMATIONS
+     ════════════════════════════════════════════════════════════ */
+
+  @keyframes kenBurns { 0% { transform: scale(1); } 100% { transform: scale(1.08); } }
+  @keyframes nexiSpin { 0% { transform: rotate(0deg) scale(1); opacity: 1; } 50% { transform: rotate(180deg) scale(1.05); opacity: 0.8; } 100% { transform: rotate(360deg) scale(1); opacity: 1; } }
+  @keyframes progressPulse { 0% { width: 20%; } 50% { width: 80%; } 100% { width: 20%; } }
+  @keyframes listeningPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.25); } 50% { box-shadow: 0 0 0 14px rgba(239,68,68,0); } }
+  @keyframes micIdlePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(18,136,255,0.2); } 50% { box-shadow: 0 0 0 10px rgba(18,136,255,0); } }
+  @keyframes avBar1 { 0%,100% { transform: scaleY(0.3); } 50% { transform: scaleY(1); } }
+  @keyframes avBar2 { 0%,100% { transform: scaleY(0.5); } 50% { transform: scaleY(0.8); } }
+  @keyframes avBar3 { 0%,100% { transform: scaleY(0.7); } 50% { transform: scaleY(0.35); } }
+
+  /* ════════════════════════════════════════════════════════════
+     PAGE LAYOUT
+     ════════════════════════════════════════════════════════════ */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .ds-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 32px;
+  }
+
+  .ds-header {
+    text-align: center;
+    margin-bottom: 64px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ds-header h1 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+
+  .ds-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  .ds-section {
+    margin-bottom: 64px;
+  }
+
+  .ds-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ds-section h2 .badge {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  .ds-section > p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 24px;
+    max-width: 640px;
+  }
+
+  .ds-subsection {
+    margin-bottom: 32px;
+  }
+
+  .ds-subsection h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+  }
+
+  .ds-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .ds-grid-2 { grid-template-columns: 1fr 1fr; }
+  .ds-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .ds-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .ds-grid-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+  .ds-grid-6 { grid-template-columns: repeat(6, 1fr); }
+  .ds-grid-8 { grid-template-columns: repeat(8, 1fr); }
+
+  .ds-flex { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .ds-flex-col { display: flex; flex-direction: column; gap: 8px; }
+
+  .ds-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px;
+  }
+
+  .ds-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-tertiary);
+    margin-bottom: 4px;
+  }
+
+  .ds-value {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+
+  .ds-mono {
+    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    background: var(--bg-card);
+  }
+
+  .theme-toggle button {
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-secondary);
+    transition: all 200ms;
+  }
+
+  .theme-toggle button.active {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .ds-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+  .ds-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ds-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .ds-table tr:last-child td { border-bottom: none; }
+
+  .color-swatch {
+    width: 100%;
+    aspect-ratio: 2/1;
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .preview-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+  }
+
+  .hero-preview {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  }
+
+  .hero-preview .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .separator {
+    height: 1px;
+    background: var(--border);
+    margin: 48px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<div class="theme-toggle">
+  <button class="active" onclick="setTheme('light')">Light</button>
+  <button onclick="setTheme('dark')">Dark</button>
+</div>
+
+<div class="ds-page">
+
+  <!-- ══════════════════════════════════════════════════════
+       HEADER
+       ══════════════════════════════════════════════════════ -->
+  <header class="ds-header">
+    <p style="font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--primary); margin-bottom: 12px;">NEXI by TrueOmni</p>
+    <h1>Design System</h1>
+    <p>Complete visual reference for the NEXI Hotel Self Check-in Kiosk.<br>
+    82 screens &middot; 16 modules &middot; 1920&times;1080 landscape &middot; Nordic Cinematic style</p>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════
+       1. COLOR PALETTE
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="colors">
+    <h2>Color Palette <span class="badge">30 tokens &middot; Light + Dark</span></h2>
+    <p>Every color in the system is a CSS custom property. Screens never use hardcoded hex values. Both themes share the same primary blue (#1288FF).</p>
+
+    <div class="ds-subsection">
+      <h3>Backgrounds</h3>
+      <div class="ds-grid ds-grid-3">
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--bg);"></div>
+          <div class="ds-label">--bg</div>
+          <div class="ds-value">Page Background</div>
+          <div class="ds-mono">Light: #F5F5F0 &middot; Dark: #0C0C0E</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--bg-card);"></div>
+          <div class="ds-label">--bg-card</div>
+          <div class="ds-value">Card Surface</div>
+          <div class="ds-mono">Light: #FFFFFF &middot; Dark: #1A1A1F</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--bg-elevated);"></div>
+          <div class="ds-label">--bg-elevated</div>
+          <div class="ds-value">Elevated / Modal</div>
+          <div class="ds-mono">Light: #FFFFFF &middot; Dark: #222228</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Primary</h3>
+      <div class="ds-grid ds-grid-4">
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--primary);"></div>
+          <div class="ds-label">--primary</div>
+          <div class="ds-value">Actions & Accent</div>
+          <div class="ds-mono">#1288FF (both themes)</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--primary-hover);"></div>
+          <div class="ds-label">--primary-hover</div>
+          <div class="ds-value">Button Hover</div>
+          <div class="ds-mono">Light: #0B6FD4 &middot; Dark: #3DA0FF</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--primary-light);"></div>
+          <div class="ds-label">--primary-light</div>
+          <div class="ds-value">Subtle Highlight</div>
+          <div class="ds-mono">8% / 12% opacity</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--primary-glow); border-color: var(--primary);"></div>
+          <div class="ds-label">--primary-glow</div>
+          <div class="ds-value">Focus Ring</div>
+          <div class="ds-mono">25% / 35% opacity</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Semantic Colors</h3>
+      <div class="ds-grid ds-grid-6">
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--success);"></div>
+          <div class="ds-label">--success</div>
+          <div class="ds-mono">Light: #16A34A<br>Dark: #22C55E</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--error);"></div>
+          <div class="ds-label">--error</div>
+          <div class="ds-mono">Light: #DC2626<br>Dark: #EF4444</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--amber);"></div>
+          <div class="ds-label">--amber</div>
+          <div class="ds-mono">Light: #D4960A<br>Dark: #E5A91B</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--purple);"></div>
+          <div class="ds-label">--purple</div>
+          <div class="ds-mono">Light: #8B5CF6<br>Dark: #A78BFA</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--yellow);"></div>
+          <div class="ds-label">--yellow</div>
+          <div class="ds-mono">Light: #FBBF24<br>Dark: #FCD34D</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--orange);"></div>
+          <div class="ds-label">--orange</div>
+          <div class="ds-mono">Light: #F97316<br>Dark: #FB923C</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Text &amp; Borders</h3>
+      <div class="ds-grid ds-grid-5">
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--text);"></div>
+          <div class="ds-label">--text</div>
+          <div class="ds-mono">Light: #1A1A1A<br>Dark: #F0F0F0</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--text-secondary);"></div>
+          <div class="ds-label">--text-secondary</div>
+          <div class="ds-mono">Light: #6B7280<br>Dark: #8E93A4</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--text-tertiary);"></div>
+          <div class="ds-label">--text-tertiary</div>
+          <div class="ds-mono">Light: #9CA3AF<br>Dark: #5A5E6E</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--border);"></div>
+          <div class="ds-label">--border</div>
+          <div class="ds-mono">Light: #E8E8E3<br>Dark: #2A2A30</div>
+        </div>
+        <div class="ds-card">
+          <div class="color-swatch" style="background: var(--border-hover);"></div>
+          <div class="ds-label">--border-hover</div>
+          <div class="ds-mono">Light: #D1D1CC<br>Dark: #3A3A42</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Module Color Mapping</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Module</th><th>Color Token</th><th>Preview</th></tr></thead>
+          <tbody>
+            <tr><td>Check-in, Room Service, Wi-Fi, AI Avatar</td><td><code>--primary</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--primary);"></div></td></tr>
+            <tr><td>Wayfinding, Upsells, Early Check-in, Duplicate Key</td><td><code>--amber</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--amber);"></div></td></tr>
+            <tr><td>Booking, Events, Late Check-out</td><td><code>--purple</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--purple);"></div></td></tr>
+            <tr><td>Check-out</td><td><code>--error</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--error);"></div></td></tr>
+            <tr><td>Explore / Listings, Payments</td><td><code>--success</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--success);"></div></td></tr>
+            <tr><td>FAQ</td><td><code>--text-secondary</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--text-secondary);"></div></td></tr>
+            <tr><td>Ads</td><td><code>--orange</code></td><td><div style="width:24px;height:24px;border-radius:6px;background:var(--orange);"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       2. TYPOGRAPHY
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="typography">
+    <h2>Typography <span class="badge">2 fonts &middot; 12 sizes</span></h2>
+    <p>Mona Sans for display/headings, Inter for body/UI. Font weights range from 400 (regular) to 800 (extra-bold). All sizes use rem units relative to a 16px base.</p>
+
+    <div class="ds-subsection">
+      <h3>Type Scale</h3>
+      <div class="ds-card" style="padding: 32px;">
+        <div style="margin-bottom: 32px;">
+          <div class="ds-label">H1 Hero &mdash; Mona Sans 3rem / 800</div>
+          <div style="font-family: var(--font-display); font-size: 3rem; font-weight: 800; line-height: 1.05; letter-spacing: -1px;">Welcome to NEXI</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">H1 Section &mdash; Mona Sans 1.75rem / 700</div>
+          <div style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; line-height: 1.2;">Find Your Reservation</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">H2 &mdash; Mona Sans 1.5rem / 800</div>
+          <div style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; line-height: 1.2;">Welcome back, Sarah</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">H3 &mdash; Mona Sans 1.25rem / 700</div>
+          <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; line-height: 1.3;">Booking Confirmed</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">H4 &mdash; Mona Sans 1.125rem / 600</div>
+          <div style="font-family: var(--font-display); font-size: 1.125rem; font-weight: 600; line-height: 1.3;">Processing your request</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">Body &mdash; Inter 0.9375rem / 400</div>
+          <div style="font-family: var(--font-body); font-size: 0.9375rem; font-weight: 400; line-height: 1.6; color: var(--text-secondary); max-width: 480px;">Search by confirmation number, last name, or scan your QR code to begin the check-in process.</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">Small Body &mdash; Inter 0.8125rem / 500</div>
+          <div style="font-family: var(--font-body); font-size: 0.8125rem; font-weight: 500; color: var(--text-secondary);">Hold your passport flat on the scanner</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">Label &mdash; Inter 0.75rem / 600</div>
+          <div style="font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Mar 16, 2026 &middot; 4:30 PM</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">Caption &mdash; Inter 0.6875rem / 400&ndash;600</div>
+          <div style="font-family: var(--font-body); font-size: 0.6875rem; color: var(--text-secondary);">Ocean Suite &middot; Checkout Feb 25</div>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <div class="ds-label">Section Label &mdash; Mona Sans 0.625rem / 700 uppercase</div>
+          <div style="font-family: var(--font-display); font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-tertiary);">UPGRADES & OFFERS</div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <div class="ds-label">Micro &mdash; Inter 0.5625rem / 500</div>
+          <div style="font-family: var(--font-body); font-size: 0.5625rem; font-weight: 500; color: var(--text-tertiary);">YOUR ROOM</div>
+        </div>
+        <div>
+          <div class="ds-label">Pill/Badge &mdash; Inter 0.5rem / 600</div>
+          <div style="font-family: var(--font-body); font-size: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">KING BED &middot; 420 SQ FT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Letter Spacing Reference</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Value</th><th>Usage</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>-1px</code></td><td>Hero headings (3rem)</td><td style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;letter-spacing:-1px;">Welcome</td></tr>
+            <tr><td><code>-0.5px</code></td><td>Display text (1.5rem+)</td><td style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;letter-spacing:-0.5px;">Suite Upgrade</td></tr>
+            <tr><td><code>0</code></td><td>Body text (default)</td><td>Standard body text</td></tr>
+            <tr><td><code>0.5px</code></td><td>Hotel name in header</td><td style="font-family:var(--font-display);font-size:0.875rem;font-weight:700;letter-spacing:0.5px;">NEXI</td></tr>
+            <tr><td><code>0.08em&ndash;0.12em</code></td><td>Uppercase labels</td><td style="font-size:0.625rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-tertiary);">RESERVATION NUMBER</td></tr>
+            <tr><td><code>1.5px</code></td><td>Sidebar section labels</td><td style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-tertiary);">YOUR ROOM</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       3. SPACING
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="spacing">
+    <h2>Spacing System <span class="badge">4px base unit</span></h2>
+    <p>All spacing follows a 4px base grid. Common values: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64.</p>
+
+    <div class="ds-flex" style="gap: 16px; flex-wrap: wrap;">
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:4px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">4px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:8px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">8px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:12px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">12px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:16px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">16px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:20px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">20px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:24px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">24px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:32px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">32px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:48px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">48px</div>
+      </div>
+      <div style="text-align: center;" class="ds-card">
+        <div style="width:64px;height:32px;background:var(--primary);border-radius:2px;margin:0 auto 8px;"></div>
+        <div class="ds-mono">64px</div>
+      </div>
+    </div>
+
+    <div class="ds-subsection" style="margin-top: 24px;">
+      <h3>Common Spacing Contexts</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Context</th><th>Gap</th><th>Padding</th></tr></thead>
+          <tbody>
+            <tr><td>Screen body (centered)</td><td>32px</td><td>0 48px</td></tr>
+            <tr><td>Module grid (DSH-01)</td><td>12px</td><td>24px 32px</td></tr>
+            <tr><td>Card content</td><td>8&ndash;12px</td><td>16&ndash;20px</td></tr>
+            <tr><td>Button groups</td><td>8&ndash;12px</td><td>&mdash;</td></tr>
+            <tr><td>Form field rows</td><td>16px</td><td>&mdash;</td></tr>
+            <tr><td>Glass card (hero)</td><td>16&ndash;20px</td><td>24&ndash;32px</td></tr>
+            <tr><td>Sidebar (DSH-01)</td><td>16px</td><td>20px</td></tr>
+            <tr><td>Amenity pills</td><td>5px</td><td>4px 10px</td></tr>
+            <tr><td>Thumbnail strip</td><td>6px</td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       4. BORDER RADIUS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="radius">
+    <h2>Border Radius <span class="badge">5 tokens</span></h2>
+
+    <div class="ds-flex" style="gap: 24px;">
+      <div style="text-align: center;">
+        <div style="width:64px;height:64px;background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius-sm);margin-bottom:8px;"></div>
+        <div class="ds-value">sm</div>
+        <div class="ds-mono">8px</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="width:64px;height:64px;background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius-md);margin-bottom:8px;"></div>
+        <div class="ds-value">md</div>
+        <div class="ds-mono">12px</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="width:64px;height:64px;background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius-lg);margin-bottom:8px;"></div>
+        <div class="ds-value">lg</div>
+        <div class="ds-mono">16px</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="width:64px;height:64px;background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius-xl);margin-bottom:8px;"></div>
+        <div class="ds-value">xl</div>
+        <div class="ds-mono">20px</div>
+      </div>
+      <div style="text-align: center;">
+        <div style="width:96px;height:44px;background:var(--primary-light);border:2px solid var(--primary);border-radius:var(--radius-full);margin-bottom:8px;"></div>
+        <div class="ds-value">full</div>
+        <div class="ds-mono">9999px</div>
+      </div>
+    </div>
+
+    <div class="ds-card" style="margin-top: 16px; padding: 0; overflow: hidden;">
+      <table class="ds-table">
+        <thead><tr><th>Token</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--radius-sm</code> (8px)</td><td>Tags, small buttons, icon backgrounds, thumbnails</td></tr>
+          <tr><td><code>--radius-md</code> (12px)</td><td>Buttons, inputs, cards, module tiles <strong>(most common)</strong></td></tr>
+          <tr><td><code>--radius-lg</code> (16px)</td><td>Glass cards, modals, large cards, kiosk frame</td></tr>
+          <tr><td><code>--radius-xl</code> (20px)</td><td>Large modals (rarely used)</td></tr>
+          <tr><td><code>--radius-full</code> (9999px)</td><td>Pills, tab buttons, CTA buttons, toggles, badges</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       5. SHADOWS & EFFECTS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="effects">
+    <h2>Shadows &amp; Effects <span class="badge">Glass &middot; Grain &middot; Ken Burns</span></h2>
+
+    <div class="ds-subsection">
+      <h3>Elevation Shadows</h3>
+      <div class="ds-grid ds-grid-3">
+        <div class="ds-card" style="text-align:center;">
+          <div style="width:120px;height:80px;background:var(--bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-sm);margin:0 auto 12px;"></div>
+          <div class="ds-value">shadow-sm</div>
+          <div class="ds-mono">0 1px 2px rgba(0,0,0,0.04)</div>
+        </div>
+        <div class="ds-card" style="text-align:center;">
+          <div style="width:120px;height:80px;background:var(--bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-md);margin:0 auto 12px;"></div>
+          <div class="ds-value">shadow-md</div>
+          <div class="ds-mono">0 4px 12px rgba(0,0,0,0.06)</div>
+        </div>
+        <div class="ds-card" style="text-align:center;">
+          <div style="width:120px;height:80px;background:var(--bg-card);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);margin:0 auto 12px;"></div>
+          <div class="ds-value">shadow-lg</div>
+          <div class="ds-mono">0 8px 24px rgba(0,0,0,0.08)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Glass Morphism</h3>
+      <div class="hero-preview">
+        <div class="overlay"></div>
+        <div class="grain"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;">
+          <div class="glass-card" style="width: 340px; text-align: center;">
+            <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:4px;">Glass Card</div>
+            <div style="font-size:0.6875rem;color:rgba(255,255,255,0.6);margin-bottom:16px;">background: rgba(255,255,255,0.08)<br>backdrop-filter: blur(24px)<br>border: 1px solid rgba(255,255,255,0.12)</div>
+            <div style="display:flex;gap:8px;justify-content:center;">
+              <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);font-size:0.6875rem;">Details</button>
+              <button class="btn btn-primary" style="font-size:0.6875rem;">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Film Grain Overlay</h3>
+      <div class="ds-card">
+        <div class="ds-mono" style="margin-bottom: 8px;">
+          .grain { position: absolute; inset: 0; opacity: 0.04; pointer-events: none; z-index: 50; }<br>
+          background-image: SVG feTurbulence (fractalNoise, baseFrequency: 0.9, numOctaves: 4)
+        </div>
+        <div style="font-size: 0.8125rem; color: var(--text-secondary);">Applied to all full-screen hero backgrounds. Creates subtle editorial texture. Never blocks interactions (pointer-events: none).</div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Gradient Overlays on Photography</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Screen</th><th>Gradient</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>IDL-01 (Welcome)</td><td><code>rgba(0,0,0,0.15) → rgba(0,0,0,0.55)</code></td><td>Light overlay for readability</td></tr>
+            <tr><td>ONB-02 (Actions)</td><td><code>rgba(0,0,0,0.3) → rgba(0,0,0,0.6)</code></td><td>Medium overlay</td></tr>
+            <tr><td>DSH-01 (Dashboard)</td><td><code>rgba(0,0,0,0.2) → rgba(0,0,0,0.6)</code></td><td>Hero banner overlay</td></tr>
+            <tr><td>CKI-16 (Complete)</td><td><code>rgba(0,0,0,0.2) → rgba(0,0,0,0.8)</code></td><td>Strong overlay for glass card</td></tr>
+            <tr><td>Confirmation screens</td><td><code>rgba(0,0,0,0.3) → rgba(0,0,0,0.7)</code></td><td>Standard confirmation overlay</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       6. BUTTONS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="buttons">
+    <h2>Buttons <span class="badge">4 variants &middot; 3 sizes</span></h2>
+    <p>All buttons use Mona Sans, font-weight 600, 200ms transition. Touch-first design: minimum 44px tap target. Defined in globals.css as .btn classes.</p>
+
+    <div class="ds-subsection">
+      <h3>Variants</h3>
+      <div class="ds-flex" style="gap: 16px;">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-amber">Amber</button>
+        <button class="btn btn-primary" style="background:var(--error);">Danger</button>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Sizes</h3>
+      <div class="ds-flex" style="gap: 16px; align-items: flex-end;">
+        <div style="text-align:center;">
+          <button class="btn btn-primary btn-lg">Large Button</button>
+          <div class="ds-mono" style="margin-top:8px;">16px 32px &middot; 1rem</div>
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary">Default Button</button>
+          <div class="ds-mono" style="margin-top:8px;">12px 24px &middot; 0.875rem</div>
+        </div>
+        <div style="text-align:center;">
+          <button class="btn btn-primary btn-sm">Small Button</button>
+          <div class="ds-mono" style="margin-top:8px;">8px 16px &middot; 0.75rem</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Pill Buttons (CTA &amp; Tabs)</h3>
+      <div class="ds-flex" style="gap: 16px;">
+        <button class="btn btn-primary" style="border-radius:var(--radius-full);padding:14px 32px;font-size:0.9375rem;">Tap to Start →</button>
+        <div style="display:flex;gap:0;background:var(--bg-elevated);padding:4px;border-radius:var(--radius-full);">
+          <button style="padding:8px 20px;border-radius:var(--radius-full);border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:var(--font-display);background:var(--primary);color:#fff;">Confirmation #</button>
+          <button style="padding:8px 20px;border-radius:var(--radius-full);border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:var(--font-display);background:transparent;color:var(--text-secondary);">Last Name</button>
+          <button style="padding:8px 20px;border-radius:var(--radius-full);border:none;cursor:pointer;font-size:0.8125rem;font-weight:600;font-family:var(--font-display);background:transparent;color:var(--text-secondary);">QR Code</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Button Pairs (Common Patterns)</h3>
+      <div class="ds-flex" style="gap: 24px;">
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-ghost">Back</button>
+          <button class="btn btn-primary">Search</button>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-ghost">Skip</button>
+          <button class="btn btn-primary">Continue</button>
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button class="btn btn-ghost btn-sm" style="font-size:0.6875rem;">Dispute</button>
+          <button class="btn btn-primary btn-sm" style="font-size:0.6875rem;">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       7. FORM INPUTS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="inputs">
+    <h2>Form Inputs <span class="badge">Text &middot; Select &middot; Textarea</span></h2>
+
+    <div class="ds-grid ds-grid-2" style="gap: 24px;">
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom: 12px;">Text Input with Search Icon</div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span style="font-size:0.9375rem;color:var(--text-tertiary);font-family:var(--font-body);">Enter confirmation number</span>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">padding: 14px 16px &middot; radius-md &middot; border: 1px solid --border</div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom: 12px;">Labeled Input</div>
+        <div style="margin-bottom: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);">Last Name</div>
+        <div style="display:flex;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;">
+          <span style="font-size:0.9375rem;color:var(--text-tertiary);font-family:var(--font-body);">Enter your last name</span>
+        </div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom: 12px;">Select Dropdown</div>
+        <select style="width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:0.8125rem;font-family:var(--font-body);cursor:pointer;">
+          <option>Select a charge to dispute</option>
+          <option>Room Service - $45.00</option>
+          <option>Mini Bar - $22.50</option>
+        </select>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom: 12px;">Textarea</div>
+        <textarea style="width:100%;height:72px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:0.75rem;font-family:var(--font-body);color:var(--text);resize:none;line-height:1.5;" placeholder="Describe the issue..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       8. CARDS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="cards">
+    <h2>Cards <span class="badge">3 variants</span></h2>
+
+    <div class="ds-grid ds-grid-3" style="gap: 24px;">
+      <div>
+        <div class="ds-label" style="margin-bottom: 8px;">Default Card</div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;">
+          <div style="font-family:var(--font-display);font-weight:600;font-size:0.8125rem;margin-bottom:4px;">Room Service</div>
+          <div style="font-size:0.6875rem;color:var(--text-secondary);line-height:1.5;">Order food, beverages, and amenities delivered to your room.</div>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">bg-card &middot; border &middot; radius-md &middot; p:16px</div>
+      </div>
+
+      <div>
+        <div class="ds-label" style="margin-bottom: 8px;">Elevated Card</div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-md);">
+          <div style="font-family:var(--font-display);font-weight:600;font-size:0.8125rem;margin-bottom:4px;">Suite Upgrade</div>
+          <div style="font-size:0.6875rem;color:var(--text-secondary);line-height:1.5;">Upgrade to our Ocean Suite for a stunning view.</div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:0.875rem;color:var(--amber);margin-top:8px;">$89/night</div>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">bg-elevated &middot; radius-lg &middot; shadow-md</div>
+      </div>
+
+      <div>
+        <div class="ds-label" style="margin-bottom: 8px;">Module Tile (DSH-01)</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:all 200ms;">
+          <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </div>
+          <span style="font-family:var(--font-display);font-weight:600;font-size:0.8125rem;">Room Service</span>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">icon(40x40) + label &middot; gap:12 &middot; p:16</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       9. PROGRESS & STATUS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="progress">
+    <h2>Progress &amp; Status <span class="badge">Bars &middot; Spinners &middot; Steps</span></h2>
+
+    <div class="ds-subsection">
+      <h3>Progress Bar (Multi-step flows)</h3>
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Step 3 of 8 (Check-in flow)</div>
+        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:37.5%;background:var(--primary);border-radius:2px;transition:width 500ms ease;"></div>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">height: 4px &middot; bg: --border &middot; fill: --primary &middot; transition: 500ms</div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Processing Spinner</h3>
+      <div class="preview-box" style="flex-direction:column;gap:24px;padding:32px;">
+        <div style="animation:nexiSpin 8s ease-in-out infinite;">
+          <svg width="64" height="56" viewBox="0 0 137.993 121.233" fill="var(--primary)">
+            <g transform="translate(-6144.282 727.124)">
+              <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+              <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+              <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+              <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+            </g>
+          </svg>
+        </div>
+        <div style="width:280px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;background:var(--primary);border-radius:2px;animation:progressPulse 2s ease-in-out infinite;"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:1.125rem;font-weight:600;text-align:center;">Verifying your identity...</div>
+          <div style="color:var(--text-tertiary);font-size:0.8125rem;text-align:center;margin-top:8px;">This will only take a moment</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Success Confirmation</h3>
+      <div class="preview-box" style="flex-direction:column;gap:12px;padding:32px;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(34,197,94,0.4);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;">Verification Complete</div>
+        <div style="color:var(--text-secondary);font-size:0.6875rem;">Your identity has been verified successfully</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       10. LAYOUT PATTERNS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="layouts">
+    <h2>Layout Patterns <span class="badge">7 patterns</span></h2>
+    <p>All screens render inside a 1920&times;1080 (16:9) landscape viewport. The kiosk frame applies border-radius: 12px and overflow: hidden.</p>
+
+    <div class="ds-card" style="padding: 0; overflow: hidden;">
+      <table class="ds-table">
+        <thead><tr><th>Pattern</th><th>Structure</th><th>Usage</th><th>Screens</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Full-Screen Hero</strong></td>
+            <td>BG image + gradient + grain + absolute content</td>
+            <td>Welcome, completions</td>
+            <td>IDL-01, ONB-02, CKI-07, CKI-13, CKI-16, CKO-06, BKG-07, RSV-06, PAY-03, EVT-03, UPS-03, DKY-03, WIF-01</td>
+          </tr>
+          <tr>
+            <td><strong>Header + Progress + Content</strong></td>
+            <td>GlobalHeader &rarr; 4px progress bar &rarr; centered body &rarr; buttons</td>
+            <td>Step flows</td>
+            <td>CKI-01 to CKI-05, CKO-00 to CKO-02, BKG-01 to BKG-05</td>
+          </tr>
+          <tr>
+            <td><strong>Two-Column Split</strong></td>
+            <td>Left 50% (form/info) | Right 50% (photo/video)</td>
+            <td>Scanning, details</td>
+            <td>CKI-03, CKI-04, CKI-08, CKI-10, CKO-02, CKO-05, UPS-02, EVT-02, RSV-05</td>
+          </tr>
+          <tr>
+            <td><strong>Dashboard</strong></td>
+            <td>Header &rarr; Hero(215px) &rarr; 3-col grid | Sidebar(260px)</td>
+            <td>Main hub</td>
+            <td>DSH-01</td>
+          </tr>
+          <tr>
+            <td><strong>Sidebar + Grid</strong></td>
+            <td>Left nav sidebar | Right 3-column grid</td>
+            <td>Browsing, menus</td>
+            <td>RSV-01, RSV-02, EVT-01, LST-01</td>
+          </tr>
+          <tr>
+            <td><strong>Modal Overlay</strong></td>
+            <td>Dark backdrop + centered card (340-400px)</td>
+            <td>Confirmations, disputes, details</td>
+            <td>CKO-03, CKO-04, BKG-02 modal, RSV-03 modal, INA-01</td>
+          </tr>
+          <tr>
+            <td><strong>Centered Spinner</strong></td>
+            <td>Flex center + rotating NEXI logo + progress bar</td>
+            <td>Processing</td>
+            <td>CKI-05, CKI-13, DKY-02, PAY-02</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       11. ANIMATIONS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="animations">
+    <h2>Animations <span class="badge">7 keyframes</span></h2>
+
+    <div class="ds-card" style="padding: 0; overflow: hidden;">
+      <table class="ds-table">
+        <thead><tr><th>Name</th><th>Duration</th><th>Easing</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>kenBurns</code></td><td>20s</td><td>ease-in-out, infinite alternate</td><td>Hero background image slow zoom (scale 1 &rarr; 1.08)</td></tr>
+          <tr><td><code>nexiSpin</code></td><td>8s</td><td>ease-in-out, infinite</td><td>Loading spinner (rotate + scale pulse)</td></tr>
+          <tr><td><code>progressPulse</code></td><td>2s</td><td>ease-in-out, infinite</td><td>Scanning progress bar (width 20% &rarr; 80%)</td></tr>
+          <tr><td><code>listeningPulse</code></td><td>1.5s</td><td>infinite</td><td>Mic button red pulse when AI is listening</td></tr>
+          <tr><td><code>micIdlePulse</code></td><td>2s</td><td>infinite</td><td>Mic button blue pulse when idle</td></tr>
+          <tr><td><code>avBar1-5</code></td><td>1.5s</td><td>infinite</td><td>Audio visualizer bars (5 staggered animations)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ds-subsection" style="margin-top: 24px;">
+      <h3>Screen Transitions</h3>
+      <div class="ds-grid ds-grid-3">
+        <div class="ds-card">
+          <div class="ds-value" style="margin-bottom:4px;">Between Modules</div>
+          <div style="font-size:0.8125rem;color:var(--text-secondary);">Crossfade (opacity only)</div>
+          <div class="ds-mono">250ms &middot; cubic-bezier(0.22, 1, 0.36, 1)</div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-value" style="margin-bottom:4px;">Forward in Flow</div>
+          <div style="font-size:0.8125rem;color:var(--text-secondary);">Slide right (x: 40 &rarr; 0)</div>
+          <div class="ds-mono">250ms &middot; cinematic ease</div>
+        </div>
+        <div class="ds-card">
+          <div class="ds-value" style="margin-bottom:4px;">Backward in Flow</div>
+          <div style="font-size:0.8125rem;color:var(--text-secondary);">Slide left (x: -40 &rarr; 0)</div>
+          <div class="ds-mono">250ms &middot; cinematic ease</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Element Transitions</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Element</th><th>Property</th><th>Duration</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>Buttons</td><td>all</td><td>200ms ease</td><td>Color/background change on hover</td></tr>
+            <tr><td>Cards (hover)</td><td>transform, box-shadow</td><td>200ms ease</td><td>translateY(-2px) + shadow increase</td></tr>
+            <tr><td>Upgrade cards (hover)</td><td>transform, box-shadow</td><td>200ms ease</td><td>translateY(-4px) + primary glow</td></tr>
+            <tr><td>Progress bar</td><td>width</td><td>500ms ease</td><td>Smooth step progression</td></tr>
+            <tr><td>Photo gallery</td><td>background</td><td>400ms ease</td><td>Smooth image transition</td></tr>
+            <tr><td>Emoji buttons</td><td>transform</td><td>150ms ease</td><td>scale(1.08) on select</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       12. GLOBAL HEADER
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="header">
+    <h2>Global Header <span class="badge">48px &middot; 2 variants</span></h2>
+
+    <div class="ds-subsection">
+      <h3>Default (Light Background)</h3>
+      <div style="height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="18" viewBox="0 0 137.993 121.233" fill="#262626"><g transform="translate(-6144.282 727.124)"><path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/><path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/><path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/><path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/></g></svg>
+          <svg width="80" height="28" viewBox="0 0 288.935 121.75" fill="#262626"><g transform="translate(-53.3 -26.837)"><g transform="translate(53.3 26.837)"><circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/><g transform="translate(263.791 3.055)"><rect width="25.144" height="46.812" transform="translate(0 71.883)"/><rect width="25.144" height="46.738"/></g><path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/><path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/><g transform="translate(165.47 3.055)"><path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/></g></g></g></svg>
+          <span style="color:var(--text-secondary);font-size:0.8125rem;margin-left:8px;">The Grand Hotel &amp; Spa</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;color:var(--text-secondary);font-size:0.75rem;">
+          <span>Mar 16, 2026 &middot; 4:30 PM</span>
+          <span style="display:flex;align-items:center;gap:4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            24&deg;C
+          </span>
+        </div>
+      </div>
+      <div class="ds-mono">height: 48px &middot; bg-card &middot; border-bottom: 1px --border &middot; padding: 0 24px</div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Cinematic (Transparent/Blur)</h3>
+      <div style="height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(0,0,0,0.3);backdrop-filter:blur(12px);border-radius:var(--radius-md);margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="18" viewBox="0 0 137.993 121.233" fill="#FFFFFF"><g transform="translate(-6144.282 727.124)"><path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/><path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/><path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/><path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/></g></svg>
+          <svg width="80" height="28" viewBox="0 0 288.935 121.75" fill="#FFFFFF"><g transform="translate(-53.3 -26.837)"><g transform="translate(53.3 26.837)"><circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/><g transform="translate(263.791 3.055)"><rect width="25.144" height="46.812" transform="translate(0 71.883)"/><rect width="25.144" height="46.738"/></g><path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/><path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/><g transform="translate(165.47 3.055)"><path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/></g></g></g></svg>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;color:rgba(255,255,255,0.7);font-size:0.75rem;">
+          <span>72&deg;F Partly Cloudy</span>
+          <span>Saturday, February 22</span>
+          <span style="font-family:var(--font-display);font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:-0.5px;">10:45</span>
+        </div>
+      </div>
+      <div class="ds-mono">bg: rgba(0,0,0,0.3) &middot; backdrop-filter: blur(12px) &middot; white text</div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       13. SPECIAL PATTERNS
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="patterns">
+    <h2>Special Patterns <span class="badge">Unique UI elements</span></h2>
+
+    <div class="ds-grid ds-grid-2" style="gap: 24px;">
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Quantity Counter</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text-secondary);">&minus;</div>
+          <span style="font-family:var(--font-display);font-weight:700;font-size:1rem;min-width:24px;text-align:center;">2</span>
+          <div style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text-secondary);">+</div>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">36x36 circles &middot; radius: 50% &middot; gap: 8px</div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Amenity Pills</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span style="padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-elevated);border:1px solid var(--border);font-size:0.5625rem;font-weight:500;">King Bed</span>
+          <span style="padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-elevated);border:1px solid var(--border);font-size:0.5625rem;font-weight:500;">Ocean View</span>
+          <span style="padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-elevated);border:1px solid var(--border);font-size:0.5625rem;font-weight:500;">Balcony</span>
+          <span style="padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-elevated);border:1px solid var(--border);font-size:0.5625rem;font-weight:500;">420 sq ft</span>
+          <span style="padding:4px 10px;border-radius:var(--radius-full);background:var(--bg-elevated);border:1px solid var(--border);font-size:0.5625rem;font-weight:500;">Wi-Fi</span>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">p: 4px 10px &middot; radius-full &middot; 0.5625rem</div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Room Card Badge</div>
+        <div style="position:relative;height:100px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius-md);overflow:hidden;">
+          <div style="position:absolute;top:6px;right:6px;background:var(--primary);color:#fff;font-size:0.5625rem;font-weight:700;padding:2px 8px;border-radius:var(--radius-full);">Best Value</div>
+          <div style="position:absolute;bottom:8px;left:12px;">
+            <div style="font-family:var(--font-display);font-weight:600;font-size:0.8125rem;color:#fff;">Deluxe King</div>
+            <div style="font-size:0.625rem;color:var(--amber);font-weight:600;margin-top:2px;">From $189/night</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Emoji Rating (Checkout Feedback)</div>
+        <div style="display:flex;gap:8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:46px;min-height:44px;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--primary);background:var(--primary);cursor:pointer;justify-content:center;">
+            <span style="font-size:1.125rem;">😊</span>
+            <span style="font-size:0.5625rem;font-weight:500;color:#fff;">Great</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:46px;min-height:44px;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;justify-content:center;">
+            <span style="font-size:1.125rem;">😐</span>
+            <span style="font-size:0.5625rem;font-weight:500;color:var(--text-secondary);">Okay</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:46px;min-height:44px;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);cursor:pointer;justify-content:center;">
+            <span style="font-size:1.125rem;">😞</span>
+            <span style="font-size:0.5625rem;font-weight:500;color:var(--text-secondary);">Poor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Star Rating</div>
+        <div style="display:flex;gap:4px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--yellow)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--yellow)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--yellow)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--yellow)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--border)" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">fill: --yellow (active) &middot; --border (inactive)</div>
+      </div>
+
+      <div class="ds-card">
+        <div class="ds-label" style="margin-bottom:12px;">Audio Visualizer (AI Avatar)</div>
+        <div style="display:flex;align-items:end;gap:3px;height:40px;">
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar1 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar2 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar3 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar1 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;animation-delay:0.2s;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar2 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;animation-delay:0.1s;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar3 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;animation-delay:0.3s;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar1 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;animation-delay:0.15s;"></div>
+          <div style="width:3px;background:var(--primary);border-radius:2px;animation:avBar2 1.5s ease-in-out infinite;height:100%;transform-origin:bottom;animation-delay:0.25s;"></div>
+        </div>
+        <div class="ds-mono" style="margin-top:8px;">5 keyframes (avBar1-5) &middot; 1.5s staggered</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       14. LOGOS & BRANDING
+       ══════════════════════════════════════════════════════ -->
+  <section class="ds-section" id="logos">
+    <h2>Logos &amp; Branding <span class="badge">5 assets</span></h2>
+    <p>Official SVG logos. The NEXI icon is a 4-blade windmill shape. Available in dark (#262626) and white (#FFFFFF) variants. All logos scale via viewBox.</p>
+
+    <div class="ds-subsection">
+      <h3>NEXI Icon</h3>
+      <div class="ds-grid ds-grid-2" style="gap:24px;">
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;">
+          <svg width="64" height="56" viewBox="0 0 137.993 121.233" fill="#262626"><g transform="translate(-6144.282 727.124)"><path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/><path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/><path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/><path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/></g></svg>
+          <div class="ds-label">nexi-icon.svg</div>
+          <div class="ds-mono">Dark (#262626) &middot; 137.99 &times; 121.23</div>
+        </div>
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;background:#1A1A1A;">
+          <svg width="64" height="56" viewBox="0 0 137.993 121.233" fill="#FFFFFF"><g transform="translate(-6144.282 727.124)"><path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/><path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/><path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/><path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/></g></svg>
+          <div class="ds-label" style="color:#9CA3AF;">nexi-icon-white.svg</div>
+          <div class="ds-mono" style="color:#6B7280;">White (#FFFFFF) &middot; For dark backgrounds</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>NEXI Full Logo (Icon + Wordmark)</h3>
+      <div class="ds-grid ds-grid-2" style="gap:24px;">
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;">
+          <svg width="180" height="76" viewBox="0 0 288.935 121.75" fill="#262626"><g transform="translate(-53.3 -26.837)"><g transform="translate(53.3 26.837)"><circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/><g transform="translate(263.791 3.055)"><rect width="25.144" height="46.812" transform="translate(0 71.883)"/><rect width="25.144" height="46.738"/></g><path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/><path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/><g transform="translate(165.47 3.055)"><path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/></g></g></g></svg>
+          <div class="ds-label">nexi-logo-full.svg</div>
+          <div class="ds-mono">Dark &middot; 288.94 &times; 121.75 &middot; Header, onboarding</div>
+        </div>
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;background:#1A1A1A;">
+          <svg width="180" height="76" viewBox="0 0 288.935 121.75" fill="#FFFFFF"><g transform="translate(-53.3 -26.837)"><g transform="translate(53.3 26.837)"><circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/><g transform="translate(263.791 3.055)"><rect width="25.144" height="46.812" transform="translate(0 71.883)"/><rect width="25.144" height="46.738"/></g><path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/><path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/><g transform="translate(165.47 3.055)"><path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/></g></g></g></svg>
+          <div class="ds-label" style="color:#9CA3AF;">nexi-logo-full.svg (white)</div>
+          <div class="ds-mono" style="color:#6B7280;">White &middot; Hero screens, cinematic header</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Powered by TrueOmni</h3>
+      <div class="ds-grid ds-grid-2" style="gap:24px;">
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;">
+          <svg width="240" height="24" viewBox="0 0 342.236 34" fill="#262626"><g transform="translate(-6097.471 603.783)"><g transform="translate(6223.282 -608.781)"><path d="M242.013,49.582a9.423,9.423,0,0,0-3.886.838,4.9,4.9,0,0,0-2.46,2.406v11.3h-4.778V45.446h4.385V49.44a8.514,8.514,0,0,1,1.177-1.729,9.046,9.046,0,0,1,1.462-1.337A6.765,6.765,0,0,1,239.5,45.5a4.379,4.379,0,0,1,1.551-.3h.588a1.944,1.944,0,0,1,.374.035Z" transform="translate(-159.04 -31.132)"/><path d="M283.4,65.038a5.3,5.3,0,0,1-4.385-1.854,8.594,8.594,0,0,1-1.5-5.491V46H282.3v10.66q0,4.314,3.1,4.314a4.906,4.906,0,0,0,2.692-.838,6.023,6.023,0,0,0,2.121-2.549V46h4.778V59.191a1.678,1.678,0,0,0,.267,1.07,1.168,1.168,0,0,0,.874.357v4.064a10.183,10.183,0,0,1-1.194.178c-.321.023-.612.036-.874.036a3.44,3.44,0,0,1-2.086-.588,2.315,2.315,0,0,1-.945-1.622l-.107-1.5a7.966,7.966,0,0,1-3.209,2.888,9.653,9.653,0,0,1-4.314.963" transform="translate(-191.16 -31.685)"/><path d="M357.823,64.328a10.373,10.373,0,0,1-4.064-.766,9.167,9.167,0,0,1-5.081-5.152,9.833,9.833,0,0,1-.7-3.672,10.4,10.4,0,0,1,.677-3.762,9.182,9.182,0,0,1,1.961-3.1,9.36,9.36,0,0,1,3.12-2.121,10.387,10.387,0,0,1,4.118-.785,10.13,10.13,0,0,1,4.082.785,9.4,9.4,0,0,1,3.066,2.1,8.958,8.958,0,0,1,1.925,3.066,10.221,10.221,0,0,1,.66,3.637q0,.464-.018.891a3.664,3.664,0,0,1-.089.713h-14.44a5.54,5.54,0,0,0,.535,1.961,4.8,4.8,0,0,0,2.638,2.389,5.039,5.039,0,0,0,1.783.321,5.512,5.512,0,0,0,2.692-.7,3.682,3.682,0,0,0,1.729-1.836l4.1,1.141a8.334,8.334,0,0,1-3.3,3.512,10.223,10.223,0,0,1-5.4,1.373m4.849-11.266a4.971,4.971,0,0,0-1.551-3.369,4.867,4.867,0,0,0-6.614.018,4.893,4.893,0,0,0-1.052,1.462,5.146,5.146,0,0,0-.481,1.89Z" transform="translate(-239.696 -30.975)"/><path d="M433.147,49.785a10.466,10.466,0,0,1-4.813-1.105,12.425,12.425,0,0,1-3.744-2.888,12.9,12.9,0,0,1-2.424-4.1,13.588,13.588,0,0,1-.855-4.742,13.16,13.16,0,0,1,.909-4.849,13.561,13.561,0,0,1,2.5-4.1,11.943,11.943,0,0,1,3.762-2.834,10.665,10.665,0,0,1,4.706-1.052,10.441,10.441,0,0,1,4.831,1.123,12.135,12.135,0,0,1,3.744,2.941,13.6,13.6,0,0,1,2.406,4.118,13.407,13.407,0,0,1-2.549,13.62,12.077,12.077,0,0,1-3.761,2.817,10.666,10.666,0,0,1-4.706,1.052M423.128,36.95a12.181,12.181,0,0,0,.731,4.189,11.3,11.3,0,0,0,2.068,3.565,10.174,10.174,0,0,0,3.191,2.478,8.953,8.953,0,0,0,4.064.927,8.736,8.736,0,0,0,4.118-.963,10.053,10.053,0,0,0,3.138-2.549,12.086,12.086,0,0,0,1.978-11.837,11.6,11.6,0,0,0-2.085-3.566,10.323,10.323,0,0,0-3.156-2.478,8.664,8.664,0,0,0-3.993-.927,8.839,8.839,0,0,0-4.136.962,10.186,10.186,0,0,0-3.173,2.549,11.71,11.71,0,0,0-2.032,3.583,11.989,11.989,0,0,0-.713,4.064" transform="translate(-290.204 -16.611)"/><path d="M539.289,64.287h-1.782V53.947a9.766,9.766,0,0,0-1.088-5.205,3.7,3.7,0,0,0-3.334-1.676,5.631,5.631,0,0,0-2.175.428,6.588,6.588,0,0,0-1.889,1.194,7.7,7.7,0,0,0-1.48,1.818,9.563,9.563,0,0,0-.98,2.335V64.287h-1.783V53.947a9.886,9.886,0,0,0-1.069-5.223,3.667,3.667,0,0,0-3.316-1.658,5.714,5.714,0,0,0-2.157.41,6.361,6.361,0,0,0-1.872,1.177,8.462,8.462,0,0,0-1.515,1.818,8.79,8.79,0,0,0-1.016,2.335V64.287H512.05V45.747h1.675v4.421a9.028,9.028,0,0,1,3-3.494,7.183,7.183,0,0,1,4.1-1.248,5.308,5.308,0,0,1,3.815,1.39,5.865,5.865,0,0,1,1.747,3.637q2.638-5.027,7.273-5.027a4.66,4.66,0,0,1,4.332,2.157,11.741,11.741,0,0,1,1.3,6.044Z" transform="translate(-352.707 -31.29)"/><path d="M632.611,64.287h-1.782V53.947a10.3,10.3,0,0,0-1.016-5.241,3.516,3.516,0,0,0-3.227-1.64,6.694,6.694,0,0,0-2.335.428,7.9,7.9,0,0,0-2.157,1.212,8.859,8.859,0,0,0-1.747,1.836,7.573,7.573,0,0,0-1.105,2.264V64.287h-1.782V45.747h1.676v4.421a8.712,8.712,0,0,1,1.408-1.943,8.874,8.874,0,0,1,1.89-1.5,9.52,9.52,0,0,1,2.228-.963,8.728,8.728,0,0,1,2.425-.339,4.556,4.556,0,0,1,4.279,2.121,12.118,12.118,0,0,1,1.248,6.079Z" transform="translate(-425.314 -31.29)"/><rect width="1.782" height="18.54" transform="translate(212.858 14.457)"/><path d="M173.444,26.379a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-115.941 -16.405)" fill="#079ee2"/><path d="M684.14,27.316a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-467.715 -17.05)" fill="#079ee2"/><path d="M203.307,29h-8.093V50h-4.885V29h.047V24.688h12.931Z" transform="translate(-131.102 -17.006)"/></g><text transform="translate(6097.471 -576.783)" fill="#181818" font-size="28" font-family="Montserrat, sans-serif" font-weight="500"><tspan x="0" y="0">Powered by</tspan></text></g></svg>
+          <div class="ds-label">powered-by-trueomni.svg</div>
+          <div class="ds-mono">Dark &middot; 342.24 &times; 34 &middot; Footer, badges</div>
+        </div>
+        <div class="ds-card" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:32px;background:#1A1A1A;">
+          <svg width="240" height="24" viewBox="0 0 342.236 34" fill="#FFFFFF"><g transform="translate(-6097.471 603.783)"><g transform="translate(6223.282 -608.781)"><path d="M242.013,49.582a9.423,9.423,0,0,0-3.886.838,4.9,4.9,0,0,0-2.46,2.406v11.3h-4.778V45.446h4.385V49.44a8.514,8.514,0,0,1,1.177-1.729,9.046,9.046,0,0,1,1.462-1.337A6.765,6.765,0,0,1,239.5,45.5a4.379,4.379,0,0,1,1.551-.3h.588a1.944,1.944,0,0,1,.374.035Z" transform="translate(-159.04 -31.132)"/><path d="M283.4,65.038a5.3,5.3,0,0,1-4.385-1.854,8.594,8.594,0,0,1-1.5-5.491V46H282.3v10.66q0,4.314,3.1,4.314a4.906,4.906,0,0,0,2.692-.838,6.023,6.023,0,0,0,2.121-2.549V46h4.778V59.191a1.678,1.678,0,0,0,.267,1.07,1.168,1.168,0,0,0,.874.357v4.064a10.183,10.183,0,0,1-1.194.178c-.321.023-.612.036-.874.036a3.44,3.44,0,0,1-2.086-.588,2.315,2.315,0,0,1-.945-1.622l-.107-1.5a7.966,7.966,0,0,1-3.209,2.888,9.653,9.653,0,0,1-4.314.963" transform="translate(-191.16 -31.685)"/><path d="M357.823,64.328a10.373,10.373,0,0,1-4.064-.766,9.167,9.167,0,0,1-5.081-5.152,9.833,9.833,0,0,1-.7-3.672,10.4,10.4,0,0,1,.677-3.762,9.182,9.182,0,0,1,1.961-3.1,9.36,9.36,0,0,1,3.12-2.121,10.387,10.387,0,0,1,4.118-.785,10.13,10.13,0,0,1,4.082.785,9.4,9.4,0,0,1,3.066,2.1,8.958,8.958,0,0,1,1.925,3.066,10.221,10.221,0,0,1,.66,3.637q0,.464-.018.891a3.664,3.664,0,0,1-.089.713h-14.44a5.54,5.54,0,0,0,.535,1.961,4.8,4.8,0,0,0,2.638,2.389,5.039,5.039,0,0,0,1.783.321,5.512,5.512,0,0,0,2.692-.7,3.682,3.682,0,0,0,1.729-1.836l4.1,1.141a8.334,8.334,0,0,1-3.3,3.512,10.223,10.223,0,0,1-5.4,1.373m4.849-11.266a4.971,4.971,0,0,0-1.551-3.369,4.867,4.867,0,0,0-6.614.018,4.893,4.893,0,0,0-1.052,1.462,5.146,5.146,0,0,0-.481,1.89Z" transform="translate(-239.696 -30.975)"/><path d="M433.147,49.785a10.466,10.466,0,0,1-4.813-1.105,12.425,12.425,0,0,1-3.744-2.888,12.9,12.9,0,0,1-2.424-4.1,13.588,13.588,0,0,1-.855-4.742,13.16,13.16,0,0,1,.909-4.849,13.561,13.561,0,0,1,2.5-4.1,11.943,11.943,0,0,1,3.762-2.834,10.665,10.665,0,0,1,4.706-1.052,10.441,10.441,0,0,1,4.831,1.123,12.135,12.135,0,0,1,3.744,2.941,13.6,13.6,0,0,1,2.406,4.118,13.407,13.407,0,0,1-2.549,13.62,12.077,12.077,0,0,1-3.761,2.817,10.666,10.666,0,0,1-4.706,1.052M423.128,36.95a12.181,12.181,0,0,0,.731,4.189,11.3,11.3,0,0,0,2.068,3.565,10.174,10.174,0,0,0,3.191,2.478,8.953,8.953,0,0,0,4.064.927,8.736,8.736,0,0,0,4.118-.963,10.053,10.053,0,0,0,3.138-2.549,12.086,12.086,0,0,0,1.978-11.837,11.6,11.6,0,0,0-2.085-3.566,10.323,10.323,0,0,0-3.156-2.478,8.664,8.664,0,0,0-3.993-.927,8.839,8.839,0,0,0-4.136.962,10.186,10.186,0,0,0-3.173,2.549,11.71,11.71,0,0,0-2.032,3.583,11.989,11.989,0,0,0-.713,4.064" transform="translate(-290.204 -16.611)"/><path d="M539.289,64.287h-1.782V53.947a9.766,9.766,0,0,0-1.088-5.205,3.7,3.7,0,0,0-3.334-1.676,5.631,5.631,0,0,0-2.175.428,6.588,6.588,0,0,0-1.889,1.194,7.7,7.7,0,0,0-1.48,1.818,9.563,9.563,0,0,0-.98,2.335V64.287h-1.783V53.947a9.886,9.886,0,0,0-1.069-5.223,3.667,3.667,0,0,0-3.316-1.658,5.714,5.714,0,0,0-2.157.41,6.361,6.361,0,0,0-1.872,1.177,8.462,8.462,0,0,0-1.515,1.818,8.79,8.79,0,0,0-1.016,2.335V64.287H512.05V45.747h1.675v4.421a9.028,9.028,0,0,1,3-3.494,7.183,7.183,0,0,1,4.1-1.248,5.308,5.308,0,0,1,3.815,1.39,5.865,5.865,0,0,1,1.747,3.637q2.638-5.027,7.273-5.027a4.66,4.66,0,0,1,4.332,2.157,11.741,11.741,0,0,1,1.3,6.044Z" transform="translate(-352.707 -31.29)"/><path d="M632.611,64.287h-1.782V53.947a10.3,10.3,0,0,0-1.016-5.241,3.516,3.516,0,0,0-3.227-1.64,6.694,6.694,0,0,0-2.335.428,7.9,7.9,0,0,0-2.157,1.212,8.859,8.859,0,0,0-1.747,1.836,7.573,7.573,0,0,0-1.105,2.264V64.287h-1.782V45.747h1.676v4.421a8.712,8.712,0,0,1,1.408-1.943,8.874,8.874,0,0,1,1.89-1.5,9.52,9.52,0,0,1,2.228-.963,8.728,8.728,0,0,1,2.425-.339,4.556,4.556,0,0,1,4.279,2.121,12.118,12.118,0,0,1,1.248,6.079Z" transform="translate(-425.314 -31.29)"/><rect width="1.782" height="18.54" transform="translate(212.858 14.457)"/><path d="M173.444,26.379a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-115.941 -16.405)"/><path d="M684.14,27.316a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-467.715 -17.05)"/><path d="M203.307,29h-8.093V50h-4.885V29h.047V24.688h12.931Z" transform="translate(-131.102 -17.006)"/></g><text transform="translate(6097.471 -576.783)" fill="#FFFFFF" font-size="28" font-family="Montserrat, sans-serif" font-weight="500"><tspan x="0" y="0">Powered by</tspan></text></g></svg>
+          <div class="ds-label" style="color:#9CA3AF;">powered-by-trueomni-white.svg</div>
+          <div class="ds-mono" style="color:#6B7280;">White &middot; IDL-01, CKI-16, CKO-06 hero screens</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ds-subsection">
+      <h3>Logo Usage Rules</h3>
+      <div class="ds-card" style="padding: 0; overflow: hidden;">
+        <table class="ds-table">
+          <thead><tr><th>Context</th><th>Logo Asset</th><th>Size</th></tr></thead>
+          <tbody>
+            <tr><td>Global Header (default)</td><td>nexi-logo-full.svg (dark)</td><td>height: 28px</td></tr>
+            <tr><td>Global Header (cinematic)</td><td>nexi-logo-full.svg (white)</td><td>height: 28px</td></tr>
+            <tr><td>IDL-01 Welcome Screen</td><td>nexi-logo-full.svg (white)</td><td>height: 30px</td></tr>
+            <tr><td>Processing Spinner</td><td>nexi-icon.svg (primary color)</td><td>64 &times; 64px</td></tr>
+            <tr><td>Kiosk Frame (dev)</td><td>nexi-icon.svg</td><td>38 &times; 38px</td></tr>
+            <tr><td>Footer / IDL-01 bottom</td><td>powered-by-trueomni-white.svg</td><td>auto height, opacity: 0.5</td></tr>
+            <tr><td>Kiosk footer (light)</td><td>powered-by-trueomni.svg</td><td>auto height, opacity: 0.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <div class="separator"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════════════════ -->
+  <footer style="text-align:center;padding:32px 0;color:var(--text-tertiary);font-size:0.75rem;">
+    <div style="margin-bottom:12px;">
+      <svg width="120" height="10" viewBox="0 0 342.236 34" fill="var(--text-tertiary)" opacity="0.5"><g transform="translate(-6097.471 603.783)"><g transform="translate(6223.282 -608.781)"><path d="M242.013,49.582a9.423,9.423,0,0,0-3.886.838,4.9,4.9,0,0,0-2.46,2.406v11.3h-4.778V45.446h4.385V49.44a8.514,8.514,0,0,1,1.177-1.729,9.046,9.046,0,0,1,1.462-1.337A6.765,6.765,0,0,1,239.5,45.5a4.379,4.379,0,0,1,1.551-.3h.588a1.944,1.944,0,0,1,.374.035Z" transform="translate(-159.04 -31.132)"/><path d="M283.4,65.038a5.3,5.3,0,0,1-4.385-1.854,8.594,8.594,0,0,1-1.5-5.491V46H282.3v10.66q0,4.314,3.1,4.314a4.906,4.906,0,0,0,2.692-.838,6.023,6.023,0,0,0,2.121-2.549V46h4.778V59.191a1.678,1.678,0,0,0,.267,1.07,1.168,1.168,0,0,0,.874.357v4.064a10.183,10.183,0,0,1-1.194.178c-.321.023-.612.036-.874.036a3.44,3.44,0,0,1-2.086-.588,2.315,2.315,0,0,1-.945-1.622l-.107-1.5a7.966,7.966,0,0,1-3.209,2.888,9.653,9.653,0,0,1-4.314.963" transform="translate(-191.16 -31.685)"/><path d="M433.147,49.785a10.466,10.466,0,0,1-4.813-1.105,12.425,12.425,0,0,1-3.744-2.888,12.9,12.9,0,0,1-2.424-4.1,13.588,13.588,0,0,1-.855-4.742,13.16,13.16,0,0,1,.909-4.849,13.561,13.561,0,0,1,2.5-4.1,11.943,11.943,0,0,1,3.762-2.834,10.665,10.665,0,0,1,4.706-1.052,10.441,10.441,0,0,1,4.831,1.123,12.135,12.135,0,0,1,3.744,2.941,13.6,13.6,0,0,1,2.406,4.118,13.407,13.407,0,0,1-2.549,13.62,12.077,12.077,0,0,1-3.761,2.817,10.666,10.666,0,0,1-4.706,1.052M423.128,36.95a12.181,12.181,0,0,0,.731,4.189,11.3,11.3,0,0,0,2.068,3.565,10.174,10.174,0,0,0,3.191,2.478,8.953,8.953,0,0,0,4.064.927,8.736,8.736,0,0,0,4.118-.963,10.053,10.053,0,0,0,3.138-2.549,12.086,12.086,0,0,0,1.978-11.837,11.6,11.6,0,0,0-2.085-3.566,10.323,10.323,0,0,0-3.156-2.478,8.664,8.664,0,0,0-3.993-.927,8.839,8.839,0,0,0-4.136.962,10.186,10.186,0,0,0-3.173,2.549,11.71,11.71,0,0,0-2.032,3.583,11.989,11.989,0,0,0-.713,4.064" transform="translate(-290.204 -16.611)"/><path d="M203.307,29h-8.093V50h-4.885V29h.047V24.688h12.931Z" transform="translate(-131.102 -17.006)"/></g><text transform="translate(6097.471 -576.783)" fill="var(--text-tertiary)" font-size="28" font-family="Montserrat, sans-serif" font-weight="500"><tspan x="0" y="0">Powered by</tspan></text></g></svg>
+    </div>
+    <div>NEXI Design System &middot; 82 screens &middot; 16 modules</div>
+    <div style="margin-top:4px;">Audited from <code>nexi-prototype</code> source code &middot; March 2026</div>
+  </footer>
+
+</div>
+
+<script>
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    document.querySelectorAll('.theme-toggle button').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.toLowerCase() === theme);
+    });
+  }
+</script>
+
+</body>
+</html>

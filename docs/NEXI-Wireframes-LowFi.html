@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXI Low-Fi Wireframes v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Mona+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --bg-primary: #F5F5F0;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --color-primary: #1288FF;
+  --color-primary-hover: #0B6FD4;
+  --color-primary-light: rgba(18,136,255,0.08);
+  --color-amber: #D4960A;
+  --color-amber-hover: #B8820A;
+  --color-amber-light: rgba(212,150,10,0.08);
+  --color-text: #1A1A1A;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-border: #E8E8E3;
+  --color-border-hover: #D1D1CC;
+  --color-success: #16A34A;
+  --color-success-light: rgba(22,163,74,0.08);
+  --color-error: #DC2626;
+  --color-error-light: rgba(220,38,38,0.08);
+  --color-warning: #D4960A;
+  --color-warning-light: rgba(212,150,10,0.08);
+  --color-info: #1288FF;
+  --color-info-light: rgba(18,136,255,0.08);
+  --color-hw: #7C3AED;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-glow: 0 0 20px rgba(18,136,255,0.15);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+[data-theme="dark"] {
+  --bg-primary: #0C0C0E;
+  --bg-card: #1A1A1F;
+  --bg-elevated: #222228;
+  --color-primary: #1288FF;
+  --color-primary-hover: #3DA0FF;
+  --color-primary-light: rgba(18,136,255,0.12);
+  --color-amber: #E5A91B;
+  --color-amber-hover: #F0B82E;
+  --color-amber-light: rgba(229,169,27,0.12);
+  --color-text: #F0F0F0;
+  --color-text-secondary: #8E93A4;
+  --color-text-tertiary: #5A5E6E;
+  --color-border: #2A2A30;
+  --color-border-hover: #3A3A42;
+  --color-success: #22C55E;
+  --color-error: #EF4444;
+  --color-warning: #E5A91B;
+  --color-info: #1288FF;
+  --color-hw: #A78BFA;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-glow: 0 0 20px rgba(18,136,255,0.25);
+}
+* { transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease; }
+*,*::before,*::after { box-sizing: border-box; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--color-text);
+  margin: 0;
+  min-height: 100vh;
+}
+h1,h2,h3,h4,h5,h6,.display { font-family: 'Mona Sans', sans-serif; }
+
+/* Header */
+.header-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 50;
+  background: var(--bg-card); border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+}
+.header-bar h1 { font-family: 'Mona Sans', sans-serif; font-size: 1.125rem; font-weight: 700; letter-spacing: 1px; }
+.theme-toggle {
+  width: 40px; height: 40px; border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+  background: var(--bg-elevated); cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1.125rem; color: var(--color-text);
+}
+.theme-toggle:hover { border-color: var(--color-border-hover); }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; left: 0; top: 64px; bottom: 0; width: 240px; overflow-y: auto;
+  background: var(--bg-card); border-right: 1px solid var(--color-border); z-index: 40; padding: 16px 0;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+.sidebar .section-label {
+  padding: 16px 24px 4px; font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--color-text-tertiary); font-family: 'Mona Sans', sans-serif; font-weight: 600;
+}
+.sidebar a {
+  display: flex; align-items: center; gap: 8px; padding: 8px 24px; color: var(--color-text-secondary);
+  text-decoration: none; font-size: 0.8125rem; font-weight: 500;
+}
+.sidebar a:hover, .sidebar a.active { color: var(--color-primary); background: var(--color-primary-light); }
+.sidebar a .count {
+  margin-left: auto; font-size: 0.6875rem; background: var(--bg-elevated); border: 1px solid var(--color-border);
+  padding: 1px 6px; border-radius: var(--radius-full); color: var(--color-text-tertiary);
+}
+
+/* Main */
+.main-content { margin-left: 240px; padding: 32px 48px 80px; margin-top: 64px; }
+
+/* Sections */
+.section { margin-bottom: 64px; scroll-margin-top: 96px; }
+.section-title { font-family: 'Mona Sans', sans-serif; font-size: 1.75rem; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+.section-subtitle { color: var(--color-text-secondary); font-size: 0.875rem; margin-bottom: 32px; line-height: 1.6; max-width: 700px; }
+.module-id { font-size: 0.6875rem; color: var(--color-primary); font-weight: 600; margin-bottom: 8px; }
+
+/* Card */
+.card {
+  background: var(--bg-card); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);
+}
+
+/* Flow diagram */
+.flow-diagram {
+  display: flex; align-items: center; gap: 0; margin-bottom: 32px; padding: 16px;
+  background: var(--bg-elevated); border: 1px solid var(--color-border); border-radius: 12px;
+  overflow-x: auto; flex-wrap: wrap;
+}
+.flow-node {
+  padding: 6px 12px; font-size: 0.75rem; color: var(--color-text); background: var(--bg-card);
+  border: 1px solid var(--color-border); border-radius: 6px; white-space: nowrap;
+}
+.flow-node.branch { border-color: var(--color-amber); color: var(--color-amber); }
+.flow-node.error { border-color: var(--color-error); color: var(--color-error); }
+.flow-arrow { color: var(--color-text-tertiary); font-size: 16px; padding: 0 6px; flex-shrink: 0; }
+.flow-arrow.branch { color: var(--color-amber); font-size: 10px; }
+.flow-branch { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+/* Screen grid */
+.screen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(480px, 1fr)); gap: 32px; }
+
+/* Wireframe card */
+.wf-card { position: relative; transition: transform 0.2s, box-shadow 0.2s; }
+.wf-card:hover { transform: scale(1.02); z-index: 10; }
+.wf-card:hover .wf-frame { box-shadow: var(--shadow-glow); border-color: var(--color-primary); }
+.wf-card:hover .wf-info { opacity: 1; transform: translateY(0); }
+.wf-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.wf-label .id {
+  font-size: 0.6875rem; font-weight: 600; color: var(--color-primary);
+  background: var(--color-primary-light); padding: 2px 10px; border-radius: var(--radius-full);
+}
+.wf-label .name { font-family: 'Mona Sans', sans-serif; font-size: 0.8125rem; color: var(--color-text); font-weight: 600; }
+.wf-label .hw-tag {
+  font-size: 0.5625rem; font-weight: 600; color: var(--color-hw);
+  background: rgba(124,58,237,0.1); padding: 2px 6px; border-radius: 3px; margin-left: auto;
+}
+.wf-frame {
+  width: 100%; aspect-ratio: 16/9; background: var(--bg-elevated); border: 2px dashed var(--color-border);
+  border-radius: 12px; position: relative; overflow: hidden; transition: all 0.3s;
+}
+.wf-annotation {
+  margin-top: 8px; font-size: 0.6875rem; color: var(--color-text-tertiary); font-style: italic; line-height: 1.5;
+}
+
+/* Info panel on hover */
+.wf-info {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 16px 12px;
+  opacity: 0; transform: translateY(8px); transition: all 0.3s; z-index: 5;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9) 30%);
+}
+[data-theme="light"] .wf-info {
+  background: linear-gradient(transparent, rgba(30,30,30,0.92) 30%);
+}
+.wf-info h4 { font-family: 'Mona Sans', sans-serif; font-size: 0.75rem; color: #fff; margin-bottom: 6px; }
+.wf-info .info-row { font-size: 0.625rem; color: #999; margin-bottom: 3px; }
+.wf-info .info-row span { color: #ccc; }
+.wf-info .info-row.nav span { color: var(--color-primary); }
+.wf-info .info-row.edge span { color: var(--color-amber); }
+
+/* Wireframe inner elements */
+.wf-el { position: absolute; border-radius: 3px; }
+.wf-rect { border: 1.5px dashed var(--color-border); }
+.wf-rect-solid { border: 1.5px solid var(--color-border); background: rgba(128,128,128,0.08); }
+.wf-btn {
+  border: 1.5px solid var(--color-primary); background: var(--color-primary-light);
+  border-radius: 4px; display: flex; align-items: center; justify-content: center;
+}
+.wf-btn span { font-family: 'Inter', sans-serif; font-size: 8px; color: var(--color-primary); text-align: center; padding: 0 2px; }
+.wf-btn-warn { border-color: var(--color-amber); background: var(--color-amber-light); }
+.wf-btn-warn span { color: var(--color-amber); }
+.wf-btn-error { border-color: var(--color-error); background: var(--color-error-light); }
+.wf-btn-error span { color: var(--color-error); }
+.wf-btn-ghost { border: 1.5px dashed var(--color-border); background: transparent; }
+.wf-btn-ghost span { color: var(--color-text-secondary); }
+.wf-text { font-family: 'Inter', sans-serif; color: var(--color-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wf-text-lg { font-size: 11px; color: var(--color-text); }
+.wf-text-xl { font-size: 16px; color: var(--color-text); font-family: 'Mona Sans', sans-serif; font-weight: 600; }
+.wf-text-sm { font-size: 7px; }
+.wf-line { background: var(--color-text-tertiary); height: 1.5px; border-radius: 1px; }
+.wf-circle { border: 1.5px dashed var(--color-border); border-radius: 50%; }
+.wf-img { border: 1.5px dashed var(--color-border); display: flex; align-items: center; justify-content: center; }
+.wf-img::after { content: 'x'; display: block; color: var(--color-text-tertiary); font-size: 20px; }
+.wf-divider { height: 1px; background: var(--color-border); position: absolute; left: 5%; right: 5%; }
+
+/* Inventory */
+.inv-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.inv-bar-row .label { font-size: 0.6875rem; color: var(--color-text-secondary); width: 160px; text-align: right; }
+.inv-bar-row .bar { height: 20px; background: linear-gradient(90deg, var(--color-primary), #7C3AED); border-radius: 3px; }
+.inv-bar-row .val { font-size: 0.6875rem; color: var(--color-text); width: 30px; }
+
+/* Legend */
+.legend {
+  display: flex; gap: 24px; flex-wrap: wrap; padding: 16px;
+  background: var(--bg-elevated); border: 1px solid var(--color-border); border-radius: 12px; margin-bottom: 48px;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.6875rem; color: var(--color-text-secondary); }
+.legend-item .swatch { width: 32px; height: 2px; border-radius: 1px; }
+.legend-item .swatch.solid { background: var(--color-text-secondary); }
+.legend-item .swatch.dashed { border-top: 2px dashed var(--color-amber); }
+.legend-item .swatch.error-line { border-top: 2px solid var(--color-error); }
+.legend-item .swatch.hw {
+  background: var(--color-hw); height: 12px; width: 12px; border-radius: 2px;
+  font-size: 7px; display: flex; align-items: center; justify-content: center; color: #fff;
+}
+
+/* Error cards */
+.error-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.err-card {
+  background: var(--bg-card); border: 1.5px dashed var(--color-border); border-radius: 6px;
+  padding: 16px; transition: all 0.2s;
+}
+.err-card:hover { border-color: var(--color-error); transform: scale(1.02); }
+.err-card .err-id { font-size: 0.625rem; color: var(--color-error); margin-bottom: 6px; font-weight: 600; }
+.err-card .err-msg { font-size: 0.6875rem; color: var(--color-text); margin-bottom: 8px; line-height: 1.5; }
+.err-card .err-actions { display: flex; gap: 6px; }
+.err-card .err-btn {
+  font-size: 0.5625rem; padding: 3px 8px; border: 1px solid var(--color-error);
+  border-radius: 3px; color: var(--color-error);
+}
+.err-card .err-btn.help { border-color: var(--color-border); color: var(--color-text-secondary); }
+
+/* Global UI cards */
+.global-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; }
+.gbl-card {
+  background: var(--bg-card); border: 1.5px dashed var(--color-border); border-radius: 6px;
+  padding: 20px; transition: all 0.2s;
+}
+.gbl-card:hover { border-color: var(--color-primary); transform: scale(1.02); }
+.gbl-card .gbl-id { font-size: 0.625rem; color: var(--color-primary); margin-bottom: 4px; font-weight: 600; }
+.gbl-card .gbl-name { font-family: 'Mona Sans', sans-serif; font-size: 0.875rem; color: var(--color-text); margin-bottom: 8px; font-weight: 600; }
+.gbl-card .gbl-sketch {
+  width: 100%; aspect-ratio: 3/1; background: var(--bg-primary); border: 1.5px dashed var(--color-border);
+  border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 8px;
+}
+.gbl-card .gbl-desc { font-size: 0.625rem; color: var(--color-text-secondary); line-height: 1.5; }
+
+/* Footer */
+.footer {
+  margin-left: 240px; padding: 32px 48px; border-top: 1px solid var(--color-border);
+  font-size: 0.6875rem; color: var(--color-text-tertiary); text-align: center;
+}
+
+@media(max-width:900px) {
+  .sidebar { display: none; }
+  .main-content, .footer { margin-left: 0; }
+  .screen-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header Bar -->
+<div class="header-bar">
+  <h1>NEXI Low-Fi Wireframes v1.0</h1>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <span id="theme-icon">&#9790;</span>
+  </button>
+</div>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="section-label">Overview</div>
+  <a href="#inventory">Screen Inventory <span class="count">78</span></a>
+  <a href="#legend">Flow Legend</a>
+  <div class="section-label">Modules</div>
+  <a href="#idle">Idle / Screensaver <span class="count">1</span></a>
+  <a href="#onboarding">Onboarding <span class="count">2</span></a>
+  <a href="#dashboard">Dashboard <span class="count">1</span></a>
+  <a href="#global">Global UI <span class="count">7</span></a>
+  <a href="#checkin">Check-in <span class="count">16</span></a>
+  <a href="#checkout">Check-out <span class="count">6</span></a>
+  <a href="#booking">Booking / Walk-in <span class="count">8</span></a>
+  <a href="#roomservice">Room Service <span class="count">8</span></a>
+  <a href="#wayfinding">Wayfinding <span class="count">2</span></a>
+  <a href="#events">Events <span class="count">2</span></a>
+  <a href="#listings">Listings <span class="count">3</span></a>
+  <a href="#wifi">Wi-Fi <span class="count">1</span></a>
+  <a href="#faq">FAQ <span class="count">1</span></a>
+  <a href="#upsells">Upsells <span class="count">3</span></a>
+  <a href="#ads">Ads System <span class="count">3</span></a>
+  <a href="#truepay">TruePay <span class="count">4</span></a>
+  <a href="#avatar">AI Avatar <span class="count">2</span></a>
+  <a href="#dupkey">Duplicate Key <span class="count">3</span></a>
+  <a href="#earlycheckin">Early Check-in <span class="count">3</span></a>
+  <a href="#latecheckout">Late Check-out <span class="count">1</span></a>
+  <a href="#errors">Error States <span class="count">12</span></a>
+  <a href="#inactivity">Inactivity <span class="count">1</span></a>
+  <a href="#staff">Staff Override <span class="count">3</span></a>
+  <a href="#receipt">Receipt <span class="count">1</span></a>
+</nav>
+
+<!-- Main Content -->
+<div class="main-content">
+
+<!-- INVENTORY -->
+<section id="inventory" class="section">
+<div class="module-id">Overview</div>
+<h2 class="section-title">Screen Inventory</h2>
+<p class="section-subtitle">Complete catalogue of all 78 screens across 24 modules. Each bar represents the screen count per module.</p>
+<div class="card" style="max-width:750px">
+  <div class="inv-bar-row"><span class="label">Check-in</span><div class="bar" style="width:256px"></div><span class="val">16</span></div>
+  <div class="inv-bar-row"><span class="label">Error States</span><div class="bar" style="width:192px"></div><span class="val">12</span></div>
+  <div class="inv-bar-row"><span class="label">Room Service</span><div class="bar" style="width:128px"></div><span class="val">8</span></div>
+  <div class="inv-bar-row"><span class="label">Booking</span><div class="bar" style="width:128px"></div><span class="val">8</span></div>
+  <div class="inv-bar-row"><span class="label">Global UI</span><div class="bar" style="width:112px"></div><span class="val">7</span></div>
+  <div class="inv-bar-row"><span class="label">Check-out</span><div class="bar" style="width:96px"></div><span class="val">6</span></div>
+  <div class="inv-bar-row"><span class="label">TruePay</span><div class="bar" style="width:64px"></div><span class="val">4</span></div>
+  <div class="inv-bar-row"><span class="label">Upsells</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Ads</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Listings</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Duplicate Key</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Early Check-in</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Staff Override</span><div class="bar" style="width:48px"></div><span class="val">3</span></div>
+  <div class="inv-bar-row"><span class="label">Onboarding</span><div class="bar" style="width:32px"></div><span class="val">2</span></div>
+  <div class="inv-bar-row"><span class="label">Wayfinding</span><div class="bar" style="width:32px"></div><span class="val">2</span></div>
+  <div class="inv-bar-row"><span class="label">Events</span><div class="bar" style="width:32px"></div><span class="val">2</span></div>
+  <div class="inv-bar-row"><span class="label">AI Avatar</span><div class="bar" style="width:32px"></div><span class="val">2</span></div>
+  <div class="inv-bar-row"><span class="label">Idle</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">Dashboard</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">Wi-Fi</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">FAQ</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">Inactivity</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">Late Check-out</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+  <div class="inv-bar-row"><span class="label">Receipt</span><div class="bar" style="width:16px"></div><span class="val">1</span></div>
+</div>
+</section>
+
+<!-- LEGEND -->
+<section id="legend" class="section">
+<div class="module-id">Overview</div>
+<h2 class="section-title">Flow Legend</h2>
+<p class="section-subtitle">Visual guide for interpreting flow diagrams and wireframe annotations.</p>
+<div class="legend">
+  <div class="legend-item"><div class="swatch solid"></div>Main flow (sequential)</div>
+  <div class="legend-item"><div class="swatch dashed"></div>Branch / conditional</div>
+  <div class="legend-item"><div class="swatch error-line"></div>Error path</div>
+  <div class="legend-item"><div class="swatch hw">HW</div>Hardware activation</div>
+  <div class="legend-item"><span style="color:var(--color-primary);font-size:0.6875rem;font-weight:600">[CKI-01]</span>Screen reference ID</div>
+</div>
+</section>
+
+<!-- 1. IDLE -->
+<section id="idle" class="section">
+<div class="module-id">Module 01 / 24</div>
+<h2 class="section-title">Idle / Screensaver</h2>
+<p class="section-subtitle">Default state when no guest is interacting. Full-screen attract loop with branded video content. Any touch triggers transition to onboarding.</p>
+<div class="flow-diagram">
+  <div class="flow-node">IDL-01</div>
+  <span class="flow-arrow">--></span>
+  <div class="flow-node">ONB-01</div>
+</div>
+<div class="screen-grid">
+  <div class="wf-card">
+    <div class="wf-label"><span class="id">IDL-01</span><span class="name">Idle / Screensaver</span></div>
+    <div class="wf-frame">
+      <div class="wf-el wf-img" style="top:0;left:0;right:0;bottom:0;border-radius:6px"></div>
+      <div class="wf-el wf-rect" style="top:8%;left:5%;width:80px;height:24px;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:10%;left:24%">HOTEL LOGO</div>
+      <div class="wf-el wf-rect" style="top:8%;right:5%;width:60px;height:20px;border-radius:10px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:10%;right:8%">NEXI</div>
+      <div class="wf-el wf-text wf-text-sm" style="top:20%;right:5%">12:00 PM</div>
+      <div class="wf-el wf-btn" style="bottom:12%;left:50%;transform:translateX(-50%);width:160px;height:32px;border-radius:20px">
+        <span>TOUCH TO BEGIN</span>
+      </div>
+      <div class="wf-el wf-text wf-text-sm" style="top:48%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ BRANDED VIDEO LOOP ]</div>
+      <div class="wf-info">
+        <h4>IDL-01 -- Idle Screensaver</h4>
+        <div class="info-row">Interactions: <span>Any touch triggers ONB-01</span></div>
+        <div class="info-row nav">Next: <span>ONB-01 Welcome</span></div>
+        <div class="info-row edge">Edge: <span>Returns here after 60s inactivity timeout</span></div>
+      </div>
+    </div>
+    <div class="wf-annotation">* Full-screen video loop. Entire surface is touch target. NEXI badge provides brand presence without clutter.</div>
+  </div>
+</div>
+</section>
+
+<!-- 2. ONBOARDING -->
+<section id="onboarding" class="section">
+<div class="module-id">Module 02 / 24</div>
+<h2 class="section-title">Onboarding</h2>
+<p class="section-subtitle">First-time greeting flow. Introduces the guest to the kiosk capabilities. Can be skipped by returning guests.</p>
+<div class="flow-diagram">
+  <div class="flow-node">ONB-01</div>
+  <span class="flow-arrow">--></span>
+  <div class="flow-node">ONB-02</div>
+  <span class="flow-arrow">--></span>
+  <div class="flow-node">DSH-01</div>
+  <span class="flow-arrow branch">skip</span>
+  <div class="flow-node">DSH-01</div>
+</div>
+<div class="screen-grid">
+  <div class="wf-card">
+    <div class="wf-label"><span class="id">ONB-01</span><span class="name">Welcome</span></div>
+    <div class="wf-frame">
+      <div class="wf-el wf-rect" style="top:15%;left:50%;transform:translateX(-50%);width:120px;height:40px;border-radius:6px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:18%;left:50%;transform:translateX(-50%)">HOTEL LOGO</div>
+      <div class="wf-el wf-text wf-text-xl" style="top:40%;left:50%;transform:translateX(-50%)">Welcome to [Hotel Name]</div>
+      <div class="wf-el wf-line" style="top:52%;left:25%;width:50%"></div>
+      <div class="wf-el wf-line" style="top:56%;left:30%;width:40%"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:64%;left:50%;transform:translateX(-50%);color:var(--color-primary)">Meet NEXI, your self-service assistant</div>
+      <div class="wf-el wf-btn" style="bottom:15%;left:50%;transform:translateX(-50%);width:140px;height:30px;border-radius:6px">
+        <span>CONTINUE</span>
+      </div>
+      <div class="wf-el wf-btn-ghost wf-btn" style="bottom:6%;left:50%;transform:translateX(-50%);width:80px;height:22px;border-radius:4px">
+        <span>SKIP</span>
+      </div>
+      <div class="wf-info">
+        <h4>ONB-01 -- Welcome</h4>
+        <div class="info-row">Interactions: <span>Continue to ONB-02, Skip to DSH-01</span></div>
+        <div class="info-row nav">Next: <span>ONB-02 or DSH-01</span></div>
+        <div class="info-row edge">Edge: <span>Skip available for returning guests</span></div>
+      </div>
+    </div>
+    <div class="wf-annotation">* Large hotel branding to establish trust. Skip option respects returning guest time.</div>
+  </div>
+  <div class="wf-card">
+    <div class="wf-label"><span class="id">ONB-02</span><span class="name">What You Can Do</span></div>
+    <div class="wf-frame">
+      <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%)">What You Can Do</div>
+      <div class="wf-el wf-circle" style="top:22%;left:12%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:38%;left:10%">Check-in</div>
+      <div class="wf-el wf-circle" style="top:22%;left:32%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:38%;left:30%">Check-out</div>
+      <div class="wf-el wf-circle" style="top:22%;left:52%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:38%;left:51%">Booking</div>
+      <div class="wf-el wf-circle" style="top:52%;left:12%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:68%;left:8%">Room Svc</div>
+      <div class="wf-el wf-circle" style="top:52%;left:32%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:68%;left:29%">Wayfinding</div>
+      <div class="wf-el wf-circle" style="top:52%;left:52%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:68%;left:52%">Events</div>
+      <div class="wf-el wf-circle" style="top:22%;left:72%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:38%;left:72%">Wi-Fi</div>
+      <div class="wf-el wf-circle" style="top:52%;left:72%;width:36px;height:36px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:68%;left:74%">FAQ</div>
+      <div class="wf-el wf-btn" style="bottom:10%;left:50%;transform:translateX(-50%);width:140px;height:30px;border-radius:6px">
+        <span>GET STARTED</span>
+      </div>
+      <div class="wf-info">
+        <h4>ONB-02 -- Capabilities Overview</h4>
+        <div class="info-row">Interactions: <span>Tap any icon or Get Started</span></div>
+        <div class="info-row nav">Next: <span>DSH-01 Dashboard</span></div>
+        <div class="info-row edge">Edge: <span>Icons are non-interactive here, just informational</span></div>
+      </div>
+    </div>
+    <div class="wf-annotation">* Visual overview of all capabilities. Builds confidence in the kiosk before committing to a flow.</div>
+  </div>
+</div>
+</section>
+
+<!-- 3. DASHBOARD -->
+<section id="dashboard" class="section">
+<div class="module-id">Module 03 / 24</div>
+<h2 class="section-title">Dashboard</h2>
+<p class="section-subtitle">Central hub. All journeys start here. Hero CTAs for check-in/check-out dominate the layout, with secondary module access below.</p>
+<div class="flow-diagram">
+  <div class="flow-node">DSH-01</div>
+  <span class="flow-arrow">--></span>
+  <div class="flow-node">Any Module</div>
+</div>
+<div class="screen-grid">
+  <div class="wf-card">
+    <div class="wf-label"><span class="id">DSH-01</span><span class="name">Main Dashboard</span></div>
+    <div class="wf-frame">
+      <div class="wf-el wf-rect-solid" style="top:0;left:0;right:0;height:12%"></div>
+      <div class="wf-el wf-rect" style="top:2%;left:3%;width:60px;height:16px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:4%;left:19%">LOGO</div>
+      <div class="wf-el wf-text wf-text-sm" style="top:4%;right:5%">12:00</div>
+      <div class="wf-el wf-circle" style="top:2%;right:15%;width:18px;height:18px"></div>
+      <div class="wf-el wf-btn" style="top:18%;left:5%;width:43%;height:28%;border-radius:8px;border-width:2px">
+        <span style="font-size:11px">CHECK-IN</span>
+      </div>
+      <div class="wf-el wf-btn" style="top:18%;right:5%;width:43%;height:28%;border-radius:8px;border-width:2px">
+        <span style="font-size:11px">CHECK-OUT</span>
+      </div>
+      <div class="wf-el wf-rect" style="top:52%;left:5%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:62%;left:8%">Booking</div>
+      <div class="wf-el wf-rect" style="top:52%;left:28%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:62%;left:30%">Room Svc</div>
+      <div class="wf-el wf-rect" style="top:52%;left:51%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:62%;left:53%">Wayfind</div>
+      <div class="wf-el wf-rect" style="top:52%;right:5%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:62%;right:7%">Events</div>
+      <div class="wf-el wf-rect" style="top:72%;left:5%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:82%;left:8%">Wi-Fi</div>
+      <div class="wf-el wf-rect" style="top:72%;left:28%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:82%;left:33%">FAQ</div>
+      <div class="wf-el wf-rect" style="top:72%;left:51%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:82%;left:53%">Listings</div>
+      <div class="wf-el wf-rect" style="top:72%;right:5%;width:21%;height:16%;border-radius:4px"></div>
+      <div class="wf-el wf-text wf-text-sm" style="top:82%;right:8%">Dup Key</div>
+      <div class="wf-el wf-circle" style="bottom:4%;right:4%;width:36px;height:36px;border-color:var(--color-primary)"></div>
+      <div class="wf-el wf-text wf-text-sm" style="bottom:2%;right:14%;color:var(--color-primary)">AI</div>
+      <div class="wf-el wf-rect" style="bottom:0;left:0;right:0;height:6%;border-style:dashed;border-color:var(--color-amber)"></div>
+      <div class="wf-info">
+        <h4>DSH-01 -- Main Dashboard</h4>
+        <div class="info-row">Interactions: <span>Tap any module card to enter flow</span></div>
+        <div class="info-row nav">Next: <span>CKI-01, CKO-01, BKG-01, RSV-01, WAY-01, EVT-01, WIF-01, FAQ-01, LST-01, DKY-01</span></div>
+        <div class="info-row edge">Edge: <span>Ad zone optional/configurable per hotel</span></div>
+      </div>
+    </div>
+    <div class="wf-annotation">* Hero CTA pattern: check-in and check-out dominate 60% of visual weight. Module grid provides secondary access. AI avatar always accessible.</div>
+  </div>
+</div>
+</section>
+
+<!-- 4. GLOBAL UI -->
+<section id="global" class="section">
+<div class="module-id">Module 04 / 24</div>
+<h2 class="section-title">Global UI Elements</h2>
+<p class="section-subtitle">Shared components that appear across all flows. These are not standalone screens but reusable patterns.</p>
+<div class="global-grid">
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-01</div>
+    <div class="gbl-name">Top Navigation Bar</div>
+    <div class="gbl-sketch">
+      <div class="wf-el wf-rect" style="top:20%;left:4%;width:50px;height:14px;border:1px dashed var(--color-border);border-radius:3px"></div>
+      <div class="wf-el wf-text" style="top:25%;left:22%;font-size:7px">LOGO</div>
+      <div class="wf-el wf-text" style="top:25%;right:24%;font-size:7px">12:00 PM</div>
+      <div class="wf-el wf-circle" style="top:20%;right:12%;width:14px;height:14px;border:1px dashed var(--color-border)"></div>
+      <div class="wf-el wf-circle" style="top:20%;right:4%;width:14px;height:14px;border:1px dashed var(--color-border)"></div>
+    </div>
+    <div class="gbl-desc">Hotel logo left, time center-right, language and accessibility icons right. Always visible. 60px height.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-02</div>
+    <div class="gbl-name">Progress Indicator</div>
+    <div class="gbl-sketch">
+      <div style="position:absolute;top:40%;left:10%;right:10%;display:flex;align-items:center;gap:8px;justify-content:center">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--color-primary)"></div>
+        <div style="width:24px;height:1px;background:var(--color-primary)"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--color-primary)"></div>
+        <div style="width:24px;height:1px;background:var(--color-border)"></div>
+        <div style="width:10px;height:10px;border-radius:50%;border:1px dashed var(--color-border)"></div>
+        <div style="width:24px;height:1px;background:var(--color-border)"></div>
+        <div style="width:10px;height:10px;border-radius:50%;border:1px dashed var(--color-border)"></div>
+      </div>
+    </div>
+    <div class="gbl-desc">Step dots with connecting lines. Filled = complete, outlined = pending. Current step pulses. Appears below nav bar.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-03</div>
+    <div class="gbl-name">Back / Home Buttons</div>
+    <div class="gbl-sketch">
+      <div class="wf-el" style="top:25%;left:8%;width:50px;height:20px;border:1.5px dashed var(--color-border);border-radius:4px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:7px;color:var(--color-text-secondary)">&lt; BACK</span>
+      </div>
+      <div class="wf-el" style="top:25%;left:35%;width:50px;height:20px;border:1.5px dashed var(--color-border);border-radius:4px;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:7px;color:var(--color-text-secondary)">HOME</span>
+      </div>
+    </div>
+    <div class="gbl-desc">Fixed bottom-left. Back returns to previous screen; Home triggers exit confirmation (GBL-04). Always accessible during flows.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-04</div>
+    <div class="gbl-name">Exit Flow Confirmation</div>
+    <div class="gbl-sketch">
+      <div style="position:absolute;top:10%;left:15%;right:15%;bottom:10%;border:1.5px dashed var(--color-amber);border-radius:6px;background:var(--color-amber-light)">
+        <div style="position:absolute;top:15%;left:50%;transform:translateX(-50%);font-size:7px;color:var(--color-amber)">EXIT FLOW?</div>
+        <div style="position:absolute;bottom:15%;left:20%;width:35%;height:16px;border:1px solid var(--color-border);border-radius:3px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:6px;color:var(--color-text-secondary)">CANCEL</span>
+        </div>
+        <div style="position:absolute;bottom:15%;right:20%;width:35%;height:16px;border:1px solid var(--color-error);border-radius:3px;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:6px;color:var(--color-error)">EXIT</span>
+        </div>
+      </div>
+    </div>
+    <div class="gbl-desc">Modal overlay. "Are you sure?" with Cancel (continue) and Exit (return to DSH-01). Progress is lost on exit.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-05</div>
+    <div class="gbl-name">Loading / Processing</div>
+    <div class="gbl-sketch">
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;border:2px dashed var(--color-primary);border-radius:50%"></div>
+      <div style="position:absolute;top:72%;left:50%;transform:translateX(-50%);font-size:7px;color:var(--color-text-secondary)">Processing...</div>
+    </div>
+    <div class="gbl-desc">Fullscreen semi-transparent overlay. Spinning indicator + contextual message. Blocks all interaction. 30s timeout to error.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-06</div>
+    <div class="gbl-name">Success State</div>
+    <div class="gbl-sketch">
+      <div style="position:absolute;top:30%;left:50%;transform:translateX(-50%);width:28px;height:28px;border:2px solid var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <span style="color:var(--color-success);font-size:12px">&#10003;</span>
+      </div>
+      <div style="position:absolute;top:68%;left:50%;transform:translateX(-50%);font-size:7px;color:var(--color-success)">Success!</div>
+    </div>
+    <div class="gbl-desc">Green checkmark with brief message. Auto-advances after 2s or on tap. Used after payments, ID verification, key dispensing.</div>
+  </div>
+  <div class="gbl-card">
+    <div class="gbl-id">GBL-07</div>
+    <div class="gbl-name">On-Screen Keyboard</div>
+    <div class="gbl-sketch">
+      <div style="position:absolute;bottom:5%;left:5%;right:5%;height:55%;border:1.5px dashed var(--color-border);border-radius:4px;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(3,1fr);gap:2px;padding:4px">
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+        <div style="border:1px solid var(--color-border);border-radius:2px"></div>
+      </div>
+      <div style="position:absolute;top:10%;left:50%;transform:translateX(-50%);font-size:7px;color:var(--color-text-secondary)">INPUT FIELD</div>
+      <div style="position:absolute;top:22%;left:10%;right:10%;height:14px;border:1px dashed var(--color-border);border-radius:3px"></div>
+    </div>
+    <div class="gbl-desc">Bottom 40% of screen. QWERTY layout with number row toggle. Supports email, numeric, and alphanumeric modes. Dismissible.</div>
+  </div>
+</div>
+</section>
+
+<!-- 5. CHECK-IN -->
+<section id="checkin" class="section">
+<div class="module-id">Module 05 / 24</div>
+<h2 class="section-title">Check-in Flow</h2>
+<p class="section-subtitle">The core guest journey. 16 screens covering identification, verification, upsells, payment, and key dispensing. Multiple branch points for edge cases.</p>
+<div class="flow-diagram" style="flex-wrap:wrap;gap:4px 0">
+  <div class="flow-node">CKI-01</div><span class="flow-arrow">--></span>
+  <div class="flow-branch"><div class="flow-node branch">CKI-02a QR</div><div class="flow-node branch">CKI-02b Manual</div></div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-03</div>
+  <span class="flow-arrow branch">early?</span><div class="flow-node branch">CKI-03b</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-04</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-05</div>
+  <span class="flow-arrow branch">fail</span><div class="flow-node error">CKI-05e</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-06</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-07</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-08</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-09</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-10</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-11</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-12</div>
+  <span class="flow-arrow">--></span><div class="flow-node">CKI-13</div>
+</div>
+<div class="screen-grid">
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-01</span><span class="name">ID Method Selection</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">How would you like to check in?</div>
+    <div class="wf-el wf-btn" style="top:28%;left:8%;width:38%;height:50%;border-radius:8px;flex-direction:column">
+      <div style="width:40px;height:40px;border:1.5px dashed var(--color-primary);border-radius:4px;margin-bottom:8px"></div>
+      <span>SCAN QR CODE</span>
+    </div>
+    <div class="wf-el wf-btn" style="top:28%;right:8%;width:38%;height:50%;border-radius:8px;flex-direction:column">
+      <div style="width:40px;height:40px;border:1.5px dashed var(--color-primary);border-radius:4px;margin-bottom:8px"></div>
+      <span>ENTER CODE</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-01 -- ID Method Selection</h4>
+      <div class="info-row">Interactions: <span>Tap QR or Manual entry</span></div>
+      <div class="info-row nav">Next: <span>CKI-02a (QR) or CKI-02b (Manual)</span></div>
+      <div class="info-row edge">Edge: <span>Back returns to DSH-01</span></div>
+    </div>
+  </div>
+  <div class="wf-annotation">* Two equally weighted options. Large touch targets (min 120x120px) for accessibility.</div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-02a</span><span class="name">QR Scan</span><span class="hw-tag">CAMERA</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Scan Your QR Code</div>
+    <div class="wf-el wf-rect" style="top:18%;left:25%;width:50%;height:60%;border-color:var(--color-primary);border-width:2px;border-radius:8px"></div>
+    <div style="position:absolute;top:18%;left:25%;width:20px;height:20px;border-top:3px solid var(--color-primary);border-left:3px solid var(--color-primary);border-radius:4px 0 0 0"></div>
+    <div style="position:absolute;top:18%;right:25%;width:20px;height:20px;border-top:3px solid var(--color-primary);border-right:3px solid var(--color-primary);border-radius:0 4px 0 0"></div>
+    <div style="position:absolute;bottom:22%;left:25%;width:20px;height:20px;border-bottom:3px solid var(--color-primary);border-left:3px solid var(--color-primary);border-radius:0 0 0 4px"></div>
+    <div style="position:absolute;bottom:22%;right:25%;width:20px;height:20px;border-bottom:3px solid var(--color-primary);border-right:3px solid var(--color-primary);border-radius:0 0 4px 0"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:48%;left:50%;transform:translateX(-50%);color:var(--color-primary)">[ CAMERA FEED ]</div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:10%;left:50%;transform:translateX(-50%)">Align QR code within the frame</div>
+    <div class="wf-info">
+      <h4>CKI-02a -- QR Scanner</h4>
+      <div class="info-row">Interactions: <span>Auto-scan on detection</span></div>
+      <div class="info-row nav">Next: <span>CKI-03 on success</span></div>
+      <div class="info-row edge">Edge: <span>10s timeout shows "Try again" + switch to manual</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-02b</span><span class="name">Manual Entry</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Enter Your Details</div>
+    <div class="wf-el wf-rect" style="top:18%;left:15%;width:70%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:16%;left:16%">Last Name</div>
+    <div class="wf-el wf-rect" style="top:35%;left:15%;width:70%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:33%;left:16%">Confirmation #</div>
+    <div class="wf-el wf-btn" style="top:52%;left:15%;width:70%;height:10%;border-radius:6px">
+      <span>FIND RESERVATION</span>
+    </div>
+    <div class="wf-el wf-rect" style="bottom:2%;left:2%;right:2%;height:30%;border-style:dotted;border-color:var(--color-border)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:14%;left:50%;transform:translateX(-50%)">[ ON-SCREEN KEYBOARD ]</div>
+    <div class="wf-info">
+      <h4>CKI-02b -- Manual Entry</h4>
+      <div class="info-row">Interactions: <span>Type last name + confirmation code, submit</span></div>
+      <div class="info-row nav">Next: <span>CKI-03 on match</span></div>
+      <div class="info-row edge">Edge: <span>No match found: show inline error, 3 attempts then staff help</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-03</span><span class="name">Reservation Summary</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Your Reservation</div>
+    <div class="wf-el wf-rect-solid" style="top:16%;left:8%;width:84%;height:55%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:12%">Guest: _______________</div>
+    <div class="wf-el wf-line" style="top:28%;left:12%;width:60%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;left:12%">Check-in: Feb 22</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:12%">Check-out: Feb 25</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:12%">Room: Deluxe King</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:12%">Guests: 2 Adults</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:56%;left:12%">Rate: $189/night</div>
+    <div class="wf-el wf-divider" style="top:62%"></div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:50%;transform:translateX(-50%);width:50%;height:12%;border-radius:6px">
+      <span>CONFIRM & CONTINUE</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-03 -- Reservation Summary</h4>
+      <div class="info-row">Interactions: <span>Review details, confirm to proceed</span></div>
+      <div class="info-row nav">Next: <span>CKI-04 (normal) or CKI-03b (early arrival)</span></div>
+      <div class="info-row edge">Edge: <span>Wrong reservation: back to CKI-01. Early arrival: branch to CKI-03b</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-03b</span><span class="name">Early Arrival</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%);color:var(--color-amber)">Room Not Ready Yet</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:50%;transform:translateX(-50%)">Your room will be ready at 3:00 PM</div>
+    <div class="wf-el wf-btn" style="top:32%;left:8%;width:38%;height:40%;border-radius:8px;flex-direction:column">
+      <div style="width:30px;height:30px;border:1.5px dashed var(--color-primary);border-radius:50%;margin-bottom:6px"></div>
+      <span style="font-size:7px">STORE LUGGAGE<br>We'll notify you</span>
+    </div>
+    <div class="wf-el wf-btn" style="top:32%;right:8%;width:38%;height:40%;border-radius:8px;flex-direction:column">
+      <div style="width:30px;height:30px;border:1.5px dashed var(--color-primary);border-radius:50%;margin-bottom:6px"></div>
+      <span style="font-size:7px">PAY EARLY CHECK-IN<br>+$25 available now</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-03b -- Early Arrival Branch</h4>
+      <div class="info-row">Interactions: <span>Choose luggage storage or pay for early access</span></div>
+      <div class="info-row nav">Next: <span>ECI-02a (luggage) or ECI-02b (pay early)</span></div>
+      <div class="info-row edge">Edge: <span>Early check-in may not be available (show only luggage option)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-04</span><span class="name">ID Scan Instruction</span><span class="hw-tag">SCANNER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%)">Place Your ID on the Scanner</div>
+    <div class="wf-el wf-rect" style="top:22%;left:25%;width:50%;height:40%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-primary)">[ ID CARD ANIMATION ]</div>
+    <div style="position:absolute;bottom:18%;left:50%;transform:translateX(-50%);font-size:24px;color:var(--color-primary)">&#8595;</div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:8%;left:50%;transform:translateX(-50%)">Scanner is below the screen</div>
+    <div class="wf-info">
+      <h4>CKI-04 -- ID Scan Instruction</h4>
+      <div class="info-row">Interactions: <span>Auto-proceeds when ID detected on scanner</span></div>
+      <div class="info-row nav">Next: <span>CKI-05 (scanning)</span></div>
+      <div class="info-row edge">Edge: <span>15s timeout shows help text</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-05</span><span class="name">ID Scanning</span><span class="hw-tag">SCANNER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:15%;left:50%;transform:translateX(-50%)">Scanning Your ID...</div>
+    <div class="wf-el wf-circle" style="top:35%;left:50%;transform:translateX(-50%);width:50px;height:50px;border-color:var(--color-primary);border-width:2px"></div>
+    <div class="wf-el wf-rect" style="top:65%;left:20%;width:60%;height:8px;border-radius:4px"></div>
+    <div style="position:absolute;top:65%;left:20%;width:35%;height:8px;background:var(--color-primary);border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:75%;left:50%;transform:translateX(-50%)">Please keep your ID on the scanner</div>
+    <div class="wf-info">
+      <h4>CKI-05 -- ID Scanning</h4>
+      <div class="info-row">Interactions: <span>None - passive wait</span></div>
+      <div class="info-row nav">Next: <span>CKI-06 (success) or CKI-05e (error)</span></div>
+      <div class="info-row edge">Edge: <span>ID removed mid-scan restarts process</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-05e</span><span class="name">ID Scan Error</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:12%;left:50%;transform:translateX(-50%);color:var(--color-error)">Scan Failed</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:24%;left:50%;transform:translateX(-50%)">We couldn't read your ID. Please try again.</div>
+    <div class="wf-el wf-circle" style="top:35%;left:50%;transform:translateX(-50%);width:40px;height:40px;border-color:var(--color-error)"></div>
+    <div style="position:absolute;top:42%;left:50%;transform:translateX(-50%);color:var(--color-error);font-size:16px;font-family:'Mona Sans',sans-serif">!</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:58%;left:50%;transform:translateX(-50%);color:var(--color-amber)">Attempt 1 of 3</div>
+    <div class="wf-el wf-btn-error wf-btn" style="bottom:15%;left:50%;transform:translateX(-50%);width:40%;height:12%;border-radius:6px">
+      <span style="color:var(--color-error)">TRY AGAIN</span>
+    </div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:4%;left:50%;transform:translateX(-50%);width:30%;height:8%;border-radius:4px">
+      <span>GET HELP</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-05e -- ID Scan Error</h4>
+      <div class="info-row">Interactions: <span>Retry scan or request staff help</span></div>
+      <div class="info-row nav">Next: <span>CKI-04 (retry) or staff assistance</span></div>
+      <div class="info-row edge">Edge: <span>After 3 fails, auto-route to staff help</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-06</span><span class="name">Facial Recognition</span><span class="hw-tag">CAMERA</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Look at the Camera</div>
+    <div class="wf-el wf-rect" style="top:16%;left:25%;width:50%;height:60%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div style="position:absolute;top:22%;left:32%;width:36%;height:48%;border:2px dashed var(--color-primary);border-radius:50%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:45%;left:50%;transform:translateX(-50%);color:var(--color-primary)">[ CAMERA ]</div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:12%;left:50%;transform:translateX(-50%)">Position your face within the oval</div>
+    <div class="wf-info">
+      <h4>CKI-06 -- Facial Recognition</h4>
+      <div class="info-row">Interactions: <span>Auto-capture when face detected and aligned</span></div>
+      <div class="info-row nav">Next: <span>CKI-07 (verified)</span></div>
+      <div class="info-row edge">Edge: <span>Low light warning, glasses removal prompt, 3 retries then manual override</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-07</span><span class="name">Identity Verified</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%);color:var(--color-success)">Identity Verified</div>
+    <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);width:30px;height:30px;border:2px solid var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center">
+      <span style="color:var(--color-success);font-size:16px">&#10003;</span>
+    </div>
+    <div class="wf-el wf-rect" style="top:40%;left:15%;width:30%;height:40%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:72%;left:20%">ID Photo</div>
+    <div class="wf-el wf-rect" style="top:40%;right:15%;width:30%;height:40%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:72%;right:20%">Live Photo</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:55%;left:50%;transform:translateX(-50%);color:var(--color-success)">MATCH</div>
+    <div class="wf-info">
+      <h4>CKI-07 -- Identity Verified</h4>
+      <div class="info-row">Interactions: <span>Auto-advance after 3s or tap continue</span></div>
+      <div class="info-row nav">Next: <span>CKI-08</span></div>
+      <div class="info-row edge">Edge: <span>Mismatch routes to staff verification</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-08</span><span class="name">Terms & Agreement</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Terms & Conditions</div>
+    <div class="wf-el wf-rect" style="top:14%;left:8%;width:84%;height:40%;border-radius:4px"></div>
+    <div class="wf-el wf-line" style="top:20%;left:12%;width:70%"></div>
+    <div class="wf-el wf-line" style="top:24%;left:12%;width:65%"></div>
+    <div class="wf-el wf-line" style="top:28%;left:12%;width:72%"></div>
+    <div class="wf-el wf-line" style="top:32%;left:12%;width:55%"></div>
+    <div class="wf-el wf-line" style="top:36%;left:12%;width:68%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:43%;right:12%">scroll</div>
+    <div class="wf-el wf-rect" style="top:58%;left:8%;width:84%;height:20%;border-radius:4px;border-style:dotted"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:66%;left:50%;transform:translateX(-50%)">Sign here</div>
+    <div class="wf-el wf-btn" style="bottom:6%;left:50%;transform:translateX(-50%);width:50%;height:10%;border-radius:6px">
+      <span>I AGREE</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-08 -- Terms & Agreement</h4>
+      <div class="info-row">Interactions: <span>Scroll terms, draw signature, tap agree</span></div>
+      <div class="info-row nav">Next: <span>CKI-09</span></div>
+      <div class="info-row edge">Edge: <span>Must scroll to bottom before agree enables. Signature optional per hotel config.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-09</span><span class="name">Upsell Opportunity</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Upgrade Your Stay?</div>
+    <div class="wf-el wf-rect" style="top:16%;left:5%;width:28%;height:58%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:18%;left:7%;width:24%;height:22%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:7%">Suite</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:7%;color:var(--color-primary)">+$89/night</div>
+    <div class="wf-el wf-rect" style="top:16%;left:36%;width:28%;height:58%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:18%;left:38%;width:24%;height:22%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:38%">Ocean View</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:38%;color:var(--color-primary)">+$45/night</div>
+    <div class="wf-el wf-rect" style="top:16%;right:5%;width:28%;height:58%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:18%;right:7%;width:24%;height:22%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;right:10%">Penthouse</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;right:7%;color:var(--color-primary)">+$199/night</div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:6%;left:50%;transform:translateX(-50%);width:30%;height:10%;border-radius:4px">
+      <span>NO THANKS</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-09 -- Upsell</h4>
+      <div class="info-row">Interactions: <span>Select upgrade or skip</span></div>
+      <div class="info-row nav">Next: <span>CKI-10 (payment)</span></div>
+      <div class="info-row edge">Edge: <span>No upgrades available = skip this screen entirely</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-10</span><span class="name">Payment</span><span class="hw-tag">TERMINAL</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%)">Payment</div>
+    <div class="wf-el wf-text wf-text-xl" style="top:22%;left:50%;transform:translateX(-50%)">$567.00</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;left:50%;transform:translateX(-50%)">3 nights + taxes</div>
+    <div style="position:absolute;top:48%;left:50%;transform:translateX(-50%);font-size:32px;color:var(--color-primary)">&#8594;</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:62%;left:50%;transform:translateX(-50%)">Tap or insert card on the</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:68%;left:50%;transform:translateX(-50%);color:var(--color-primary)">payment terminal to your right</div>
+    <div class="wf-el wf-rect" style="top:42%;right:5%;width:15%;height:30%;border-radius:4px;border-color:var(--color-hw)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:54%;right:6%;color:var(--color-hw)">TERM</div>
+    <div class="wf-info">
+      <h4>CKI-10 -- Payment</h4>
+      <div class="info-row">Interactions: <span>Guest uses external terminal</span></div>
+      <div class="info-row nav">Next: <span>PAY-02 (processing) then CKI-11</span></div>
+      <div class="info-row edge">Edge: <span>Payment decline shows PAY-03e error</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-11</span><span class="name">Additional Guests</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:8%;left:50%;transform:translateX(-50%)">Additional Guests?</div>
+    <div class="wf-el wf-rect-solid" style="top:20%;left:10%;width:80%;height:14%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:24%;left:14%">1. John Smith (primary)</div>
+    <div class="wf-el wf-btn" style="top:40%;left:10%;width:38%;height:14%;border-radius:6px">
+      <span>ADD GUEST</span>
+    </div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="top:40%;right:10%;width:38%;height:14%;border-radius:6px">
+      <span>NO, CONTINUE</span>
+    </div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:15%;left:50%;transform:translateX(-50%)">Each guest will need a key card</div>
+    <div class="wf-info">
+      <h4>CKI-11 -- Additional Guests</h4>
+      <div class="info-row">Interactions: <span>Add guest (loops) or continue</span></div>
+      <div class="info-row nav">Next: <span>CKI-12 (key dispensing)</span></div>
+      <div class="info-row edge">Edge: <span>Max 4 keys per room. Each additional guest may need ID scan.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-12</span><span class="name">Key Card Dispensing</span><span class="hw-tag">DISPENSER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Encoding Your Key Card</div>
+    <div class="wf-el wf-text wf-text-xl" style="top:18%;left:50%;transform:translateX(-50%);font-size:24px">Room 412</div>
+    <div class="wf-el wf-rect" style="top:32%;left:25%;width:50%;height:30%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:45%;left:50%;transform:translateX(-50%);color:var(--color-primary)">[ KEY CARD ANIMATION ]</div>
+    <div style="position:absolute;bottom:20%;left:50%;transform:translateX(-50%);font-size:24px;color:var(--color-primary)">&#8595;</div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:10%;left:50%;transform:translateX(-50%)">Please take your key card below</div>
+    <div class="wf-info">
+      <h4>CKI-12 -- Key Dispensing</h4>
+      <div class="info-row">Interactions: <span>Wait for key, take card</span></div>
+      <div class="info-row nav">Next: <span>CKI-13 (confirmation)</span></div>
+      <div class="info-row edge">Edge: <span>Dispenser jam shows ERR-07, routes to staff</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKI-13</span><span class="name">Confirmation</span></div>
+  <div class="wf-frame">
+    <div style="position:absolute;top:4%;left:50%;transform:translateX(-50%);width:30px;height:30px;border:2px solid var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center">
+      <span style="color:var(--color-success);font-size:14px">&#10003;</span>
+    </div>
+    <div class="wf-el wf-text" style="top:20%;left:50%;transform:translateX(-50%);font-size:28px;color:var(--color-text);font-family:'Mona Sans',sans-serif;font-weight:700">412</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:35%;left:50%;transform:translateX(-50%)">4th Floor -- Turn right from elevator</div>
+    <div class="wf-el wf-rect-solid" style="top:42%;left:5%;width:42%;height:30%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:46%;left:8%">Wi-Fi: HotelGuest</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:52%;left:8%">Pass: welcome123</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:58%;left:8%">Checkout: Feb 25</div>
+    <div class="wf-el wf-rect-solid" style="top:42%;right:5%;width:42%;height:30%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:46%;right:10%">View Map</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:52%;right:10%;color:var(--color-primary)">[ mini map ]</div>
+    <div class="wf-el wf-btn" style="bottom:6%;left:5%;width:28%;height:10%;border-radius:4px">
+      <span style="font-size:7px">EMAIL RECEIPT</span>
+    </div>
+    <div class="wf-el wf-btn" style="bottom:6%;left:36%;width:28%;height:10%;border-radius:4px">
+      <span style="font-size:7px">SMS RECEIPT</span>
+    </div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:6%;right:5%;width:28%;height:10%;border-radius:4px">
+      <span style="font-size:7px">DONE</span>
+    </div>
+    <div class="wf-info">
+      <h4>CKI-13 -- Check-in Complete</h4>
+      <div class="info-row">Interactions: <span>View map, get receipt, or finish</span></div>
+      <div class="info-row nav">Next: <span>IDL-01 (return to idle after 30s)</span></div>
+      <div class="info-row edge">Edge: <span>Auto-returns to idle. Receipt delivery failures are silent.</span></div>
+    </div>
+  </div>
+  <div class="wf-annotation">* Maximum information density: room number dominates, Wi-Fi credentials visible, map accessible. Multiple receipt options.</div>
+</div>
+
+</div>
+</section>
+
+<!-- 6. CHECK-OUT -->
+<section id="checkout" class="section">
+<div class="module-id">Module 06 / 24</div>
+<h2 class="section-title">Check-out Flow</h2>
+<p class="section-subtitle">Streamlined departure process. Guest identifies, reviews charges, pays balance, returns key, and optionally provides feedback.</p>
+<div class="flow-diagram">
+  <div class="flow-node">CKO-01</div><span class="flow-arrow">--></span>
+  <div class="flow-node">CKO-02</div><span class="flow-arrow">--></span>
+  <div class="flow-node">CKO-03</div><span class="flow-arrow">--></span>
+  <div class="flow-node">CKO-04</div><span class="flow-arrow">--></span>
+  <div class="flow-node">CKO-05</div><span class="flow-arrow">--></span>
+  <div class="flow-node">CKO-06</div>
+</div>
+<div class="screen-grid">
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-01</span><span class="name">Identification</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Check-Out</div>
+    <div class="wf-el wf-btn" style="top:28%;left:8%;width:38%;height:45%;border-radius:8px;flex-direction:column"><span>SCAN KEY CARD</span></div>
+    <div class="wf-el wf-btn" style="top:28%;right:8%;width:38%;height:45%;border-radius:8px;flex-direction:column"><span>ENTER ROOM #</span></div>
+    <div class="wf-info">
+      <h4>CKO-01 -- Guest ID for Check-out</h4>
+      <div class="info-row">Interactions: <span>Scan key or enter room number</span></div>
+      <div class="info-row nav">Next: <span>CKO-02</span></div>
+      <div class="info-row edge">Edge: <span>Invalid key shows error, 3 attempts</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-02</span><span class="name">Stay Summary & Charges</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Your Stay Summary</div>
+    <div class="wf-el wf-rect-solid" style="top:14%;left:8%;width:84%;height:56%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:12%">Room 412 -- 3 nights</div>
+    <div class="wf-el wf-divider" style="top:24%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:28%;left:12%">Room charges</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:28%;right:12%">$567.00</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:34%;left:12%">Room service</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:34%;right:12%">$48.50</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:12%">Mini bar</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;right:12%">$22.00</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:46%;left:12%">Taxes & fees</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:46%;right:12%">$89.25</div>
+    <div class="wf-el wf-divider" style="top:54%"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:58%;left:12%">Total</div>
+    <div class="wf-el wf-text wf-text-lg" style="top:58%;right:12%;color:var(--color-primary)">$726.75</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:65%;left:12%">Paid: -$567.00</div>
+    <div class="wf-el wf-text wf-text-lg" style="top:70%;right:12%;color:var(--color-amber)">Due: $159.75</div>
+    <div class="wf-el wf-btn" style="bottom:6%;left:50%;transform:translateX(-50%);width:50%;height:10%;border-radius:6px"><span>PAY BALANCE</span></div>
+    <div class="wf-info">
+      <h4>CKO-02 -- Charges Summary</h4>
+      <div class="info-row">Interactions: <span>Review charges, dispute or pay</span></div>
+      <div class="info-row nav">Next: <span>CKO-03 (payment)</span></div>
+      <div class="info-row edge">Edge: <span>Zero balance skips to CKO-04. Dispute routes to staff.</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-03</span><span class="name">Payment</span><span class="hw-tag">TERMINAL</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Pay Balance</div>
+    <div class="wf-el wf-text wf-text-xl" style="top:28%;left:50%;transform:translateX(-50%)">$159.75</div>
+    <div style="position:absolute;top:48%;left:50%;transform:translateX(-50%);font-size:32px;color:var(--color-primary)">&#8594;</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:65%;left:50%;transform:translateX(-50%)">Use the payment terminal</div>
+    <div class="wf-info"><h4>CKO-03 -- Payment</h4><div class="info-row nav">Next: <span>CKO-04</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-04</span><span class="name">Return Key</span><span class="hw-tag">DISPENSER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Return Your Key Card</div>
+    <div class="wf-el wf-rect" style="top:28%;left:25%;width:50%;height:35%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:50%;transform:translateX(-50%);color:var(--color-primary)">[ KEY RETURN ANIMATION ]</div>
+    <div style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:24px;color:var(--color-primary)">&#8595;</div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:10%;left:50%;transform:translateX(-50%)">Insert key card in the slot below</div>
+    <div class="wf-info"><h4>CKO-04 -- Return Key</h4><div class="info-row nav">Next: <span>CKO-05</span></div><div class="info-row edge">Edge: <span>"Keep it" option for hotels that allow. Skip button after 10s.</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-05</span><span class="name">Satisfaction Survey</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">How Was Your Stay?</div>
+    <div style="position:absolute;top:18%;left:50%;transform:translateX(-50%);display:flex;gap:8px">
+      <div style="width:24px;height:24px;border:1.5px dashed var(--color-amber);border-radius:2px"></div>
+      <div style="width:24px;height:24px;border:1.5px dashed var(--color-amber);border-radius:2px"></div>
+      <div style="width:24px;height:24px;border:1.5px dashed var(--color-amber);border-radius:2px"></div>
+      <div style="width:24px;height:24px;border:1.5px dashed var(--color-amber);border-radius:2px"></div>
+      <div style="width:24px;height:24px;border:1.5px dashed var(--color-amber);border-radius:2px"></div>
+    </div>
+    <div class="wf-el wf-rect" style="top:34%;left:10%;width:35%;height:10%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:37%;left:14%">Room cleanliness</div>
+    <div class="wf-el wf-rect" style="top:34%;right:10%;width:35%;height:10%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:37%;right:14%">Staff friendliness</div>
+    <div class="wf-el wf-rect" style="top:48%;left:10%;width:35%;height:10%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:51%;left:14%">Amenities</div>
+    <div class="wf-el wf-rect" style="top:48%;right:10%;width:35%;height:10%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:51%;right:14%">Location</div>
+    <div class="wf-el wf-rect" style="top:62%;left:10%;width:80%;height:16%;border-radius:4px;border-style:dotted"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:68%;left:14%">Additional comments...</div>
+    <div class="wf-el wf-btn" style="bottom:5%;left:10%;width:38%;height:10%;border-radius:6px"><span>SUBMIT</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:5%;right:10%;width:38%;height:10%;border-radius:6px"><span>SKIP</span></div>
+    <div class="wf-info"><h4>CKO-05 -- Survey</h4><div class="info-row nav">Next: <span>CKO-06</span></div><div class="info-row edge">Edge: <span>All fields optional. Skip always available.</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">CKO-06</span><span class="name">Farewell</span></div>
+  <div class="wf-frame">
+    <div style="position:absolute;top:12%;left:50%;transform:translateX(-50%);width:40px;height:40px;border:2px solid var(--color-success);border-radius:50%;display:flex;align-items:center;justify-content:center">
+      <span style="color:var(--color-success);font-size:20px">&#10003;</span>
+    </div>
+    <div class="wf-el wf-text wf-text-xl" style="top:32%;left:50%;transform:translateX(-50%)">Thank You!</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:42%;left:50%;transform:translateX(-50%)">We hope to see you again soon</div>
+    <div class="wf-el wf-btn" style="top:55%;left:50%;transform:translateX(-50%);width:40%;height:12%;border-radius:6px"><span>REBOOK NOW</span></div>
+    <div class="wf-el wf-btn" style="bottom:15%;left:10%;width:24%;height:10%;border-radius:4px"><span style="font-size:7px">EMAIL RECEIPT</span></div>
+    <div class="wf-el wf-btn" style="bottom:15%;left:38%;width:24%;height:10%;border-radius:4px"><span style="font-size:7px">SMS RECEIPT</span></div>
+    <div class="wf-el wf-btn" style="bottom:15%;right:10%;width:24%;height:10%;border-radius:4px"><span style="font-size:7px">QR RECEIPT</span></div>
+    <div class="wf-info"><h4>CKO-06 -- Farewell</h4><div class="info-row nav">Next: <span>IDL-01 (idle after 20s)</span></div><div class="info-row edge">Edge: <span>Rebook CTA leads to BKG-01</span></div></div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- 7. BOOKING -->
+<section id="booking" class="section">
+<div class="module-id">Module 07 / 24</div>
+<h2 class="section-title">Booking / Walk-in</h2>
+<p class="section-subtitle">Full booking flow for walk-in guests. Date selection, room browsing, upsells, payment, and confirmation with immediate check-in option.</p>
+<div class="flow-diagram">
+  <div class="flow-node">BKG-01</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-02</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-03</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-04</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-05</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-06</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-07</div><span class="flow-arrow">--></span>
+  <div class="flow-node">BKG-08</div>
+</div>
+<div class="screen-grid">
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-01</span><span class="name">Date Selection</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Select Your Dates</div>
+    <div class="wf-el wf-rect" style="top:16%;left:10%;width:80%;height:55%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:50%;transform:translateX(-50%)">[ CALENDAR PICKER ]</div>
+    <div class="wf-el wf-line" style="top:28%;left:12%;width:76%"></div>
+    <div class="wf-el wf-line" style="top:36%;left:12%;width:76%"></div>
+    <div class="wf-el wf-line" style="top:44%;left:12%;width:76%"></div>
+    <div class="wf-el wf-line" style="top:52%;left:12%;width:76%"></div>
+    <div class="wf-el wf-line" style="top:60%;left:12%;width:76%"></div>
+    <div class="wf-el wf-rect-solid" style="bottom:12%;left:10%;width:30%;height:14%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:16%;left:15%">3 Nights</div>
+    <div class="wf-el wf-btn" style="bottom:12%;right:10%;width:35%;height:14%;border-radius:6px"><span>CONTINUE</span></div>
+    <div class="wf-info"><h4>BKG-01 -- Date Selection</h4><div class="info-row nav">Next: <span>BKG-02</span></div><div class="info-row edge">Edge: <span>Past dates disabled. Max 30-night stay.</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-02</span><span class="name">Guest Count</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">How Many Guests?</div>
+    <div class="wf-el wf-rect-solid" style="top:28%;left:15%;width:70%;height:18%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;left:20%">Adults</div>
+    <div class="wf-el wf-btn" style="top:30%;right:30%;width:28px;height:28px;border-radius:50%"><span>-</span></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:33%;right:24%">2</div>
+    <div class="wf-el wf-btn" style="top:30%;right:18%;width:28px;height:28px;border-radius:50%"><span>+</span></div>
+    <div class="wf-el wf-rect-solid" style="top:52%;left:15%;width:70%;height:18%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:56%;left:20%">Children</div>
+    <div class="wf-el wf-btn" style="top:54%;right:30%;width:28px;height:28px;border-radius:50%"><span>-</span></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:57%;right:24%">0</div>
+    <div class="wf-el wf-btn" style="top:54%;right:18%;width:28px;height:28px;border-radius:50%"><span>+</span></div>
+    <div class="wf-el wf-btn" style="bottom:10%;left:50%;transform:translateX(-50%);width:50%;height:12%;border-radius:6px"><span>CONTINUE</span></div>
+    <div class="wf-info"><h4>BKG-02 -- Guest Count</h4><div class="info-row nav">Next: <span>BKG-03</span></div><div class="info-row edge">Edge: <span>Min 1 adult. Guest count affects room recommendations.</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-03</span><span class="name">Room Selection</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:4%;left:50%;transform:translateX(-50%)">Choose Your Room</div>
+    <div class="wf-el wf-rect" style="top:14%;left:3%;width:30%;height:72%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:16%;left:5%;width:26%;height:24%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:5%">Standard King</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:5%;color:var(--color-primary)">$149/night</div>
+    <div class="wf-el wf-line" style="top:58%;left:5%;width:20%"></div>
+    <div class="wf-el wf-btn" style="top:72%;left:5%;width:26%;height:10%;border-radius:4px"><span>SELECT</span></div>
+    <div class="wf-el wf-rect" style="top:14%;left:35%;width:30%;height:72%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:16%;left:37%;width:26%;height:24%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:37%">Deluxe Queen</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:37%;color:var(--color-primary)">$189/night</div>
+    <div class="wf-el wf-line" style="top:58%;left:37%;width:20%"></div>
+    <div class="wf-el wf-btn" style="top:72%;left:37%;width:26%;height:10%;border-radius:4px"><span>SELECT</span></div>
+    <div class="wf-el wf-rect" style="top:14%;right:3%;width:30%;height:72%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:16%;right:5%;width:26%;height:24%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;right:10%">Suite</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;right:5%;color:var(--color-primary)">$289/night</div>
+    <div class="wf-el wf-line" style="top:58%;right:5%;width:20%"></div>
+    <div class="wf-el wf-btn" style="top:72%;right:5%;width:26%;height:10%;border-radius:4px"><span>SELECT</span></div>
+    <div class="wf-info"><h4>BKG-03 -- Room Selection</h4><div class="info-row nav">Next: <span>BKG-04 (detail) or BKG-05 (upsells)</span></div><div class="info-row edge">Edge: <span>No availability shows "sold out" badge. Scroll for more rooms.</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-04</span><span class="name">Room Detail</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-img" style="top:4%;left:4%;width:45%;height:60%"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:8%;right:6%">Deluxe King Suite</div>
+    <div class="wf-el wf-line" style="top:18%;right:6%;width:35%"></div>
+    <div class="wf-el wf-line" style="top:24%;right:6%;width:28%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;right:6%">King Bed | Ocean View | 45 sqm</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;right:6%;color:var(--color-primary)">$189/night</div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:50%;transform:translateX(-50%);width:50%;height:12%;border-radius:6px"><span>BOOK THIS ROOM</span></div>
+    <div class="wf-info">
+      <h4>BKG-04 -- Room Detail</h4>
+      <div class="info-row">Interactions: <span>Photo gallery swipe, amenity icons, book CTA</span></div>
+      <div class="info-row nav">Next: <span>BKG-05 Upsells</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-05</span><span class="name">Upsells</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Enhance Your Stay</div>
+    <div class="wf-el wf-rect" style="top:18%;left:5%;width:28%;height:30%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:36%;left:7%">Breakfast +$25/day</div>
+    <div class="wf-el wf-rect" style="top:18%;left:36%;width:28%;height:30%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:36%;left:38%">Parking +$15/day</div>
+    <div class="wf-el wf-rect" style="top:18%;right:5%;width:28%;height:30%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:36%;right:7%">Spa +$50</div>
+    <div class="wf-el wf-btn" style="bottom:12%;left:10%;width:35%;height:12%;border-radius:6px"><span>ADD SELECTED</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:12%;right:10%;width:30%;height:12%;border-radius:6px"><span>SKIP</span></div>
+    <div class="wf-info">
+      <h4>BKG-05 -- Upsells</h4>
+      <div class="info-row">Interactions: <span>Toggle add-ons, running total updates</span></div>
+      <div class="info-row nav">Next: <span>BKG-06 Summary</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-06</span><span class="name">Booking Summary</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Booking Summary</div>
+    <div class="wf-el wf-rect" style="top:16%;left:8%;right:8%;height:50%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:12%">Feb 22 - Feb 25 (3 nights)</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:28%;left:12%">Deluxe King Suite</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:36%;left:12%">2 Adults, 1 Child</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:12%">Breakfast, Parking</div>
+    <div class="wf-el wf-divider" style="top:52%"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:56%;left:12%;color:var(--color-primary)">Total: $637.00</div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:50%;transform:translateX(-50%);width:50%;height:12%;border-radius:6px"><span>CONFIRM & PAY</span></div>
+    <div class="wf-info">
+      <h4>BKG-06 -- Booking Summary</h4>
+      <div class="info-row nav">Next: <span>BKG-07 Payment (TruePay)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-07</span><span class="name">Payment</span><span class="hw-tag">TRUEPAY</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Total: $637.00</div>
+    <div class="wf-el wf-rect" style="top:28%;left:60%;width:30%;height:40%;border-radius:8px;border-color:var(--color-hw)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:52%;left:65%;color:var(--color-hw)">TERMINAL</div>
+    <div class="wf-el wf-text" style="top:40%;left:8%;width:45%">Please use the payment terminal on your right →</div>
+    <div class="wf-info">
+      <h4>BKG-07 -- Payment</h4>
+      <div class="info-row">Interactions: <span>Guest uses physical TruePay terminal</span></div>
+      <div class="info-row nav">Next: <span>BKG-08 Confirmation (success) or PAY-03e (failure)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">BKG-08</span><span class="name">Booking Confirmed</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:12%;left:50%;transform:translateX(-50%);width:48px;height:48px;border-color:var(--color-success)"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:34%;left:50%;transform:translateX(-50%)">Booking Confirmed!</div>
+    <div class="wf-el wf-text" style="top:48%;left:50%;transform:translateX(-50%)">Reservation #TOM-29834</div>
+    <div class="wf-el wf-btn" style="bottom:14%;left:10%;width:35%;height:12%;border-radius:6px"><span>CHECK IN NOW</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:14%;right:10%;width:30%;height:12%;border-radius:6px"><span>DONE</span></div>
+    <div class="wf-info">
+      <h4>BKG-08 -- Booking Confirmed</h4>
+      <div class="info-row nav">Next: <span>CKI-01 (Check-in) or DSH-01 (Dashboard)</span></div>
+    </div>
+  </div>
+</div>
+
+</div></section>
+
+<!-- ==================== 8. ROOM SERVICE ==================== -->
+<section id="roomservice" class="section">
+<div class="module-header">
+  <div class="module-id">Module 08 / 24</div>
+  <h2>Room Service</h2>
+  <p>CMS-managed food and beverage ordering. Guest identifies, browses menu, customizes, schedules delivery, and pays — all from the kiosk.</p>
+</div>
+<div class="flow-diagram">
+  <div class="flow-node">RSV-01</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-02</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-03</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-04</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-05</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-06</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-07</div><span class="flow-arrow">--></span>
+  <div class="flow-node">RSV-08</div>
+</div>
+<div class="screen-grid">
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-01</span><span class="name">Guest Identification</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Identify Your Stay</div>
+    <div class="wf-el wf-btn" style="top:30%;left:10%;width:35%;height:20%;border-radius:8px"><span>SCAN QR CODE</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="top:30%;right:10%;width:35%;height:20%;border-radius:8px"><span>ENTER ROOM / CODE</span></div>
+    <div class="wf-info"><h4>RSV-01</h4><div class="info-row nav">Next: <span>RSV-02 Menu</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-02</span><span class="name">Menu Categories</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Room Service</div>
+    <div class="wf-el wf-rect" style="top:18%;left:4%;width:30%;height:34%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:8%">Breakfast</div>
+    <div class="wf-el wf-rect" style="top:18%;left:36%;width:30%;height:34%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:42%">Lunch</div>
+    <div class="wf-el wf-rect" style="top:18%;right:4%;width:30%;height:34%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;right:8%">Dinner</div>
+    <div class="wf-el wf-rect" style="top:58%;left:4%;width:30%;height:34%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:84%;left:8%">Beverages</div>
+    <div class="wf-el wf-rect" style="top:58%;left:36%;width:30%;height:34%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:84%;left:42%">Snacks</div>
+    <div class="wf-info"><h4>RSV-02</h4><div class="info-row nav">Next: <span>RSV-03 Items</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-03</span><span class="name">Menu Items</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:4%;left:8%">Breakfast</div>
+    <div class="wf-el wf-rect" style="top:14%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-img" style="top:16%;left:6%;width:15%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:24%">Eggs Benedict</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:24%;left:24%;color:var(--color-primary)">$18.00</div>
+    <div class="wf-el wf-rect" style="top:34%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-img" style="top:36%;left:6%;width:15%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:24%">Avocado Toast</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:24%;color:var(--color-primary)">$14.00</div>
+    <div class="wf-el wf-rect" style="top:54%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-btn" style="top:16%;right:8%;width:14%;height:10%;border-radius:4px"><span>+ ADD</span></div>
+    <div class="wf-el wf-btn" style="top:36%;right:8%;width:14%;height:10%;border-radius:4px"><span>+ ADD</span></div>
+    <div class="wf-info"><h4>RSV-03</h4><div class="info-row nav">Next: <span>RSV-04 (detail) or RSV-05 (cart)</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-04</span><span class="name">Item Detail</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-img" style="top:4%;left:4%;width:50%;height:55%"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:8%;right:6%">Eggs Benedict</div>
+    <div class="wf-el wf-line" style="top:18%;right:6%;width:30%"></div>
+    <div class="wf-el wf-line" style="top:24%;right:6%;width:25%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;right:6%;color:var(--color-amber)">Contains: Eggs, Gluten</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;right:6%">[ ] No onions  [ ] Extra sauce</div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:50%;transform:translateX(-50%);width:50%;height:12%"><span>ADD TO ORDER — $18.00</span></div>
+    <div class="wf-info"><h4>RSV-04</h4><div class="info-row nav">Next: <span>RSV-03 (back to items) or RSV-05 (cart)</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-05</span><span class="name">Cart / Order Review</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:8%">Your Order</div>
+    <div class="wf-el wf-rect" style="top:16%;left:6%;right:6%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:10%">1x Eggs Benedict — $18</div>
+    <div class="wf-el wf-rect" style="top:32%;left:6%;right:6%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:36%;left:10%">2x Orange Juice — $12</div>
+    <div class="wf-el wf-divider" style="top:52%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:56%;left:10%">Subtotal: $30 | Tax: $2.40 | Service: $3</div>
+    <div class="wf-el wf-text wf-text-lg" style="top:64%;left:10%;color:var(--color-primary)">Total: $35.40</div>
+    <div class="wf-el wf-rect" style="top:74%;left:6%;right:6%;height:10%;border-radius:4px;border-style:dashed"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:76%;left:10%;color:var(--color-text-secondary)">Special instructions...</div>
+    <div class="wf-el wf-btn" style="bottom:4%;left:50%;transform:translateX(-50%);width:40%;height:10%"><span>CONTINUE</span></div>
+    <div class="wf-info"><h4>RSV-05</h4><div class="info-row nav">Next: <span>RSV-06 Schedule</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-06</span><span class="name">Delivery Schedule</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">When would you like it?</div>
+    <div class="wf-el wf-btn" style="top:30%;left:10%;width:35%;height:20%;border-radius:8px"><span>AS SOON AS POSSIBLE
+~25 min</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="top:30%;right:10%;width:35%;height:20%;border-radius:8px"><span>SCHEDULE
+Pick a time</span></div>
+    <div class="wf-info"><h4>RSV-06</h4><div class="info-row nav">Next: <span>RSV-07 Payment</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-07</span><span class="name">Payment Method</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">How would you like to pay?</div>
+    <div class="wf-el wf-btn" style="top:30%;left:10%;width:35%;height:20%;border-radius:8px"><span>PAY NOW
+(TruePay terminal)</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="top:30%;right:10%;width:35%;height:20%;border-radius:8px"><span>CHARGE TO ROOM
+Room 412</span></div>
+    <div class="wf-info"><h4>RSV-07</h4><div class="info-row nav">Next: <span>PAY-01 or RSV-08</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RSV-08</span><span class="name">Order Confirmed</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:12%;left:50%;transform:translateX(-50%);width:48px;height:48px;border-color:var(--color-success)"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:34%;left:50%;transform:translateX(-50%)">Order Placed!</div>
+    <div class="wf-el wf-text" style="top:48%;left:50%;transform:translateX(-50%)">Order #RS-4821</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:58%;left:50%;transform:translateX(-50%)">Estimated delivery: 25 min — Room 412</div>
+    <div class="wf-el wf-btn" style="bottom:12%;left:50%;transform:translateX(-50%);width:40%;height:12%"><span>BACK TO DASHBOARD</span></div>
+    <div class="wf-info"><h4>RSV-08</h4><div class="info-row nav">Next: <span>DSH-01</span></div></div>
+  </div>
+</div>
+
+</div></section>
+
+<!-- ==================== 9. WAYFINDING ==================== -->
+<section id="wayfinding" class="section">
+<div class="module-header">
+  <div class="module-id">Module 09 / 24</div>
+  <h2>Wayfinding</h2>
+  <p>Interactive floor plan maps. Guests select a destination and see an animated route from the kiosk location.</p>
+</div>
+<div class="flow-diagram">
+  <div class="flow-node">WAY-01</div><span class="flow-arrow">--></span><div class="flow-node">WAY-02</div>
+</div>
+<div class="screen-grid">
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">WAY-01</span><span class="name">Destination Selection</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Where would you like to go?</div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:34%;left:6%">My Room</div>
+    <div class="wf-el wf-rect" style="top:16%;left:28%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:34%;left:32%">Pool</div>
+    <div class="wf-el wf-rect" style="top:16%;left:52%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:34%;left:56%">Restaurant</div>
+    <div class="wf-el wf-rect" style="top:16%;right:4%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:34%;right:6%">Gym</div>
+    <div class="wf-el wf-rect" style="top:48%;left:4%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:66%;left:6%">Spa</div>
+    <div class="wf-el wf-rect" style="top:48%;left:28%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:66%;left:32%">Parking</div>
+    <div class="wf-el wf-rect" style="top:48%;left:52%;width:22%;height:26%;border-radius:6px"></div><div class="wf-el wf-text wf-text-sm" style="top:66%;left:56%">Lobby</div>
+    <div class="wf-el wf-rect" style="top:82%;left:4%;right:4%;height:12%;border-radius:6px;border-style:dashed"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:86%;left:8%;color:var(--color-text-secondary)">Search destinations...</div>
+    <div class="wf-info"><h4>WAY-01</h4><div class="info-row nav">Next: <span>WAY-02 Map</span></div><div class="info-row edge">Edge: <span>"My Room" requires guest identification first</span></div></div>
+  </div>
+</div>
+
+<div class="wf-card">
+  <div class="wf-label"><span class="id">WAY-02</span><span class="name">Route Map</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:4%;left:4%;right:4%;bottom:20%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ INTERACTIVE FLOOR PLAN ]</div>
+    <div class="wf-el wf-circle" style="top:30%;left:20%;width:12px;height:12px;border-color:var(--color-primary);background:rgba(129,140,248,.3)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:28%;left:16%;color:var(--color-primary)">YOU</div>
+    <div class="wf-el wf-circle" style="top:50%;right:25%;width:12px;height:12px;border-color:var(--color-success);background:rgba(34,197,94,.3)"></div>
+    <div class="wf-el wf-text" style="bottom:6%;left:8%">~3 min walk</div>
+    <div class="wf-el wf-btn" style="bottom:4%;right:8%;width:30%;height:10%"><span>NEW DIRECTIONS</span></div>
+    <div class="wf-info"><h4>WAY-02</h4><div class="info-row">Interactions: <span>Pinch zoom, pan, floor selector</span></div></div>
+  </div>
+</div>
+
+</div></section>
+
+<!-- ==================== 10. EVENTS ==================== -->
+<section id="events" class="section">
+<div class="module-header"><div class="module-id">Module 10 / 24</div><h2>Events</h2><p>Scrollable feed of hotel and local events, pulled from API or CMS.</p></div>
+<div class="flow-diagram"><div class="flow-node">EVT-01</div><span class="flow-arrow">--></span><div class="flow-node">EVT-02</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">EVT-01</span><span class="name">Events Feed</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:8%">Upcoming Events</div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;right:4%;height:22%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:18%;left:6%;width:20%;height:18%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:30%">Live Jazz Night — Feb 22, 8PM</div>
+    <div class="wf-el wf-rect" style="top:40%;left:4%;right:4%;height:22%;border-radius:6px"></div>
+    <div class="wf-el wf-img" style="top:42%;left:6%;width:20%;height:18%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:30%">Wine Tasting — Feb 23, 6PM</div>
+    <div class="wf-el wf-rect" style="top:64%;left:4%;right:4%;height:22%;border-radius:6px"></div>
+    <div class="wf-info"><h4>EVT-01</h4><div class="info-row nav">Next: <span>EVT-02 Detail</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">EVT-02</span><span class="name">Event Detail</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-img" style="top:4%;left:4%;right:4%;height:40%"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:48%;left:8%">Live Jazz Night</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:58%;left:8%">Feb 22 | 8:00 PM | Rooftop Bar</div>
+    <div class="wf-el wf-line" style="top:66%;left:8%;width:60%"></div>
+    <div class="wf-el wf-line" style="top:72%;left:8%;width:50%"></div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:8%;width:35%;height:10%"><span>GET DIRECTIONS</span></div>
+    <div class="wf-info"><h4>EVT-02</h4><div class="info-row nav">Next: <span>WAY-02 (directions) or back</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 11. LISTINGS ==================== -->
+<section id="listings" class="section">
+<div class="module-header"><div class="module-id">Module 11 / 24</div><h2>Listings (Local Directory)</h2><p>Local businesses, restaurants, attractions. List and map views with detailed business info.</p></div>
+<div class="flow-diagram"><div class="flow-node">LST-01</div><span class="flow-arrow">--></span><div class="flow-node">LST-03</div><span class="flow-arrow" style="margin-left:16px">or</span><span class="flow-arrow"></span><div class="flow-node">LST-02</div><span class="flow-arrow">--></span><div class="flow-node">LST-03</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">LST-01</span><span class="name">List View</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:4%;left:8%">Explore Nearby</div>
+    <div class="wf-el wf-btn" style="top:4%;right:8%;width:20%;height:8%"><span>MAP VIEW</span></div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-img" style="top:18%;left:6%;width:15%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:24%">La Trattoria — Italian — 0.3 mi</div>
+    <div class="wf-el wf-rect" style="top:36%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-img" style="top:38%;left:6%;width:15%;height:14%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:24%">City Tours Co. — Tours — 0.1 mi</div>
+    <div class="wf-el wf-rect" style="top:56%;left:4%;right:4%;height:18%;border-radius:4px"></div>
+    <div class="wf-info"><h4>LST-01</h4><div class="info-row nav">Next: <span>LST-03 (detail) or LST-02 (map)</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">LST-02</span><span class="name">Map View</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:4%;left:4%;right:4%;bottom:8%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ MAP WITH PINS ]</div>
+    <div class="wf-el wf-circle" style="top:35%;left:40%;width:10px;height:10px;border-color:var(--color-primary);background:rgba(129,140,248,.4)"></div>
+    <div class="wf-el wf-circle" style="top:25%;left:60%;width:10px;height:10px;border-color:var(--color-amber);background:rgba(251,191,36,.4)"></div>
+    <div class="wf-el wf-circle" style="top:50%;left:30%;width:10px;height:10px;border-color:var(--color-amber);background:rgba(251,191,36,.4)"></div>
+    <div class="wf-el wf-btn" style="top:4%;right:8%;width:20%;height:8%"><span>LIST VIEW</span></div>
+    <div class="wf-info"><h4>LST-02</h4><div class="info-row">Interactions: <span>Tap pin for quick info, open detail</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">LST-03</span><span class="name">Business Detail</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-img" style="top:4%;left:4%;right:4%;height:35%"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:42%;left:8%">La Trattoria</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:52%;left:8%">Italian | 0.3 mi | Open until 10PM</div>
+    <div class="wf-el wf-line" style="top:60%;left:8%;width:50%"></div>
+    <div class="wf-el wf-line" style="top:66%;left:8%;width:40%"></div>
+    <div class="wf-el wf-rect" style="bottom:8%;right:8%;width:20%;height:18%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:12%;right:12%">QR</div>
+    <div class="wf-info"><h4>LST-03</h4><div class="info-row">Interactions: <span>QR code for phone directions, phone number</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 12. WI-FI ==================== -->
+<section id="wifi" class="section">
+<div class="module-header"><div class="module-id">Module 12 / 24</div><h2>Wi-Fi</h2><p>Network credentials with QR code for instant phone connection.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">WIF-01</span><span class="name">Wi-Fi Credentials</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Connect to Wi-Fi</div>
+    <div class="wf-el wf-text wf-text-xl" style="top:24%;left:50%;transform:translateX(-50%)">HotelName_Guest</div>
+    <div class="wf-el wf-text" style="top:38%;left:50%;transform:translateX(-50%)">Password: Welcome2024!</div>
+    <div class="wf-el wf-rect" style="top:50%;left:50%;transform:translateX(-50%);width:100px;height:100px;border-radius:8px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:86%;left:50%;transform:translateX(-50%)">Scan QR to auto-connect</div>
+    <div class="wf-el wf-btn" style="bottom:4%;left:50%;transform:translateX(-50%);width:35%;height:10%"><span>BACK TO DASHBOARD</span></div>
+    <div class="wf-info"><h4>WIF-01</h4><div class="info-row nav">Next: <span>DSH-01</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 13. FAQ ==================== -->
+<section id="faq" class="section">
+<div class="module-header"><div class="module-id">Module 13 / 24</div><h2>FAQ</h2><p>Accordion-style Q&A managed via CMS. Category filters and escalation to AI Avatar.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">FAQ-01</span><span class="name">FAQ List</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:8%">Frequently Asked Questions</div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;right:4%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;left:8%">What time is check-out?</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;right:8%">v</div>
+    <div class="wf-el wf-rect" style="top:30%;left:4%;right:4%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:34%;left:8%">Is breakfast included?</div>
+    <div class="wf-el wf-rect" style="top:44%;left:4%;right:4%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:48%;left:8%">Where is the pool?</div>
+    <div class="wf-el wf-rect" style="top:58%;left:4%;right:4%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-rect" style="top:72%;left:4%;right:4%;height:12%;border-radius:4px"></div>
+    <div class="wf-el wf-btn" style="bottom:4%;left:50%;transform:translateX(-50%);width:40%;height:10%"><span>STILL NEED HELP?</span></div>
+    <div class="wf-info"><h4>FAQ-01</h4><div class="info-row">Interactions: <span>Tap to expand, category filter tabs</span></div><div class="info-row nav">Next: <span>AVT-02 (AI Avatar) or DSH-01</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 14. UPSELLS ==================== -->
+<section id="upsells" class="section">
+<div class="module-header"><div class="module-id">Module 14 / 24</div><h2>Upsells & Upgrades</h2><p>Room upgrades and add-on services. Available during check-in or as standalone module.</p></div>
+<div class="flow-diagram"><div class="flow-node">UPS-01</div><span class="flow-arrow">--></span><div class="flow-node">UPS-02</div><span class="flow-arrow">--></span><div class="flow-node">UPS-03</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">UPS-01</span><span class="name">Room Upgrades</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:50%;transform:translateX(-50%)">Upgrade Your Room?</div>
+    <div class="wf-el wf-rect" style="top:18%;left:4%;width:44%;height:50%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:22%;left:8%">Current: Standard Queen</div>
+    <div class="wf-el wf-img" style="top:30%;left:6%;width:38%;height:26%"></div>
+    <div class="wf-el wf-rect" style="top:18%;right:4%;width:44%;height:50%;border-radius:6px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:22%;right:8%;color:var(--color-primary)">Upgrade: Deluxe King</div>
+    <div class="wf-el wf-img" style="top:30%;right:6%;width:38%;height:26%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:60%;right:8%;color:var(--color-primary)">+$45/night</div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:10%;width:35%;height:10%"><span>UPGRADE</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:8%;right:10%;width:30%;height:10%"><span>NO THANKS</span></div>
+    <div class="wf-info"><h4>UPS-01</h4><div class="info-row nav">Next: <span>UPS-02 Add-ons or next flow step</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">UPS-02</span><span class="name">Add-on Services</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:6%;left:8%">Add Services</div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;right:4%;height:12%"></div><div class="wf-el wf-text wf-text-sm" style="top:20%;left:8%">Breakfast Package — $25/day</div><div class="wf-el wf-text wf-text-sm" style="top:20%;right:8%;color:var(--color-primary)">[+]</div>
+    <div class="wf-el wf-rect" style="top:30%;left:4%;right:4%;height:12%"></div><div class="wf-el wf-text wf-text-sm" style="top:34%;left:8%">Parking — $15/day</div><div class="wf-el wf-text wf-text-sm" style="top:34%;right:8%;color:var(--color-primary)">[+]</div>
+    <div class="wf-el wf-rect" style="top:44%;left:4%;right:4%;height:12%"></div><div class="wf-el wf-text wf-text-sm" style="top:48%;left:8%">Late Check-out — $30</div><div class="wf-el wf-text wf-text-sm" style="top:48%;right:8%;color:var(--color-primary)">[+]</div>
+    <div class="wf-el wf-rect" style="top:58%;left:4%;right:4%;height:12%"></div><div class="wf-el wf-text wf-text-sm" style="top:62%;left:8%">Airport Transfer — $45</div>
+    <div class="wf-el wf-divider" style="top:76%"></div>
+    <div class="wf-el wf-text" style="top:80%;left:8%;color:var(--color-primary)">Total add-ons: $70</div>
+    <div class="wf-el wf-btn" style="bottom:4%;left:50%;transform:translateX(-50%);width:40%;height:10%"><span>CONTINUE</span></div>
+    <div class="wf-info"><h4>UPS-02</h4><div class="info-row nav">Next: <span>UPS-03 Confirm</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">UPS-03</span><span class="name">Confirm & Pay</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Confirm Upgrades</div>
+    <div class="wf-el wf-rect" style="top:24%;left:10%;right:10%;height:30%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:30%;left:14%">Room upgrade: +$45/night x 3 = $135</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:14%">Breakfast: $25/day x 3 = $75</div>
+    <div class="wf-el wf-divider" style="top:48%"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:58%;left:50%;transform:translateX(-50%);color:var(--color-primary)">Additional: $210.00</div>
+    <div class="wf-el wf-btn" style="bottom:10%;left:10%;width:35%;height:12%"><span>PAY NOW</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:10%;right:10%;width:30%;height:12%"><span>CHARGE TO ROOM</span></div>
+    <div class="wf-info"><h4>UPS-03</h4><div class="info-row nav">Next: <span>PAY-01 or next flow step</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 15. ADS ==================== -->
+<section id="ads" class="section">
+<div class="module-header"><div class="module-id">Module 15 / 24</div><h2>Ads System</h2><p>Three ad types configurable per screen via CMS. Never shown during critical flows.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ADS-01</span><span class="name">Banner Ad</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:10%;left:5%;right:5%;height:15%;border-radius:4px;border-color:var(--color-amber)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:15%;left:50%;transform:translateX(-50%);color:var(--color-amber)">BANNER AD ZONE — Inline between content</div>
+    <div class="wf-el wf-rect" style="top:35%;left:5%;right:5%;height:55%;border-radius:6px;border-style:dotted;border-color:var(--color-text-tertiary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:58%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ Page content continues below ]</div>
+    <div class="wf-info"><h4>ADS-01</h4><div class="info-row">Placement: <span>Inline, non-intrusive, tappable</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ADS-02</span><span class="name">Header Ad</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:0;left:0;right:0;height:10%;border-radius:0;border-color:var(--color-amber)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:3%;left:50%;transform:translateX(-50%);color:var(--color-amber)">HEADER AD — Slim top bar, auto-rotates</div>
+    <div class="wf-el wf-rect" style="top:12%;left:5%;right:5%;height:80%;border-radius:6px;border-style:dotted;border-color:var(--color-text-tertiary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ Normal page content ]</div>
+    <div class="wf-info"><h4>ADS-02</h4><div class="info-row">Placement: <span>Top of screen, slim bar</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ADS-03</span><span class="name">Popup Ad</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5)"></div>
+    <div class="wf-el wf-rect" style="top:15%;left:15%;right:15%;bottom:15%;border-radius:12px;border-color:var(--color-amber);background:rgba(26,26,26,.95)"></div>
+    <div class="wf-el wf-img" style="top:20%;left:20%;right:20%;height:40%"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:65%;left:50%;transform:translateX(-50%);color:var(--color-amber)">Promotional Content</div>
+    <div class="wf-el wf-circle" style="top:17%;right:17%;width:24px;height:24px;border-color:var(--color-text-secondary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:19%;right:19%">X</div>
+    <div class="wf-info"><h4>ADS-03</h4><div class="info-row edge">Edge: <span>NEVER during payment, ID scan, or key dispensing</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 16. TRUEPAY ==================== -->
+<section id="truepay" class="section">
+<div class="module-header"><div class="module-id">Module 16 / 24</div><h2>TruePay (Payment)</h2><p>Shared payment flow used by all modules requiring payment. Interfaces with physical terminal.</p></div>
+<div class="flow-diagram"><div class="flow-node">PAY-01</div><span class="flow-arrow">--></span><div class="flow-node">PAY-02</div><span class="flow-arrow">--></span><div class="flow-node">PAY-03</div><span class="flow-arrow branch"> fail </span><div class="flow-node error">PAY-03e</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">PAY-01</span><span class="name">Payment</span><span class="hw-tag">TRUEPAY</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-xl" style="top:14%;left:50%;transform:translateX(-50%)">$637.00</div>
+    <div class="wf-el wf-text" style="top:30%;left:10%;width:40%">Please tap, insert, or swipe your card on the terminal to your right.</div>
+    <div class="wf-el wf-rect" style="top:20%;right:8%;width:25%;height:50%;border-radius:8px;border-color:var(--color-hw)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:50%;right:12%;color:var(--color-hw)">TERMINAL →</div>
+    <div class="wf-info"><h4>PAY-01</h4><div class="info-row nav">Next: <span>PAY-02 Processing</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">PAY-02</span><span class="name">Processing</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:30%;left:50%;transform:translateX(-50%);width:60px;height:60px;border-color:var(--color-primary);border-style:solid;border-width:3px"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:58%;left:50%;transform:translateX(-50%)">Processing payment...</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:70%;left:50%;transform:translateX(-50%)">Do not remove your card</div>
+    <div class="wf-info"><h4>PAY-02</h4><div class="info-row nav">Next: <span>PAY-03 (success) or PAY-03e (fail)</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">PAY-03</span><span class="name">Success</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:24%;left:50%;transform:translateX(-50%);width:56px;height:56px;border-color:var(--color-success)"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:46%;left:50%;transform:translateX(-50%);color:var(--color-success)">Payment Successful</div>
+    <div class="wf-el wf-text" style="top:60%;left:50%;transform:translateX(-50%)">$637.00 charged</div>
+    <div class="wf-info"><h4>PAY-03</h4><div class="info-row nav">Next: <span>Auto-advances to next step in flow</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">PAY-03e</span><span class="name">Payment Failed</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:20%;left:50%;transform:translateX(-50%);width:48px;height:48px;border-color:var(--color-error)"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:42%;left:50%;transform:translateX(-50%);color:var(--color-error)">Payment Declined</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:54%;left:50%;transform:translateX(-50%)">Please try another card</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:62%;left:50%;transform:translateX(-50%);color:var(--color-amber)">Attempt 1 of 3</div>
+    <div class="wf-el wf-btn-error wf-btn" style="bottom:12%;left:10%;width:35%;height:12%"><span>TRY AGAIN</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:12%;right:10%;width:30%;height:12%"><span>REQUEST HELP</span></div>
+    <div class="wf-info"><h4>PAY-03e</h4><div class="info-row edge">Edge: <span>After 3 fails, "Request Assistance" becomes primary</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 17. AI AVATAR ==================== -->
+<section id="avatar" class="section">
+<div class="module-header"><div class="module-id">Module 17 / 24</div><h2>AI Avatar</h2><p>HeyGen-powered AI video concierge. Floating bubble on dashboard, full conversation view when opened.</p></div>
+<div class="flow-diagram"><div class="flow-node">AVT-01</div><span class="flow-arrow">--></span><div class="flow-node">AVT-02</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">AVT-01</span><span class="name">Chat Bubble</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:0;left:0;right:0;bottom:0;border:none;background:rgba(68,68,68,.1)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ Dashboard content behind ]</div>
+    <div class="wf-el wf-circle" style="bottom:12%;right:8%;width:56px;height:56px;border-color:var(--color-primary);background:rgba(129,140,248,.15)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="bottom:8%;right:6%;color:var(--color-primary)">Need help?</div>
+    <div class="wf-info"><h4>AVT-01</h4><div class="info-row">Interactions: <span>Tap to expand to full conversation</span></div><div class="info-row nav">Next: <span>AVT-02</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">AVT-02</span><span class="name">Avatar Conversation</span><span class="hw-tag">MIC + SPEAKER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:4%;left:4%;width:45%;height:55%;border-radius:8px;border-color:var(--color-primary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:30%;left:14%;color:var(--color-primary)">[ AI VIDEO FEED ]</div>
+    <div class="wf-el wf-rect" style="top:4%;right:4%;width:45%;height:55%;border-radius:8px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:10%;right:8%">How can I help you?</div>
+    <div class="wf-el wf-rect" style="top:18%;right:8%;width:35%;height:8%;border-radius:12px;background:rgba(129,140,248,.1)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:20%;right:12%">Guest: Where is the pool?</div>
+    <div class="wf-el wf-rect" style="top:30%;right:8%;width:38%;height:12%;border-radius:12px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:32%;right:12%">The pool is on the 3rd floor...</div>
+    <div class="wf-el wf-btn" style="bottom:10%;left:4%;width:22%;height:8%"><span>CHECK-IN HELP</span></div>
+    <div class="wf-el wf-btn" style="bottom:10%;left:28%;width:22%;height:8%"><span>FIND MY ROOM</span></div>
+    <div class="wf-el wf-btn" style="bottom:10%;left:52%;width:22%;height:8%"><span>ROOM SERVICE</span></div>
+    <div class="wf-el wf-circle" style="top:4%;right:4%;width:28px;height:28px;border-color:var(--color-text-secondary)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:6%;right:6%">X</div>
+    <div class="wf-info"><h4>AVT-02</h4><div class="info-row">Interactions: <span>Voice via mic, quick actions, close to minimize</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 18. DUPLICATE KEY ==================== -->
+<section id="dupkey" class="section">
+<div class="module-header"><div class="module-id">Module 18 / 24</div><h2>Duplicate Key</h2><p>Quick flow for guests who need a replacement key card. Previous card deactivated automatically.</p></div>
+<div class="flow-diagram"><div class="flow-node">DKY-01</div><span class="flow-arrow">--></span><div class="flow-node">DKY-02</div><span class="flow-arrow">--></span><div class="flow-node">DKY-03</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">DKY-01</span><span class="name">Identification</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">Need a New Key?</div>
+    <div class="wf-el wf-btn" style="top:30%;left:10%;width:35%;height:20%;border-radius:8px"><span>SCAN QR</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="top:30%;right:10%;width:35%;height:20%;border-radius:8px"><span>ENTER CODE</span></div>
+    <div class="wf-info"><h4>DKY-01</h4><div class="info-row nav">Next: <span>DKY-02</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">DKY-02</span><span class="name">Deactivation Notice</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:16%;left:50%;transform:translateX(-50%);width:40px;height:40px;border-color:var(--color-amber)"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:34%;left:50%;transform:translateX(-50%)">Previous key will be deactivated</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:48%;left:50%;transform:translateX(-50%)">Room 412 — No charge</div>
+    <div class="wf-el wf-btn" style="bottom:14%;left:10%;width:35%;height:12%"><span>CONTINUE</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:14%;right:10%;width:30%;height:12%"><span>CANCEL</span></div>
+    <div class="wf-info"><h4>DKY-02</h4><div class="info-row nav">Next: <span>DKY-03</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">DKY-03</span><span class="name">New Key Dispensed</span><span class="hw-tag">DISPENSER</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:14%;left:50%;transform:translateX(-50%);width:48px;height:48px;border-color:var(--color-success)"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:34%;left:50%;transform:translateX(-50%)">Your new key is ready!</div>
+    <div class="wf-el wf-text" style="top:48%;left:50%;transform:translateX(-50%)">Room 412</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:60%;left:50%;transform:translateX(-50%);color:var(--color-hw)">↓ Take your key card below ↓</div>
+    <div class="wf-el wf-btn" style="bottom:8%;left:50%;transform:translateX(-50%);width:35%;height:10%"><span>DONE</span></div>
+    <div class="wf-info"><h4>DKY-03</h4><div class="info-row nav">Next: <span>DSH-01</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 19. EARLY CHECK-IN ==================== -->
+<section id="earlycheckin" class="section">
+<div class="module-header"><div class="module-id">Module 19 / 24</div><h2>Early Check-in</h2><p>When room isn't ready. Options: free luggage storage with notification, or pay for immediate early check-in.</p></div>
+<div class="flow-diagram"><div class="flow-node">ECI-01</div><span class="flow-arrow">--></span><div class="flow-branch"><div class="flow-node branch">ECI-02a Luggage</div><span class="flow-arrow branch">or</span><div class="flow-node branch">ECI-02b Pay Early</div></div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ECI-01</span><span class="name">Room Not Ready</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-circle" style="top:12%;left:50%;transform:translateX(-50%);width:40px;height:40px;border-color:var(--color-amber)"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:30%;left:50%;transform:translateX(-50%)">Your room is being prepared</div>
+    <div class="wf-el wf-text" style="top:42%;left:50%;transform:translateX(-50%)">Estimated ready: 2:30 PM</div>
+    <div class="wf-el wf-btn" style="bottom:20%;left:8%;width:38%;height:16%;border-radius:8px"><span>STORE LUGGAGE
+(Free — we'll notify you)</span></div>
+    <div class="wf-el wf-btn" style="bottom:20%;right:8%;width:38%;height:16%;border-radius:8px;border-color:var(--color-amber)"><span>EARLY CHECK-IN
+$35 (if available)</span></div>
+    <div class="wf-info"><h4>ECI-01</h4><div class="info-row nav">Next: <span>ECI-02a or ECI-02b</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ECI-02a</span><span class="name">Luggage Storage</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:14%;left:50%;transform:translateX(-50%)">We'll notify you when ready</div>
+    <div class="wf-el wf-rect" style="top:32%;left:20%;right:20%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:50%;transform:translateX(-50%)">Enter phone or email</div>
+    <div class="wf-el wf-btn" style="bottom:16%;left:50%;transform:translateX(-50%);width:40%;height:12%"><span>CONFIRM</span></div>
+    <div class="wf-info"><h4>ECI-02a</h4><div class="info-row nav">Next: <span>Confirmation → DSH-01</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">ECI-02b</span><span class="name">Pay Early Check-in</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:14%;left:50%;transform:translateX(-50%)">Early Check-in: $35</div>
+    <div class="wf-el wf-text" style="top:30%;left:50%;transform:translateX(-50%)">Get your room now instead of waiting</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:44%;left:50%;transform:translateX(-50%);color:var(--color-success)">Available now</div>
+    <div class="wf-el wf-btn" style="bottom:16%;left:10%;width:35%;height:12%"><span>PAY & CHECK IN</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:16%;right:10%;width:30%;height:12%"><span>GO BACK</span></div>
+    <div class="wf-info"><h4>ECI-02b</h4><div class="info-row nav">Next: <span>PAY-01 → CKI-04 (continue check-in)</span></div><div class="info-row edge">Edge: <span>If unavailable, option is grayed out</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 20. LATE CHECKOUT ==================== -->
+<section id="latecheckout" class="section">
+<div class="module-header"><div class="module-id">Module 20 / 24</div><h2>Late Check-out</h2><p>Extend checkout time for a fee. Available during check-in upsells or standalone.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">LCO-01</span><span class="name">Late Check-out Offer</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:12%;left:50%;transform:translateX(-50%)">Extend Your Check-out?</div>
+    <div class="wf-el wf-text" style="top:28%;left:50%;transform:translateX(-50%)">Standard: 11:00 AM</div>
+    <div class="wf-el wf-text" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-primary)">Extended: 3:00 PM — $30</div>
+    <div class="wf-el wf-btn" style="bottom:16%;left:10%;width:35%;height:14%"><span>ADD LATE CHECKOUT</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:16%;right:10%;width:30%;height:14%"><span>NO THANKS</span></div>
+    <div class="wf-info"><h4>LCO-01</h4><div class="info-row nav">Next: <span>PAY or charge to room</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 21. ERROR STATES ==================== -->
+<section id="errors" class="section">
+<div class="module-header"><div class="module-id">Module 21 / 24</div><h2>Error States</h2><p>12 error states covering hardware failures, network issues, and user errors. All follow 3-attempt rule before escalation.</p></div>
+<div class="error-grid">
+  <div class="err-card"><div class="err-id">ERR-01</div><div class="err-msg">ID Scan Failed — "We couldn't read your document. Please reposition and try again."</div><div class="err-actions"><span class="err-btn">RETRY</span><span class="err-btn help">HELP (after 3)</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-02</div><div class="err-msg">Facial Match Failed — "We couldn't verify your identity. Check lighting and position."</div><div class="err-actions"><span class="err-btn">RETRY</span><span class="err-btn help">HELP (after 3)</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-03</div><div class="err-msg">Payment Declined — "Try another card or request assistance."</div><div class="err-actions"><span class="err-btn">TRY AGAIN</span><span class="err-btn help">HELP</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-04</div><div class="err-msg">Reservation Not Found — "Check your details and try again."</div><div class="err-actions"><span class="err-btn">RETRY</span><span class="err-btn help">DIFFERENT METHOD</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-05</div><div class="err-msg">Key Dispenser Error — "Issue dispensing key. Auto-retrying..."</div><div class="err-actions"><span class="err-btn help">SEE FRONT DESK</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-06</div><div class="err-msg">Network Error — "Connection issue. Please wait..."</div><div class="err-actions"><span class="err-btn">AUTO-RETRY</span><span class="err-btn help">FRONT DESK</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-07</div><div class="err-msg">No Availability — "No rooms for your dates. Try different dates."</div><div class="err-actions"><span class="err-btn">CHANGE DATES</span><span class="err-btn help">FRONT DESK</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-08</div><div class="err-msg">QR Invalid — "Couldn't read QR. Try again or enter code manually."</div><div class="err-actions"><span class="err-btn">RETRY</span><span class="err-btn help">MANUAL ENTRY</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-09</div><div class="err-msg">Terminal Offline — "Payment terminal temporarily unavailable."</div><div class="err-actions"><span class="err-btn help">CHARGE TO ROOM</span><span class="err-btn help">FRONT DESK</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-10</div><div class="err-msg">Camera Error — "Camera temporarily unavailable."</div><div class="err-actions"><span class="err-btn help">SKIP (notify staff)</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-11</div><div class="err-msg">Room Service Unavailable — "Try again later or contact front desk."</div><div class="err-actions"><span class="err-btn help">DASHBOARD</span></div></div>
+  <div class="err-card"><div class="err-id">ERR-12</div><div class="err-msg">Generic Error — "Something went wrong. Please try again."</div><div class="err-actions"><span class="err-btn">RETRY</span><span class="err-btn help">HELP</span></div></div>
+</div>
+</section>
+
+<!-- ==================== 22. INACTIVITY ==================== -->
+<section id="inactivity" class="section">
+<div class="module-header"><div class="module-id">Module 22 / 24</div><h2>Inactivity Timer</h2><p>Warning modal after 45s idle. 15s countdown. Session ends and returns to screensaver if no response.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">INA-01</span><span class="name">Inactivity Warning</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6)"></div>
+    <div class="wf-el wf-rect" style="top:20%;left:20%;right:20%;bottom:20%;border-radius:16px;border-color:var(--color-amber);background:rgba(26,26,26,.95)"></div>
+    <div class="wf-el wf-text wf-text-xl" style="top:28%;left:50%;transform:translateX(-50%)">Are you still there?</div>
+    <div class="wf-el wf-circle" style="top:38%;left:50%;transform:translateX(-50%);width:56px;height:56px;border-color:var(--color-amber);border-width:3px"></div>
+    <div class="wf-el wf-text wf-text-lg" style="top:46%;left:50%;transform:translateX(-50%);color:var(--color-amber)">15</div>
+    <div class="wf-el wf-btn" style="bottom:26%;left:25%;width:22%;height:10%"><span>END SESSION</span></div>
+    <div class="wf-el wf-btn" style="bottom:26%;right:25%;width:22%;height:10%;border-color:var(--color-success)"><span>I'M HERE</span></div>
+    <div class="wf-info"><h4>INA-01</h4><div class="info-row edge">Edge: <span>Timer 0 → clear all data → IDL-01</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 23. STAFF OVERRIDE ==================== -->
+<section id="staff" class="section">
+<div class="module-header"><div class="module-id">Module 23 / 24</div><h2>Staff Override</h2><p>Hidden admin access via 5-tap Easter egg on NEXI logo or physical rear button. PIN protected.</p></div>
+<div class="flow-diagram"><div class="flow-node">STF-01</div><span class="flow-arrow">--></span><div class="flow-node">STF-02</div><span class="flow-arrow">--></span><div class="flow-node">STF-03</div></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">STF-01</span><span class="name">Secret Access</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-rect" style="top:0;left:0;right:0;bottom:0;background:rgba(68,68,68,.05)"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:40%;left:50%;transform:translateX(-50%);color:var(--color-text-tertiary)">[ Any screen with NEXI logo visible ]</div>
+    <div class="wf-el wf-circle" style="top:50%;left:50%;transform:translateX(-50%);width:40px;height:40px;border-color:var(--color-hw);border-style:dotted"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:65%;left:50%;transform:translateX(-50%);color:var(--color-hw)">5 rapid taps here</div>
+    <div class="wf-info"><h4>STF-01</h4><div class="info-row">Interactions: <span>5 taps on logo or physical rear button</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">STF-02</span><span class="name">PIN Entry</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:12%;left:50%;transform:translateX(-50%)">Staff Access</div>
+    <div class="wf-el wf-rect" style="top:24%;left:30%;right:30%;height:10%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:27%;left:50%;transform:translateX(-50%)">* * * * * *</div>
+    <div class="wf-el wf-rect" style="top:40%;left:25%;right:25%;height:45%;border-radius:8px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:46%;left:34%">1  2  3</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:54%;left:34%">4  5  6</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:62%;left:34%">7  8  9</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:70%;left:38%">  0</div>
+    <div class="wf-info"><h4>STF-02</h4><div class="info-row edge">Edge: <span>3 fails → 5 min lockout</span></div></div>
+  </div>
+</div>
+<div class="wf-card">
+  <div class="wf-label"><span class="id">STF-03</span><span class="name">Admin Panel</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:4%;left:8%">Admin Panel</div>
+    <div class="wf-el wf-btn" style="top:4%;right:8%;width:16%;height:8%;border-color:var(--color-error)"><span>EXIT ADMIN</span></div>
+    <div class="wf-el wf-rect" style="top:16%;left:4%;width:30%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:8%">Scanner</div>
+    <div class="wf-el wf-circle" style="top:24%;left:8%;width:10px;height:10px;background:var(--color-success);border:none"></div>
+    <div class="wf-el wf-rect" style="top:16%;left:36%;width:30%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;left:40%">Camera</div>
+    <div class="wf-el wf-circle" style="top:24%;left:40%;width:10px;height:10px;background:var(--color-success);border:none"></div>
+    <div class="wf-el wf-rect" style="top:16%;right:4%;width:30%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:18%;right:8%">Dispenser</div>
+    <div class="wf-el wf-circle" style="top:24%;right:8%;width:10px;height:10px;background:var(--color-error);border:none"></div>
+    <div class="wf-el wf-rect" style="top:36%;left:4%;width:30%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:8%">Terminal</div>
+    <div class="wf-el wf-circle" style="top:44%;left:8%;width:10px;height:10px;background:var(--color-success);border:none"></div>
+    <div class="wf-el wf-rect" style="top:36%;left:36%;width:30%;height:16%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:38%;left:40%">Network</div>
+    <div class="wf-el wf-circle" style="top:44%;left:40%;width:10px;height:10px;background:var(--color-success);border:none"></div>
+    <div class="wf-el wf-btn" style="top:58%;left:4%;width:30%;height:12%"><span>RESTART SESSION</span></div>
+    <div class="wf-el wf-btn-warn wf-btn" style="top:58%;left:36%;width:30%;height:12%"><span>MAINTENANCE MODE</span></div>
+    <div class="wf-el wf-rect" style="top:74%;left:4%;right:4%;height:20%;border-radius:6px"></div>
+    <div class="wf-el wf-text wf-text-sm" style="top:76%;left:8%">Recent errors: ERR-05 Key Dispenser (2:14 AM)</div>
+    <div class="wf-el wf-text wf-text-sm" style="top:82%;left:8%;color:var(--color-text-secondary)">Software v1.0.0 | NEXI-0042</div>
+    <div class="wf-info"><h4>STF-03</h4><div class="info-row">Features: <span>HW status, restart, maintenance, error log, version</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- ==================== 24. RECEIPT ==================== -->
+<section id="receipt" class="section">
+<div class="module-header"><div class="module-id">Module 24 / 24</div><h2>Receipt / Confirmation Delivery</h2><p>Shared component. Guest chooses how to receive their receipt or confirmation.</p></div>
+<div class="screen-grid">
+<div class="wf-card">
+  <div class="wf-label"><span class="id">RCT-01</span><span class="name">Delivery Options</span></div>
+  <div class="wf-frame">
+    <div class="wf-el wf-text wf-text-lg" style="top:10%;left:50%;transform:translateX(-50%)">How would you like your receipt?</div>
+    <div class="wf-el wf-btn" style="top:28%;left:5%;width:28%;height:28%;border-radius:8px"><span>EMAIL
+Enter address</span></div>
+    <div class="wf-el wf-btn" style="top:28%;left:36%;width:28%;height:28%;border-radius:8px"><span>PHONE
+Enter number</span></div>
+    <div class="wf-el wf-btn" style="top:28%;right:5%;width:28%;height:28%;border-radius:8px"><span>QR CODE
+Scan to download</span></div>
+    <div class="wf-el wf-btn-ghost wf-btn" style="bottom:10%;left:50%;transform:translateX(-50%);width:25%;height:10%"><span>SKIP</span></div>
+    <div class="wf-info"><h4>RCT-01</h4><div class="info-row nav">Next: <span>Input screen (email/phone) or QR display, then back to flow</span></div></div>
+  </div>
+</div>
+</div></section>
+
+<!-- CREDIT -->
+<div style="text-align:center;padding:48px 0 24px;color:var(--color-text-tertiary);font-size:0.75rem;">
+  Prepared by Ruben Ramirez, Sr. UX/UI Designer -- NEXI Low-Fi Wireframes v1.0 -- February 2026
+</div>
+
+</div><!-- end main-content -->
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('sunIcon').style.display = next === 'dark' ? 'none' : 'block';
+  document.getElementById('moonIcon').style.display = next === 'dark' ? 'block' : 'none';
+  document.getElementById('themeLabel').textContent = next === 'dark' ? 'Light' : 'Dark';
+}
+
+// Sidebar active state
+const sections = document.querySelectorAll('.section');
+const navLinks = document.querySelectorAll('.sidebar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

@@ -1,215 +1,493 @@
 # CLAUDE.md — NEXI Hotel Self Check-in Kiosk
 
+## Idioma
+
+**Toda la comunicación con Ruben debe ser en español.** Mensajes, planes, explicaciones, preguntas, resúmenes — todo en español. El único inglés permitido es el código fuente, nombres de variables, comentarios en código, y contenido del UI del kiosko (que es en inglés para los huéspedes del hotel).
+
+---
+
+## Quick Reference
+
+```
+PROJECT:   nexi-prototype — Next.js 16 + React 19 + Tailwind v4 + TypeScript
+PORT:      3100 (npm run dev)
+DEPLOY:    vercel --prod --yes --force
+DEMO:      https://nexi-prototype.vercel.app
+REPO:      https://github.com/rubatrejo/nexi-prototype
+
+KEY PATHS:
+  src/components/screens/       → 82 screen files (all kiosk screens)
+  src/components/ScreenRouter.tsx → Screen ID → lazy-loaded component map
+  src/components/ui/            → Reusable components (ScreenShell, ActionButtons, ProgressBar, etc.)
+  src/lib/kiosk-context.tsx     → Global state (useKiosk hook)
+  src/lib/navigation.ts         → ScreenId type union, flows, SCREEN_META
+  src/lib/transitions.ts        → Transition logic (crossfade between modules, slide within)
+  src/lib/flow-types.ts         → Typed flowData interfaces (PaymentFlowData, BookingFlowData)
+  src/lib/hotel-config.ts       → Hotel data single source of truth (brand, rooms, images)
+  src/styles/globals.css         → Design tokens, button classes, animations
+  src/app/page.tsx               → Entry point (onboarding steps 0-6)
+
+COMMANDS:
+  npm run dev         → Dev server on port 3100
+  npm run build       → Production build
+  npm run lint        → ESLint check
+  npm run lint:fix    → ESLint auto-fix
+  npm run format      → Prettier format
+  /start              → Begin session (run every time)
+  /end                → End session (run before closing)
+```
+
+---
+
 ## What is NEXI?
 
-NEXI is a self-service kiosk product for hotels, built by TrueOmni. It handles check-in, check-out, room service, wayfinding, events, bookings, and more — all through a touchscreen interface in hotel lobbies.
+NEXI is a self-service kiosk product for hotels by TrueOmni. Guests use a touchscreen in hotel lobbies for check-in, check-out, room service, wayfinding, events, bookings, and more. This repository is a **Next.js prototype for demos and sales** — production will use Blazor + CMS.
 
-- **Brand:** NEXI, "made by TrueOmni"
-- **Hardware:** Landscape 1920x1080 / Portrait 1080x1920 (portrait is Phase 2)
-- **Production stack:** Blazor + CMS (this prototype is Next.js for demo/sales purposes)
-- **Live demo:** https://nexi-prototype.vercel.app
+Hardware target: landscape 1920×1080. Portrait is Phase 2.
 
-## Tech Stack (Prototype)
+---
 
-- **Framework:** Next.js 16 (App Router)
-- **Styling:** Tailwind CSS v4 + CSS custom properties (design tokens in `src/styles/globals.css`)
-- **Animation:** Framer Motion
-- **State:** React Context (`src/lib/kiosk-context.tsx`)
-- **i18n:** Custom provider (`src/lib/i18n/`) — EN, ES, FR, JA
-- **Transitions:** `src/lib/transitions.ts` — crossfade between modules, directional slide within flows
-- **TypeScript:** `ignoreBuildErrors: true` in next.config.ts (preexisting strict-mode issues)
+## ABSOLUTE RULES — Never Violate These
+
+These are non-negotiable. Breaking any of these is grounds for rejecting the work.
+
+1. **`var(--token)` for ALL colors.** Never hardcode hex values in screen files. The only exceptions are `#fff` for text on dark cinematic backgrounds and `rgba()` values for glass effects.
+2. **Both themes must work.** Every change must be verified in light AND dark mode. If you add a color, check `[data-theme="dark"]` in globals.css.
+3. **Mona Sans + Inter ONLY.** Display/headings use `'Mona Sans', sans-serif`. Body/UI uses `'Inter', sans-serif`. No Montserrat, Roboto, or other fonts. `docs/00-foundations.md` documents the TrueOmni CMS system (Montserrat/Open Sans) — that does NOT apply here.
+4. **Photography first.** Real photos in every element. Never use gradient placeholders. All images are local in `public/images/unsplash/`. Never use external Unsplash URLs.
+5. **Touch-first.** Large tap targets (min 44×44px). No hover-dependent UI. No tooltips as primary information. This is a kiosk operated by fingers.
+6. **Register new screens everywhere.** A new screen must be added to: `ScreenRouter.tsx` + `navigation.ts` (ScreenId type + SCREEN_META) + `transitions.ts` (FLOW_ORDER + MODULE_PREFIXES) + i18n files.
+7. **Never break existing screens.** 82 screen files are interconnected. Before changing shared code (kiosk-context, navigation, transitions, globals.css), identify ALL screens that depend on it.
+8. **Plan first, code second.** Enter Plan Mode. Iterate the plan with Ruben until he says "approved" or "proceed". Only then execute. For large features, Claude can 1-shot the entire block once approved.
+9. **No new npm packages without approval.** Ask before adding any dependency.
+10. **Inline styles with CSS variables.** Screens use inline styles with `var(--token)`, not Tailwind classes. Tailwind is available but inline styles give precise kiosk control.
+
+---
+
+## Anti-Patterns — NEVER Do These
+
+These are mistakes that have happened before. Read them carefully.
+
+- **DON'T use heavy transitions.** No blur/scale effects on screen changes. Ruben explicitly rejected these. Transitions are subtle: opacity crossfade between modules, 40px slide within flows.
+- **DON'T change `zoom: 1.4` on KioskFrame** without testing extensively. It compensates for rem-based content sizing in a viewport-relative container.
+- **DON'T reverse the provider order.** `I18nProvider` MUST wrap `KioskProvider`. Reversing this breaks translations silently.
+- **DON'T confuse file names with Screen IDs.** Files omit the dash (`CKI01.tsx`), IDs include it (`"CKI-01"`). Getting this wrong causes screens to not load.
+- **DON'T use `as any` for Screen IDs.** Use the `ScreenId` type from `navigation.ts`. If a screen doesn't exist in the type, add it.
+- **DON'T modify flowData field names** without grepping ALL screens that use them. The payment pipeline crosses 6+ screens.
+- **DON'T add external image URLs.** All images must be local. Download and save to `public/images/unsplash/` if you need a new one.
+- **DON'T use generic sans-serif for display text.** Mona Sans is the display font. Period.
+- **DON'T add `console.log` to production code.** Use it for debugging, remove before committing.
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Version |
+|-------|-----------|---------|
+| Framework | Next.js (App Router) | 16.1.6 |
+| UI | React | 19.2.4 |
+| Styling | Tailwind CSS v4 + CSS custom properties | 4.2.1 |
+| Animation | Framer Motion | 12.34.3 |
+| Maps | Leaflet + react-leaflet | 1.9.4 / 5.0.0 |
+| AI Avatar | @heygen/streaming-avatar | 2.1.0 |
+| Email | Resend | 6.9.4 |
+| Language | TypeScript (strict mode) | 5.9.3 |
+| Linter | ESLint (flat config) | 10+ |
+| Formatter | Prettier | 3.8+ |
+
+---
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Main entry — onboarding flow → kiosk demo → ROI calculator
-│   ├── layout.tsx            # Root layout, font loading
-│   └── api/                  # API routes (send-welcome, heygen, tavus, did-stream)
+│   ├── page.tsx                    # Entry — onboarding (steps 0-4) → kiosk demo (step 5) → ROI (step 6)
+│   ├── layout.tsx                  # Root layout, Google Fonts (Mona Sans + Inter)
+│   ├── theme-wrapper.tsx           # ThemeProviderWrapper (client component)
+│   └── api/                        # API routes: send-welcome, heygen-token, tavus, did-stream
 ├── components/
+│   ├── ScreenRouter.tsx            # Maps screen IDs → lazy-loaded components (with ErrorBoundary)
 │   ├── layout/
-│   │   ├── KioskFrame.tsx    # THE wrapper — kiosk chrome, theme toggle, guest/reservation toggle, footer
-│   │   └── GlobalHeader.tsx  # Header component
-│   ├── screens/              # 82 screen files (see Screen Map below)
-│   ├── onboarding/           # OnboardingWelcome, OnboardingSlides, OrientationSelect, ROICalculator
-│   └── ui/                   # Shared UI (ErrorModal, AIConcierge, InactivityModal, ScreenNav, Icons)
+│   │   ├── KioskFrame.tsx          # Main kiosk wrapper (zoom 1.4, theme toggle, footer)
+│   │   ├── GlobalHeader.tsx        # Hotel name, date/time, weather (48px bar)
+│   │   └── ScreenLayout.tsx        # Shared layout wrapper
+│   ├── screens/                    # 82 screen files (CKI01.tsx → WIF01.tsx)
+│   ├── onboarding/                 # OnboardingWelcome, OnboardingSlides, OrientationSelect, ROICalculator
+│   └── ui/                         # Reusable components:
+│       ├── ScreenShell.tsx         # Standard screen wrapper (default + cinematic variants)
+│       ├── ProgressBar.tsx         # Step progress bar (step/total)
+│       ├── ActionButtons.tsx       # Back + Continue button row
+│       ├── PageTitle.tsx           # Screen title + subtitle
+│       ├── GlassCard.tsx           # Frosted glass card for cinematic screens
+│       ├── ErrorBoundary.tsx       # React error boundary (wraps each screen)
+│       ├── Icons.tsx               # SVG icon library
+│       ├── AIConcierge.tsx         # AI assistant widget
+│       └── InactivityModal.tsx     # "Are you still there?" modal
 ├── lib/
-│   ├── kiosk-context.tsx     # Global state: currentScreen, theme, guestMode, navigation, inactivity
-│   ├── hotel-config.ts       # Hotel configuration (name, branding, modules, inactivity timers)
-│   ├── i18n/                 # Translation system (en.ts, es.ts, fr.ts, ja.ts, index.tsx, types.ts)
-│   ├── transitions.ts        # Screen transition logic
-│   ├── theme-provider.tsx    # Theme context
-│   └── use-toast.tsx         # Toast notifications
+│   ├── kiosk-context.tsx           # Global state: currentScreen, theme, guestMode, navigation, inactivity
+│   ├── navigation.ts              # ScreenId type union, flow arrays, SCREEN_META
+│   ├── flow-types.ts              # Typed flowData interfaces (PaymentFlowData, BookingFlowData, FlowData)
+│   ├── hotel-config.ts            # Hotel configuration (brand, colors, modules, rooms, images, timers)
+│   ├── transitions.ts             # Screen transition logic (crossfade vs directional slide)
+│   ├── theme-provider.tsx         # Theme context
+│   ├── use-toast.tsx              # Toast notifications
+│   └── i18n/                      # Translation system: I18nProvider, useI18n(), t("key")
+│       ├── index.tsx              # Provider + hook + t() function
+│       ├── types.ts               # Translation key types
+│       └── en.ts, es.ts, fr.ts, ja.ts  # ~110 keys each
 ├── styles/
-│   └── globals.css           # Design tokens (CSS variables), dark/light themes, grain texture, animations
+│   └── globals.css                # Design tokens, dark/light themes, button classes, grain, animations
 public/
-├── images/unsplash/          # 106 local images (no external dependencies)
-└── fonts/                    # Mona Sans, Inter
+├── images/unsplash/               # 106 local images — NO external URLs
+├── logos/                         # NEXI + TrueOmni SVG logos
+└── *.mp4                          # face-scan, passport-scan animations
 docs/
-├── screen-map.html           # Visual map of all 78 screens with navigation flows
-├── 00-foundations.md          # Design system foundations (colors, typography, spacing)
-├── NEXI-Visual-Styles.html   # 5 style explorations (Nordic Cinematic won)
-├── style-options.html        # TrueOmni 3 style options moodboard
-├── design-system-doc.html    # Full design system documentation
-└── web-interface-guidelines.md # Vercel Web Interface Guidelines (QA checklist)
+├── screen-map.html                # Visual map of all screens and flows (open in browser)
+├── design-system-doc.html         # Full design token reference
+└── web-interface-guidelines.md    # QA checklist
 ```
+
+---
+
+## Provider Hierarchy (Critical)
+
+```
+ThemeProvider (layout.tsx) → I18nProvider → KioskProvider → KioskFrame → ScreenRouter → ErrorBoundary → [Screen]
+```
+
+**I18nProvider MUST wrap KioskProvider** — never reverse this.
+
+---
 
 ## 16 Kiosk Modules
 
-1. **Self Check-in** (CKI) — ID scan, reservation lookup, room assignment, key card
-2. **Self Check-out** (CKO) — bill review, payment, receipt
-3. **Room Booking** (BKG) — date selection, room browsing, reservation
-4. **Room Service** (RSV) — menu, cart, order, payment
-5. **Wayfinding** (WAY) — interactive floor map
-6. **Events & Activities** (EVT) — calendar, booking, details
-7. **Local Listings** (LST) — restaurants, attractions, map
-8. **Wi-Fi Connect** (WIF) — one-tap connection
-9. **FAQ** (FAQ) — searchable help
-10. **Upsells** (UPS) — spa, dining, upgrades
-11. **Ads** (ADS) — banner/header/popup
-12. **TruePay** (PAY) — payment terminal
-13. **Late Check-out** (LCO) — availability, payment
-14. **Early Check-in** (ECI) — fee, payment
-15. **Duplicate Key** (DKY) — key card replacement
-16. **AI Avatar** (AVT) — HeyGen/D-ID integration
+| Module | Code | Entry | Screens |
+|--------|------|-------|---------|
+| Self Check-in | CKI | CKI-01 | 18 screens (CKI-01 → CKI-16) |
+| Self Check-out | CKO | CKO-01 | 7 screens (CKO-00 → CKO-06) |
+| Room Booking | BKG | BKG-01 | 8 screens |
+| Room Service | RSV | RSV-01 | 9 screens |
+| Wayfinding | WAY | WAY-01 | 2 screens |
+| Events & Activities | EVT | EVT-01 | 5 screens |
+| Local Listings | LST | LST-01 | 3 screens |
+| Wi-Fi | WIF | WIF-01 | 1 screen |
+| FAQ | FAQ | FAQ-01 | 1 screen |
+| Upsells | UPS | UPS-01 | 3 screens |
+| Ads | ADS | ADS-01 | 1 screen |
+| TruePay | PAY | PAY-01 | 4 screens |
+| Late Check-out | LCO | LCO-01 | 2 screens |
+| Early Check-in | ECI | ECI-01 | 3 screens |
+| Duplicate Key | DKY | DKY-01 | 3 screens |
+| AI Avatar | AVT | AVT-01 | 2 screens |
 
-Plus: Idle (IDL), Dashboard (DSH), Action Select (ONB), Staff Admin (STF), Inactivity (INA), Room Check-in Terminal (RCT)
+Utility screens: IDL-01 (Idle), DSH-01 (Dashboard), ONB-02 (Action Select), STF-01→03 (Staff), INA-01 (Inactivity), RCT-01 (Receipt)
 
-## Screen Naming Convention
+---
 
-`[MODULE][NUMBER][variant]` — e.g., `CKI01` (Check-in step 1), `CKI01q` (quick variant), `RSV05p` (portrait variant)
+## Screen Conventions
 
-## Visual Style: Nordic Cinematic (LOCKED)
+**Naming:** `[MODULE]-[NUMBER][variant]` → `CKI-01`, `CKI-01q` (QR), `RSV-05p` (portrait), `CKI-05e` (error)
 
-The approved design direction. Do not deviate.
+**Files omit the dash:** `CKI01.tsx` → Screen ID `"CKI-01"`
 
-### Typography
-- **Display/Headings:** Mona Sans (variable weight 400-800)
-- **Body/UI:** Inter
-- Never use generic sans-serif for display (no Montserrat, no Roboto)
+**Every screen file follows this structure:**
 
-### Color Palette
+```tsx
+"use client";
 
-#### Light Mode (default)
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--bg` | #F5F5F0 | Page background |
-| `--bg-card` | #FFFFFF | Card surfaces |
-| `--primary` | #1288FF | Primary actions, accent |
-| `--primary-hover` | #0B6FD4 | Hover state |
-| `--text` | #1A1A1A | Primary text |
-| `--text-secondary` | #6B7280 | Secondary text |
-| `--border` | #E8E8E3 | Borders, dividers |
-| `--success` | #16A34A | Confirmations |
-| `--error` | #DC2626 | Errors |
+import { useKiosk } from "@/lib/kiosk-context";
+import { useI18n } from "@/lib/i18n";
+import GlobalHeader from "@/components/layout/GlobalHeader";
 
-#### Dark Mode
-| Token | Hex | Usage |
-|-------|-----|-------|
-| `--bg` | #0C0C0E | Page background |
-| `--bg-card` | #1A1A1F | Card surfaces |
-| `--primary` | #1288FF | Same accent (consistent) |
-| `--text` | #F0F0F0 | Primary text |
-| `--text-secondary` | #8E93A4 | Secondary text |
-| `--border` | #2A2A30 | Borders |
+export default function ScreenName() {
+  const { navigate, goBack } = useKiosk();
+  const { t } = useI18n();
 
-### Design Principles
-- **Photography is everything** — real photos in every element, never gradient placeholders
-- **Film grain + texture** — subtle SVG noise overlay for editorial depth (`.grain` class)
-- **Ken Burns** on hero images (CSS `kenBurns` animation)
-- **The content IS the interface** — minimize UI chrome, let photos and typography do the work
-- **Bottom sheets > side panels** for detail views (natural for touch)
-- **Glass cards** with `backdrop-filter: blur()` over photography backgrounds
-- **Generous whitespace** — Nordic clean aesthetic
-- **Motion with purpose** — cubic-bezier transitions, staggered fadeUp reveals
-- **Crossfade** between modules, **directional slide** within flows
+  return (
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
+      <GlobalHeader />
+      <div style={{ flex: 1, padding: "0 48px" }}>
+        {/* Content — always use var(--token) for colors */}
+      </div>
+    </div>
+  );
+}
+```
 
-### Spacing System
-- Base unit: 4px
-- Common: 8, 12, 16, 20, 24, 32, 40, 48, 64
-- Border radius tokens: `--radius-sm: 8px`, `--radius-md: 12px`, `--radius-lg: 16px`, `--radius-xl: 20px`, `--radius-full: 9999px`
+**Or use the reusable components:**
 
-## KioskFrame — How It Works
+```tsx
+"use client";
 
-The `KioskFrame` component wraps all kiosk content. Key details:
+import { useKiosk } from "@/lib/kiosk-context";
+import { useI18n } from "@/lib/i18n";
+import ScreenShell from "@/components/ui/ScreenShell";
+import ProgressBar from "@/components/ui/ProgressBar";
+import PageTitle from "@/components/ui/PageTitle";
+import ActionButtons from "@/components/ui/ActionButtons";
 
-- **Viewport:** `52vw / max-width 980px` with `zoom: 1.4` — this makes content render at proper kiosk proportions inside the browser demo
-- **Aspect ratio:** 16:9 (landscape)
-- **Theme toggle:** Light/Dark mode via `data-theme` attribute
-- **Guest/Reservation toggle:** Switches between guest and reservation flows
-- **Footer:** "Back to Our Solutions" + "Calculate Your ROI" buttons + "Powered by TrueOmni" logo
-- **Background:** `#E8E8E3` (warm light gray)
+export default function ScreenName() {
+  const { navigate } = useKiosk();
+  const { t } = useI18n();
 
-**CRITICAL:** Do not change the `zoom: 1.4` value without testing. It compensates for rem-based content sizing in a viewport-relative container.
+  return (
+    <ScreenShell>
+      <ProgressBar step={3} total={8} />
+      <PageTitle title={t("module.title")} subtitle={t("module.subtitle")} />
+      {/* Content */}
+      <ActionButtons nextScreen="NEXT-01" />
+    </ScreenShell>
+  );
+}
+```
 
-## Onboarding Flow (5 steps + ROI)
+---
 
-1. **Welcome** (step 0) — 65/35 split, name/email/hotel form, corporate email validation
-2. **Slide 1** (step 1) — Cinematic takeover hero
-3. **Slide 2** (step 2) — Dark module cards (6 modules)
-4. **Slide 3** (step 3) — Stats bento (4 glass cards) + CTA
-5. **Orientation** (step 4) — Landscape (active) / Portrait (Coming Soon)
-6. **Demo** (step 5) — Full kiosk experience
-7. **ROI Calculator** (step 6) — Input rooms/staff/costs, calculates savings
+## Adding a New Screen — Checklist
 
-The guest name from the welcome form flows to ALL kiosk screens (personalized experience).
+1. Create file in `src/components/screens/MOD01.tsx`
+2. Add to `ScreenRouter.tsx`: `"MOD-01": dynamic(() => import("./screens/MOD01"))`
+3. Add to `navigation.ts`: ScreenId union type + SCREEN_META entry
+4. Add to `transitions.ts`: FLOW_ORDER array + MODULE_PREFIXES entry
+5. Add i18n keys to `en.ts`, `es.ts`, `fr.ts`, `ja.ts`
+6. **Verify:** both themes, navigation forward/back, transitions work
 
-## i18n System
-
-- **Provider:** `src/lib/i18n/index.tsx` (I18nProvider, useI18n hook, `t("key")` function)
-- **Languages:** EN, ES, FR, JA (~110 keys each)
-- **Language selector:** In ONB02 (Action Select screen) — DO NOT CHANGE this UI
-- **CRITICAL:** I18nProvider MUST wrap KioskProvider in page.tsx (step >= 5)
-- Phase 1 done (9 core screens). Phase 2 pending (secondary modules)
+---
 
 ## Navigation System
 
-Screens navigate via `navigate("SCREEN-CODE")` from `useKiosk()` context. The `ScreenRouter` maps screen codes to lazy-loaded components. All navigation is defined within individual screen files.
+| Method | Purpose |
+|--------|---------|
+| `navigate(screenId)` | Go to specific screen (pushes to history) |
+| `goBack()` | Pop history stack |
+| `goHome()` | Jump to DSH-01, clear history |
+| `toggleTheme()` | Switch light/dark |
+| `toggleGuestMode()` | Switch guest/reservation data view |
+| `setGuestData({...})` | Update guest session data |
+| `setFlowData({...})` | Persist typed data across screens (see FlowData) |
+| `openModal(id, data)` | Show modal overlay |
+| `closeModal()` | Dismiss modal |
 
-## Development
+**Debug:** Add `?screen=CKI-05` to URL to jump directly to any screen.
 
-```bash
-npm install
-npm run dev        # starts on localhost:3000
+---
+
+## flowData — Typed Cross-Screen Data
+
+flowData passes data between screens within a flow. Types are defined in `src/lib/flow-types.ts`.
+
+### Payment Pipeline (most critical)
+
+```
+PRODUCERS (set flowData)              CONSUMERS (read flowData)
+──────────────────────────────        ────────────────────────
+ECI-03 (Early Check-in Fee)      →   PAY-02 reads: payAmount
+EVT-02 (Event Reservation)      →   PAY-03 reads: payAmount, payTitle, payNextScreen
+LCO-01 (Late Check-out)         →   LCO-02 reads: payAmount
+
+Flow: Module sets flowData → PAY-02 (processing) → PAY-03 (confirmation) → payNextScreen
 ```
 
-## Deployment
+### Rules
 
-```bash
-vercel --prod --yes --force
+- flowData resets on `resetSession()` or navigation to IDL-01
+- Always provide defaults when reading: `flowData.payAmount || "$0.00"`
+- If adding a new field, add it to `flow-types.ts` AND document it here
+- If renaming a field, grep ALL screens that use it
+
+---
+
+## Design System: Nordic Cinematic (LOCKED)
+
+### Color Tokens
+
+Always use `var(--token)`. Reference `src/styles/globals.css` for the full list.
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--bg` | #F5F5F0 | #0C0C0E | Page background |
+| `--bg-card` | #FFFFFF | #1A1A1F | Card surfaces |
+| `--bg-elevated` | #FFFFFF | #222228 | Elevated surfaces |
+| `--primary` | #1288FF | #1288FF | Primary actions |
+| `--text` | #1A1A1A | #F0F0F0 | Primary text |
+| `--text-secondary` | #6B7280 | #8E93A4 | Secondary text |
+| `--border` | #E8E8E3 | #2A2A30 | Borders |
+| `--success` | #16A34A | #22C55E | Confirmations |
+| `--error` | #DC2626 | #EF4444 | Errors |
+| `--amber` | #D4960A | #E5A91B | Warnings, highlights |
+| `--purple` | #8B5CF6 | #A78BFA | Booking, events |
+
+### Typography
+
+- **Display/Headings:** `fontFamily: "'Mona Sans', sans-serif"` — weight 400-800
+- **Body/UI:** `fontFamily: "'Inter', sans-serif"` — weight 400
+- CSS `h1-h6` are auto-set to Mona Sans in globals.css
+
+### Spacing & Radius
+
+- Base unit: 4px. Common: 8, 12, 16, 20, 24, 32, 40, 48, 64
+- `--radius-sm: 8px`, `--radius-md: 12px`, `--radius-lg: 16px`, `--radius-xl: 20px`, `--radius-full: 9999px`
+
+### CSS Classes (globals.css)
+
+| Class | Purpose |
+|-------|---------|
+| `.btn .btn-primary` | Blue CTA button |
+| `.btn .btn-ghost` | Transparent with border |
+| `.btn .btn-amber` | Amber CTA |
+| `.btn-lg` / `.btn-sm` | Size variants |
+| `.glass-card` | Frosted glass card (blur 24px) |
+| `.grain` | Film grain SVG overlay (position absolute, inset 0) |
+| `.kiosk-viewport` | Kiosk frame (60vw, 16:9) |
+
+### Design Principles
+
+1. **Photography is everything** — real photos, never gradient placeholders
+2. **Film grain + texture** — subtle `.grain` overlay for editorial depth
+3. **The content IS the interface** — minimize UI chrome
+4. **Bottom sheets > side panels** for detail views (touch natural)
+5. **Glass cards** with `backdrop-filter: blur()` over photography
+6. **Generous whitespace** — Nordic clean aesthetic
+7. **Subtle motion** — Framer Motion, staggered fadeUp, cinematic easing `[0.22, 1, 0.36, 1]`
+
+---
+
+## Transitions
+
+- **Between modules** (CKI → RSV): Crossfade (opacity, 250ms)
+- **Forward within module** (CKI-01 → CKI-02a): Slide right (x: 40→0, 250ms)
+- **Backward within module** (CKI-03 → CKI-01): Slide left (x: -40→0, 250ms)
+
+Direction is auto-detected from `FLOW_ORDER` in `transitions.ts`.
+
+---
+
+## KioskFrame Details
+
+- **Viewport:** `52vw / max-width: 980px` with `zoom: 1.4`
+- **Aspect ratio:** 16:9 (landscape)
+- **Theme:** `data-theme` attribute on the kiosk frame div — CSS variables respond automatically
+- **Background:** `#E8E8E3` (warm gray, outside the kiosk)
+- **CRITICAL:** Do not change `zoom: 1.4` without testing. It compensates for rem sizing in a viewport container.
+
+---
+
+## Hotel Configuration
+
+`src/lib/hotel-config.ts` — single source of truth for: brand identity, colors, fonts, 16 modules, 3 room types, 3 upgrades, images, guest defaults, hotel info, inactivity timers.
+
+Defaults: guest "Guest", room "1247", reservation "RES-2026-48291", inactivity warning 90s, reset 30s.
+
+In production, the CMS generates this per hotel.
+
+---
+
+## i18n
+
+- 4 languages: EN, ES, FR, JA (~110 keys each)
+- Use `const { t } = useI18n()` then `t("cki.lookup.title")`
+- Phase 1 done (9 core screens). Phase 2 pending (secondary modules)
+- Fallback: hardcoded English where Phase 2 keys are pending
+
+---
+
+## Onboarding Flow (page.tsx)
+
+| Step | Component | Purpose |
+|------|-----------|---------|
+| 0 | OnboardingWelcome | Lead capture form (name, email, hotel, rooms) |
+| 1-3 | OnboardingSlides | Product pitch (hero, modules, stats) |
+| 4 | OrientationSelect | Landscape (active) / Portrait (Coming Soon) |
+| 5 | KioskFrame + ScreenRouter | Full kiosk demo |
+| 6 | ROICalculator | Post-demo ROI estimator |
+
+Guest name from step 0 flows to all kiosk screens via `guestNameOverride` prop.
+
+---
+
+## Environment Variables
+
+Required in `.env.local` (never committed):
+
+```
+RESEND_API_KEY=           # Welcome email API
+HEYGEN_API_KEY=           # AI avatar streaming
+TAVUS_API_KEY=            # Tavus avatar API
+DID_API_KEY=              # D-ID avatar streaming
 ```
 
-The project is linked to `rubatrejo-gmailcoms-projects/nexi-prototype` on Vercel.
+---
 
-## Working with GSD-2 (Optional)
+## Reusable Components (src/components/ui/)
 
-For autonomous milestone-based development, install [GSD-2](https://github.com/gsd-build/gsd-2):
+Use these when building new screens. Existing screens can adopt them gradually.
 
-```bash
-npm install -g gsd-pi
-gsd                # interactive mode
-/gsd auto          # autonomous mode — walks away, comes back to built features
+| Component | Purpose | When to use |
+|-----------|---------|-------------|
+| `ScreenShell` | Standard screen wrapper | Every screen — replaces the outer div + GlobalHeader boilerplate |
+| `ProgressBar` | Step indicator (1/8) | Multi-step flows (check-in, booking, etc.) |
+| `ActionButtons` | Back + Continue row | Bottom of any screen with navigation |
+| `PageTitle` | Title + subtitle | Centered page headings |
+| `GlassCard` | Frosted glass card | Cinematic/overlay screens (payment, confirmations) |
+| `ErrorBoundary` | Error catching | Already wraps every screen in ScreenRouter |
+
+---
+
+## Quality Gates — Definition of Done
+
+### Before marking ANY work as complete, verify ALL of these:
+
+**Visual:**
+- [ ] Works in light mode
+- [ ] Works in dark mode
+- [ ] No hardcoded hex colors (only `var(--token)`)
+- [ ] Fonts are Mona Sans (headings) + Inter (body) only
+- [ ] Images are local (`/images/unsplash/`)
+- [ ] Touch targets are ≥44×44px
+
+**Functional:**
+- [ ] Navigation forward works
+- [ ] Navigation back works (goBack returns to correct screen)
+- [ ] Transitions are correct (crossfade between modules, slide within)
+- [ ] No console errors in browser dev tools
+- [ ] No TypeScript errors (`npm run build` passes)
+
+**Integration:**
+- [ ] New screens registered in ScreenRouter, navigation.ts, transitions.ts
+- [ ] i18n keys added for any new user-facing text
+- [ ] flowData fields typed in flow-types.ts if cross-screen data is added
+- [ ] No existing screens broken (spot-check 3-5 related screens)
+
+**Code:**
+- [ ] No `as any` casts for ScreenIds — update the type union
+- [ ] No unused imports
+- [ ] No `console.log` left in code
+- [ ] Consistent with existing code patterns
+
+---
+
+## Workflow — How to Approach Any Task
+
+```
+1. UNDERSTAND  → What exactly is being asked? Ask clarifying questions.
+2. SCOPE       → Which screens, modules, and files are affected?
+3. PLAN        → List every file to modify. Wait for approval.
+4. IMPLEMENT   → Make changes across all affected files.
+5. VERIFY      → Run through Quality Gates checklist above.
+6. SIMPLIFY    → Remove dead code, consolidate duplicate patterns.
 ```
 
-Use when adding new modules or large features. Not needed for fixes or small changes.
+**Before touching any screen:** check `docs/screen-map.html` to understand navigation flows.
 
-## Rules
+**Before large changes:** create a plan listing all files and potential side effects. Wait for Ruben's approval.
 
-1. **Never break existing screens** — there are 82 screen files, all interconnected
-2. **Follow the Nordic Cinematic style** — no generic UI, no gradient placeholders, always use photography
-3. **Test both themes** — every change must work in light AND dark mode
-4. **Use design tokens** — never hardcode colors, use CSS variables from globals.css
-5. **Keep transitions subtle** — Ruben rejected heavy blur/scale effects
-6. **Images are local** — all in `public/images/unsplash/`, no external Unsplash URLs
-7. **Screen files are self-contained** — each screen handles its own layout, state, and navigation
-8. **Touch-first** — this is a kiosk, design for fingers not cursors
-9. **Accessibility is Phase 2** — ADA compliance planned, not blocking current work
-10. **English first** — i18n exists but English is the primary language
+---
 
-## Reference Docs
+## Common Gotchas
 
-- `docs/screen-map.html` — Open in browser to see all 78 screens visually
-- `docs/00-foundations.md` — Design tokens, color scales, typography
-- `docs/web-interface-guidelines.md` — QA checklist for web interfaces
-- `docs/NEXI-Visual-Styles.html` — Visual style exploration (Nordic Cinematic won)
+- **`ignoreBuildErrors: true`** in `next.config.ts` — TS errors don't block builds. Fix them properly anyway.
+- **Dynamic imports in ScreenRouter** — unregistered screens silently show Placeholder.
+- **`data-theme` is on the kiosk frame div**, not on `<html>` — theme CSS variables only work inside KioskFrame.
+- **Fonts from Google Fonts** — not self-hosted, so offline demos won't have correct typography.
+- **ScreenId type** — 81+ member union. Adding a new screen without updating this causes TypeScript errors on `navigate()`.

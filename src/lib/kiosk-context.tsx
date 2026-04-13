@@ -11,6 +11,7 @@ import {
 } from "react";
 import type { ScreenId } from "./navigation";
 import { hotelConfig } from "./hotel-config";
+import type { FlowData } from "./flow-types";
 
 // Configuration
 const INACTIVITY_WARNING_MS = hotelConfig.inactivity.warningAfterMs;
@@ -35,7 +36,7 @@ interface KioskState {
   // Demo mode
   guestMode: boolean;
   // Flow data (persists across navigation)
-  flowData: Record<string, unknown>;
+  flowData: FlowData;
   inactivityVisible: boolean;
 }
 
@@ -49,7 +50,7 @@ interface KioskContextType extends KioskState {
   openModal: (id: string, data?: Record<string, unknown>) => void;
   closeModal: () => void;
   toggleGuestMode: () => void;
-  setFlowData: (data: Record<string, unknown>) => void;
+  setFlowData: (data: Partial<FlowData>) => void;
   setInactivityVisible: (v: boolean) => void;
   // Inactivity actions
   dismissInactivityWarning: () => void;
@@ -170,7 +171,7 @@ export function KioskProvider({
     setState((prev) => ({ ...prev, guestMode: !prev.guestMode }));
   }, []);
 
-  const setFlowData = useCallback((data: Record<string, unknown>) => {
+  const setFlowData = useCallback((data: Partial<FlowData>) => {
     setState((prev) => ({
       ...prev,
       flowData: { ...prev.flowData, ...data },

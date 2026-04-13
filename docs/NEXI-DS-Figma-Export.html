@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1600">
+  <title>NEXI Design System — Figma Export</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mona+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 1600px;
+      margin: 0 auto;
+      font-family: 'Inter', sans-serif;
+      background: #EAEAE5;
+      color: #1A1A1A;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout Utilities ── */
+    .page { display: flex; flex-direction: column; gap: 0; width: 1600px; }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      padding: 64px 48px;
+      border-bottom: 1px solid #D1D1CC;
+      background: #F5F5F0;
+    }
+
+    .section-title {
+      font-family: 'Mona Sans', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #1A1A1A;
+      letter-spacing: -0.02em;
+      padding-bottom: 16px;
+      border-bottom: 3px solid #1288FF;
+      display: inline-block;
+    }
+
+    .section-subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #6B7280;
+      margin-top: -20px;
+    }
+
+    .dual-panel {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+      width: 100%;
+    }
+
+    .panel-light {
+      flex: 1;
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid #E8E8E3;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel-dark {
+      flex: 1;
+      background: #1A1A1F;
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid #2A2A30;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel-label {
+      font-family: 'Mona Sans', sans-serif;
+      font-size: 0.625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-self: flex-start;
+    }
+    .panel-label-light { background: #F5F5F0; color: #6B7280; }
+    .panel-label-dark { background: #222228; color: #8E93A4; }
+
+    .subsection-title {
+      font-family: 'Mona Sans', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .subsection-title-light { color: #1A1A1A; }
+    .subsection-title-dark { color: #F0F0F0; }
+
+    /* ── Color Swatches ── */
+    .swatch-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .swatch {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      width: 100px;
+    }
+
+    .swatch-color {
+      width: 80px;
+      height: 56px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .swatch-name {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .swatch-name-light { color: #1A1A1A; }
+    .swatch-name-dark { color: #F0F0F0; }
+
+    .swatch-hex {
+      font-size: 0.625rem;
+      font-weight: 500;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      margin-top: -4px;
+    }
+    .swatch-hex-light { color: #9CA3AF; }
+    .swatch-hex-dark { color: #5A5E6E; }
+
+    /* ── Type Scale ── */
+    .type-row {
+      display: flex;
+      flex-direction: row;
+      align-items: baseline;
+      gap: 20px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .type-row-dark { border-bottom-color: rgba(255,255,255,0.06); }
+
+    .type-meta {
+      width: 160px;
+      flex-shrink: 0;
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .type-meta-light { color: #9CA3AF; }
+    .type-meta-dark { color: #5A5E6E; }
+
+    /* ── Spacing Bars ── */
+    .spacing-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 32px;
+    }
+
+    .spacing-label {
+      width: 48px;
+      text-align: right;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .spacing-label-light { color: #6B7280; }
+    .spacing-label-dark { color: #8E93A4; }
+
+    .spacing-bar-light { height: 20px; background: #1288FF; border-radius: 4px; opacity: 0.7; }
+    .spacing-bar-dark { height: 20px; background: #1288FF; border-radius: 4px; opacity: 0.8; }
+
+    /* ── Radius Examples ── */
+    .radius-grid { display: flex; gap: 20px; flex-wrap: wrap; }
+    .radius-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .radius-box { width: 72px; height: 72px; }
+    .radius-box-light { background: #1288FF; opacity: 0.15; border: 2px solid #1288FF; }
+    .radius-box-dark { background: rgba(18,136,255,0.2); border: 2px solid #1288FF; }
+    .radius-name { font-size: 0.6875rem; font-weight: 600; }
+    .radius-name-light { color: #1A1A1A; }
+    .radius-name-dark { color: #F0F0F0; }
+    .radius-val { font-size: 0.625rem; font-weight: 500; }
+    .radius-val-light { color: #9CA3AF; }
+    .radius-val-dark { color: #5A5E6E; }
+
+    /* ── Shadow Cards ── */
+    .shadow-grid { display: flex; gap: 24px; }
+    .shadow-card {
+      width: 200px;
+      height: 100px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+    .shadow-card-light { background: #FFFFFF; }
+    .shadow-card-dark { background: #222228; color: #F0F0F0; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .btn-lg { height: 52px; padding: 0 28px; font-size: 0.9375rem; border-radius: 14px; }
+    .btn-md { height: 44px; padding: 0 24px; font-size: 0.875rem; }
+    .btn-sm { height: 36px; padding: 0 16px; font-size: 0.8125rem; border-radius: 10px; }
+    .btn-pill { border-radius: 9999px; }
+
+    .btn-primary-light { background: #1288FF; color: #FFFFFF; }
+    .btn-primary-dark { background: #1288FF; color: #FFFFFF; }
+    .btn-ghost-light { background: transparent; color: #1A1A1A; border: 1px solid #E8E8E3; }
+    .btn-ghost-dark { background: transparent; color: #F0F0F0; border: 1px solid #2A2A30; }
+    .btn-amber-light { background: #D4960A; color: #FFFFFF; }
+    .btn-amber-dark { background: #E5A91B; color: #0C0C0E; }
+    .btn-danger-light { background: #DC2626; color: #FFFFFF; }
+    .btn-danger-dark { background: #EF4444; color: #FFFFFF; }
+    .btn-tab-light { background: rgba(18,136,255,0.08); color: #1288FF; font-weight: 600; border-radius: 9999px; }
+    .btn-tab-dark { background: rgba(18,136,255,0.12); color: #1288FF; font-weight: 600; border-radius: 9999px; }
+    .btn-tab-inactive-light { background: transparent; color: #6B7280; font-weight: 500; border-radius: 9999px; }
+    .btn-tab-inactive-dark { background: transparent; color: #8E93A4; font-weight: 500; border-radius: 9999px; }
+
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ── Inputs ── */
+    .input-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    .input-label { font-size: 0.75rem; font-weight: 600; }
+    .input-label-light { color: #1A1A1A; }
+    .input-label-dark { color: #F0F0F0; }
+
+    .input-box {
+      height: 48px;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .input-box-light { background: #F5F5F0; border: 1px solid #E8E8E3; color: #1A1A1A; }
+    .input-box-dark { background: #0C0C0E; border: 1px solid #2A2A30; color: #F0F0F0; }
+    .input-placeholder-light { color: #9CA3AF; }
+    .input-placeholder-dark { color: #5A5E6E; }
+
+    .input-search-icon { width: 18px; height: 18px; opacity: 0.4; }
+
+    .textarea-box {
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      min-height: 96px;
+      line-height: 1.5;
+    }
+    .textarea-box-light { background: #F5F5F0; border: 1px solid #E8E8E3; color: #1A1A1A; }
+    .textarea-box-dark { background: #0C0C0E; border: 1px solid #2A2A30; color: #F0F0F0; }
+
+    .select-box {
+      height: 48px;
+      border-radius: 12px;
+      padding: 0 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9375rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .select-box-light { background: #F5F5F0; border: 1px solid #E8E8E3; color: #1A1A1A; }
+    .select-box-dark { background: #0C0C0E; border: 1px solid #2A2A30; color: #F0F0F0; }
+
+    /* ── Cards ── */
+    .demo-card {
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .demo-card-default-light { background: #FFFFFF; border: 1px solid #E8E8E3; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+    .demo-card-default-dark { background: #1A1A1F; border: 1px solid #2A2A30; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    .demo-card-elevated-light { background: #FFFFFF; border: 1px solid #E8E8E3; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .demo-card-elevated-dark { background: #222228; border: 1px solid #2A2A30; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+    .card-title { font-family: 'Mona Sans', sans-serif; font-size: 1.125rem; font-weight: 700; }
+    .card-title-light { color: #1A1A1A; }
+    .card-title-dark { color: #F0F0F0; }
+    .card-body { font-size: 0.8125rem; line-height: 1.6; }
+    .card-body-light { color: #6B7280; }
+    .card-body-dark { color: #8E93A4; }
+
+    .module-tile {
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+    .module-tile-light { background: rgba(18,136,255,0.08); border: 1px solid rgba(18,136,255,0.15); }
+    .module-tile-dark { background: rgba(18,136,255,0.12); border: 1px solid rgba(18,136,255,0.2); }
+    .module-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .module-icon-light { background: #1288FF; }
+    .module-icon-dark { background: #1288FF; }
+    .module-text { display: flex; flex-direction: column; gap: 2px; }
+    .module-name { font-size: 0.9375rem; font-weight: 600; }
+    .module-name-light { color: #1A1A1A; }
+    .module-name-dark { color: #F0F0F0; }
+    .module-desc { font-size: 0.75rem; font-weight: 400; }
+    .module-desc-light { color: #6B7280; }
+    .module-desc-dark { color: #8E93A4; }
+
+    /* ── Progress ── */
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 9999px;
+    }
+    .progress-track-light { background: #E8E8E3; }
+    .progress-track-dark { background: #2A2A30; }
+    .progress-fill {
+      height: 8px;
+      border-radius: 9999px;
+      background: #1288FF;
+    }
+
+    .spinner-area {
+      width: 100%;
+      padding: 32px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .spinner-area-light { background: #F5F5F0; }
+    .spinner-area-dark { background: #0C0C0E; }
+    .spinner-ring {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #1288FF;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-text { font-size: 0.8125rem; font-weight: 500; }
+    .spinner-text-light { color: #6B7280; }
+    .spinner-text-dark { color: #8E93A4; }
+
+    .success-area {
+      width: 100%;
+      padding: 24px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .success-area-light { background: rgba(22,163,74,0.08); border: 1px solid rgba(22,163,74,0.2); }
+    .success-area-dark { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); }
+    .success-icon { font-size: 1.5rem; }
+    .success-text { font-size: 0.9375rem; font-weight: 600; }
+    .success-text-light { color: #16A34A; }
+    .success-text-dark { color: #22C55E; }
+
+    /* ── Header Bar ── */
+    .global-header {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-radius: 12px;
+    }
+    .global-header-light { background: #FFFFFF; border: 1px solid #E8E8E3; }
+    .global-header-cinematic { background: rgba(12,12,14,0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+    .header-logo { display: flex; align-items: center; gap: 8px; }
+    .header-nav { display: flex; align-items: center; gap: 16px; }
+    .header-nav-item { font-size: 0.8125rem; font-weight: 500; }
+    .header-nav-item-light { color: #6B7280; }
+    .header-nav-item-dark { color: #8E93A4; }
+    .header-nav-item-active { color: #1288FF; font-weight: 600; }
+    .header-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: #1288FF;
+    }
+
+    /* ── Special Patterns ── */
+    .quantity-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      height: 44px;
+    }
+    .qty-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .qty-btn-light { background: #F5F5F0; color: #1A1A1A; }
+    .qty-btn-dark { background: #0C0C0E; color: #F0F0F0; }
+    .qty-value {
+      width: 52px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .qty-value-light { background: #FFFFFF; color: #1A1A1A; border-top: 1px solid #E8E8E3; border-bottom: 1px solid #E8E8E3; }
+    .qty-value-dark { background: #1A1A1F; color: #F0F0F0; border-top: 1px solid #2A2A30; border-bottom: 1px solid #2A2A30; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+    .pill-light { background: #F5F5F0; color: #1A1A1A; border: 1px solid #E8E8E3; }
+    .pill-dark { background: #222228; color: #F0F0F0; border: 1px solid #2A2A30; }
+    .pill-active-light { background: rgba(18,136,255,0.08); color: #1288FF; border: 1px solid rgba(18,136,255,0.2); }
+    .pill-active-dark { background: rgba(18,136,255,0.12); color: #1288FF; border: 1px solid rgba(18,136,255,0.25); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.5rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-amber-light { background: rgba(212,150,10,0.12); color: #D4960A; }
+    .badge-amber-dark { background: rgba(229,169,27,0.15); color: #E5A91B; }
+    .badge-success-light { background: rgba(22,163,74,0.1); color: #16A34A; }
+    .badge-success-dark { background: rgba(34,197,94,0.12); color: #22C55E; }
+
+    .rating-stars { display: flex; gap: 4px; }
+    .star { font-size: 1.25rem; }
+    .star-filled { color: #FBBF24; }
+    .star-empty-light { color: #E8E8E3; }
+    .star-empty-dark { color: #2A2A30; }
+
+    .emoji-rating { display: flex; gap: 12px; }
+    .emoji-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .emoji-face { font-size: 1.75rem; }
+    .emoji-label { font-size: 0.625rem; font-weight: 500; }
+    .emoji-label-light { color: #9CA3AF; }
+    .emoji-label-dark { color: #5A5E6E; }
+    .emoji-item-active .emoji-label-light { color: #1288FF; }
+    .emoji-item-active .emoji-label-dark { color: #1288FF; }
+
+    /* ── Logos Section ── */
+    .logo-showcase {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+      border-radius: 20px;
+    }
+    .logo-showcase-light { background: #FFFFFF; border: 1px solid #E8E8E3; }
+    .logo-showcase-dark { background: #0C0C0E; border: 1px solid #2A2A30; }
+
+    .logo-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      width: 100%;
+    }
+
+    .logo-row {
+      display: flex;
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    .logo-cell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 40px;
+      border-radius: 16px;
+    }
+    .logo-cell-light { background: #FFFFFF; border: 1px solid #E8E8E3; }
+    .logo-cell-dark { background: #0C0C0E; border: 1px solid #2A2A30; }
+
+    .logo-cell-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+    .logo-cell-label-light { color: #9CA3AF; }
+    .logo-cell-label-dark { color: #5A5E6E; }
+
+    /* ── Module Color Map Table ── */
+    .token-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+    .token-table th {
+      text-align: left;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 8px 12px;
+      border-bottom: 2px solid;
+    }
+    .token-table-light th { color: #9CA3AF; border-bottom-color: #E8E8E3; }
+    .token-table-dark th { color: #5A5E6E; border-bottom-color: #2A2A30; }
+    .token-table td { padding: 10px 12px; border-bottom: 1px solid; font-weight: 500; }
+    .token-table-light td { color: #1A1A1A; border-bottom-color: #F5F5F0; }
+    .token-table-dark td { color: #F0F0F0; border-bottom-color: #222228; }
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    /* ── Logo Usage Table ── */
+    .usage-table { width: 100%; }
+    .usage-table th, .usage-table td { padding: 10px 16px; text-align: left; font-size: 0.8125rem; }
+
+    /* ── Glass Card ── */
+    .glass-demo {
+      width: 100%;
+      padding: 40px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #0C0C0E 0%, #1A1A2E 100%);
+      display: flex;
+      justify-content: center;
+    }
+    .glass-card {
+      width: 320px;
+      padding: 28px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .glass-title { font-family: 'Mona Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #F0F0F0; }
+    .glass-body { font-size: 0.8125rem; color: #8E93A4; line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1 · HEADER                                         -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="header" style="background: linear-gradient(135deg, #0C0C0E 0%, #111118 50%, #0C0C0E 100%); padding: 80px 48px; align-items: center; text-align: center;">
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 32px;">
+      <!-- NEXI Full Logo - White on dark -->
+      <svg width="360" height="152" viewBox="0 0 288.935 121.75" fill="#FFFFFF">
+        <g transform="translate(-53.3 -26.837)">
+          <g transform="translate(53.3 26.837)">
+            <circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/>
+            <g transform="translate(263.791 3.055)">
+              <rect width="25.144" height="46.812" transform="translate(0 71.883)"/>
+              <rect width="25.144" height="46.738"/>
+            </g>
+            <path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/>
+            <path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/>
+            <g transform="translate(165.47 3.055)">
+              <path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+      <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+        <div style="font-family: 'Mona Sans', sans-serif; font-size: 2.5rem; font-weight: 800; color: #F0F0F0; letter-spacing: -0.03em;">Design System</div>
+        <div style="font-size: 1rem; font-weight: 500; color: #8E93A4; line-height: 1.6;">
+          by TrueOmni &middot; 82 screens &middot; 16 modules &middot; 1920&times;1080 Landscape &middot; Nordic Cinematic
+        </div>
+      </div>
+      <!-- NEXI Icon -->
+      <svg width="80" height="70" viewBox="0 0 137.993 121.233" fill="#1288FF" style="opacity: 0.3; margin-top: 8px;">
+        <g transform="translate(-6144.282 727.124)">
+          <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+          <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+          <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+          <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2 · COLOR PALETTE                                   -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="color-palette">
+    <div class="section-title">Color Palette — 30 Tokens</div>
+
+    <!-- Backgrounds -->
+    <div class="subsection-title subsection-title-light" style="margin-top: 8px;">Backgrounds (3)</div>
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#F5F5F0;border:1px solid #E8E8E3;"></div><div class="swatch-name swatch-name-light">bg</div><div class="swatch-hex swatch-hex-light">#F5F5F0</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FFFFFF;"></div><div class="swatch-name swatch-name-light">bg-card</div><div class="swatch-hex swatch-hex-light">#FFFFFF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FFFFFF;"></div><div class="swatch-name swatch-name-light">bg-elevated</div><div class="swatch-hex swatch-hex-light">#FFFFFF</div></div>
+        </div>
+      </div>
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#0C0C0E;"></div><div class="swatch-name swatch-name-dark">bg</div><div class="swatch-hex swatch-hex-dark">#0C0C0E</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#1A1A1F;"></div><div class="swatch-name swatch-name-dark">bg-card</div><div class="swatch-hex swatch-hex-dark">#1A1A1F</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#222228;"></div><div class="swatch-name swatch-name-dark">bg-elevated</div><div class="swatch-hex swatch-hex-dark">#222228</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Primary -->
+    <div class="subsection-title subsection-title-light">Primary (4)</div>
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#1288FF;"></div><div class="swatch-name swatch-name-light">primary</div><div class="swatch-hex swatch-hex-light">#1288FF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#0B6FD4;"></div><div class="swatch-name swatch-name-light">primary-hover</div><div class="swatch-hex swatch-hex-light">#0B6FD4</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:rgba(18,136,255,0.08);border:1px solid #E8E8E3;"></div><div class="swatch-name swatch-name-light">primary-light</div><div class="swatch-hex swatch-hex-light">8% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:rgba(18,136,255,0.25);"></div><div class="swatch-name swatch-name-light">primary-glow</div><div class="swatch-hex swatch-hex-light">25% opacity</div></div>
+        </div>
+      </div>
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#1288FF;"></div><div class="swatch-name swatch-name-dark">primary</div><div class="swatch-hex swatch-hex-dark">#1288FF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#3DA0FF;"></div><div class="swatch-name swatch-name-dark">primary-hover</div><div class="swatch-hex swatch-hex-dark">#3DA0FF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:rgba(18,136,255,0.12);border:1px solid #2A2A30;"></div><div class="swatch-name swatch-name-dark">primary-light</div><div class="swatch-hex swatch-hex-dark">12% opacity</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:rgba(18,136,255,0.35);"></div><div class="swatch-name swatch-name-dark">primary-glow</div><div class="swatch-hex swatch-hex-dark">35% opacity</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semantic -->
+    <div class="subsection-title subsection-title-light">Semantic (6)</div>
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#D4960A;"></div><div class="swatch-name swatch-name-light">amber</div><div class="swatch-hex swatch-hex-light">#D4960A</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#16A34A;"></div><div class="swatch-name swatch-name-light">success</div><div class="swatch-hex swatch-hex-light">#16A34A</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#DC2626;"></div><div class="swatch-name swatch-name-light">error</div><div class="swatch-hex swatch-hex-light">#DC2626</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#8B5CF6;"></div><div class="swatch-name swatch-name-light">purple</div><div class="swatch-hex swatch-hex-light">#8B5CF6</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FBBF24;"></div><div class="swatch-name swatch-name-light">yellow</div><div class="swatch-hex swatch-hex-light">#FBBF24</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#F97316;"></div><div class="swatch-name swatch-name-light">orange</div><div class="swatch-hex swatch-hex-light">#F97316</div></div>
+        </div>
+      </div>
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#E5A91B;"></div><div class="swatch-name swatch-name-dark">amber</div><div class="swatch-hex swatch-hex-dark">#E5A91B</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#22C55E;"></div><div class="swatch-name swatch-name-dark">success</div><div class="swatch-hex swatch-hex-dark">#22C55E</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#EF4444;"></div><div class="swatch-name swatch-name-dark">error</div><div class="swatch-hex swatch-hex-dark">#EF4444</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#A78BFA;"></div><div class="swatch-name swatch-name-dark">purple</div><div class="swatch-hex swatch-hex-dark">#A78BFA</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FCD34D;"></div><div class="swatch-name swatch-name-dark">yellow</div><div class="swatch-hex swatch-hex-dark">#FCD34D</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#FB923C;"></div><div class="swatch-name swatch-name-dark">orange</div><div class="swatch-hex swatch-hex-dark">#FB923C</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text & Borders -->
+    <div class="subsection-title subsection-title-light">Text & Borders (5)</div>
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#1A1A1A;"></div><div class="swatch-name swatch-name-light">text</div><div class="swatch-hex swatch-hex-light">#1A1A1A</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#6B7280;"></div><div class="swatch-name swatch-name-light">text-secondary</div><div class="swatch-hex swatch-hex-light">#6B7280</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#9CA3AF;"></div><div class="swatch-name swatch-name-light">text-tertiary</div><div class="swatch-hex swatch-hex-light">#9CA3AF</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#E8E8E3;"></div><div class="swatch-name swatch-name-light">border</div><div class="swatch-hex swatch-hex-light">#E8E8E3</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#D1D1CC;"></div><div class="swatch-name swatch-name-light">border-hover</div><div class="swatch-hex swatch-hex-light">#D1D1CC</div></div>
+        </div>
+      </div>
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+        <div class="swatch-grid">
+          <div class="swatch"><div class="swatch-color" style="background:#F0F0F0;"></div><div class="swatch-name swatch-name-dark">text</div><div class="swatch-hex swatch-hex-dark">#F0F0F0</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#8E93A4;"></div><div class="swatch-name swatch-name-dark">text-secondary</div><div class="swatch-hex swatch-hex-dark">#8E93A4</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#5A5E6E;"></div><div class="swatch-name swatch-name-dark">text-tertiary</div><div class="swatch-hex swatch-hex-dark">#5A5E6E</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#2A2A30;"></div><div class="swatch-name swatch-name-dark">border</div><div class="swatch-hex swatch-hex-dark">#2A2A30</div></div>
+          <div class="swatch"><div class="swatch-color" style="background:#3A3A42;"></div><div class="swatch-name swatch-name-dark">border-hover</div><div class="swatch-hex swatch-hex-dark">#3A3A42</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module Color Mapping Table -->
+    <div class="subsection-title subsection-title-light">Module Color Mapping</div>
+    <div class="dual-panel">
+      <div class="panel-light" style="overflow-x:auto;">
+        <table class="token-table token-table-light">
+          <thead><tr><th>Module</th><th>Accent Color</th><th>Token</th></tr></thead>
+          <tbody>
+            <tr><td><span class="color-dot" style="background:#1288FF;"></span>Check-In</td><td>#1288FF</td><td>primary</td></tr>
+            <tr><td><span class="color-dot" style="background:#D4960A;"></span>Room Upgrade</td><td>#D4960A</td><td>amber</td></tr>
+            <tr><td><span class="color-dot" style="background:#16A34A;"></span>F&B Ordering</td><td>#16A34A</td><td>success</td></tr>
+            <tr><td><span class="color-dot" style="background:#8B5CF6;"></span>Spa & Wellness</td><td>#8B5CF6</td><td>purple</td></tr>
+            <tr><td><span class="color-dot" style="background:#F97316;"></span>Concierge</td><td>#F97316</td><td>orange</td></tr>
+            <tr><td><span class="color-dot" style="background:#DC2626;"></span>Checkout / Disputes</td><td>#DC2626</td><td>error</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-dark" style="overflow-x:auto;">
+        <table class="token-table token-table-dark">
+          <thead><tr><th>Module</th><th>Accent Color</th><th>Token</th></tr></thead>
+          <tbody>
+            <tr><td><span class="color-dot" style="background:#1288FF;"></span>Check-In</td><td>#1288FF</td><td>primary</td></tr>
+            <tr><td><span class="color-dot" style="background:#E5A91B;"></span>Room Upgrade</td><td>#E5A91B</td><td>amber</td></tr>
+            <tr><td><span class="color-dot" style="background:#22C55E;"></span>F&B Ordering</td><td>#22C55E</td><td>success</td></tr>
+            <tr><td><span class="color-dot" style="background:#A78BFA;"></span>Spa & Wellness</td><td>#A78BFA</td><td>purple</td></tr>
+            <tr><td><span class="color-dot" style="background:#FB923C;"></span>Concierge</td><td>#FB923C</td><td>orange</td></tr>
+            <tr><td><span class="color-dot" style="background:#EF4444;"></span>Checkout / Disputes</td><td>#EF4444</td><td>error</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3 · TYPOGRAPHY                                      -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="typography">
+    <div class="section-title">Typography — 2 Fonts &middot; 12 Sizes</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <div class="type-row"><div class="type-meta type-meta-light">H1 Hero<br>3rem / 800</div><div style="font-family:'Mona Sans',sans-serif;font-size:3rem;font-weight:800;color:#1A1A1A;letter-spacing:-0.03em;">Welcome Back</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">H1 Section<br>1.75rem / 700</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.75rem;font-weight:700;color:#1A1A1A;letter-spacing:-0.02em;">Room Selection</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">H2<br>1.5rem / 800</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#1A1A1A;letter-spacing:-0.02em;">Upgrade Available</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">H3<br>1.25rem / 700</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.25rem;font-weight:700;color:#1A1A1A;">Ocean Suite</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">H4<br>1.125rem / 600</div><div style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#1A1A1A;">Guest Details</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Body<br>0.9375rem / 400</div><div style="font-family:'Inter',sans-serif;font-size:0.9375rem;font-weight:400;color:#1A1A1A;line-height:1.6;">Your room includes complimentary breakfast and a minibar. Check-in is available from 3:00 PM.</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Small Body<br>0.8125rem / 500</div><div style="font-family:'Inter',sans-serif;font-size:0.8125rem;font-weight:500;color:#6B7280;">Estimated wait time: 2 minutes</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Label<br>0.75rem / 600</div><div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:#1A1A1A;">Room Number</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Caption<br>0.6875rem / 400-600</div><div style="font-family:'Inter',sans-serif;font-size:0.6875rem;font-weight:400;color:#9CA3AF;">Last updated 2 min ago</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Section Label<br>0.625rem / 700 UC</div><div style="font-family:'Inter',sans-serif;font-size:0.625rem;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:0.12em;">PAYMENT METHOD</div></div>
+        <div class="type-row"><div class="type-meta type-meta-light">Micro<br>0.5625rem / 500</div><div style="font-family:'Inter',sans-serif;font-size:0.5625rem;font-weight:500;color:#9CA3AF;">v2.4.1</div></div>
+        <div class="type-row" style="border-bottom:none;"><div class="type-meta type-meta-light">Pill / Badge<br>0.5rem / 600 UC</div><div style="font-family:'Inter',sans-serif;font-size:0.5rem;font-weight:600;color:#1288FF;text-transform:uppercase;letter-spacing:0.05em;">PREMIUM</div></div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">H1 Hero<br>3rem / 800</div><div style="font-family:'Mona Sans',sans-serif;font-size:3rem;font-weight:800;color:#F0F0F0;letter-spacing:-0.03em;">Welcome Back</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">H1 Section<br>1.75rem / 700</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.75rem;font-weight:700;color:#F0F0F0;letter-spacing:-0.02em;">Room Selection</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">H2<br>1.5rem / 800</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.5rem;font-weight:800;color:#F0F0F0;letter-spacing:-0.02em;">Upgrade Available</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">H3<br>1.25rem / 700</div><div style="font-family:'Mona Sans',sans-serif;font-size:1.25rem;font-weight:700;color:#F0F0F0;">Ocean Suite</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">H4<br>1.125rem / 600</div><div style="font-family:'Inter',sans-serif;font-size:1.125rem;font-weight:600;color:#F0F0F0;">Guest Details</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Body<br>0.9375rem / 400</div><div style="font-family:'Inter',sans-serif;font-size:0.9375rem;font-weight:400;color:#F0F0F0;line-height:1.6;">Your room includes complimentary breakfast and a minibar. Check-in is available from 3:00 PM.</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Small Body<br>0.8125rem / 500</div><div style="font-family:'Inter',sans-serif;font-size:0.8125rem;font-weight:500;color:#8E93A4;">Estimated wait time: 2 minutes</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Label<br>0.75rem / 600</div><div style="font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;color:#F0F0F0;">Room Number</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Caption<br>0.6875rem / 400-600</div><div style="font-family:'Inter',sans-serif;font-size:0.6875rem;font-weight:400;color:#5A5E6E;">Last updated 2 min ago</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Section Label<br>0.625rem / 700 UC</div><div style="font-family:'Inter',sans-serif;font-size:0.625rem;font-weight:700;color:#5A5E6E;text-transform:uppercase;letter-spacing:0.12em;">PAYMENT METHOD</div></div>
+        <div class="type-row type-row-dark"><div class="type-meta type-meta-dark">Micro<br>0.5625rem / 500</div><div style="font-family:'Inter',sans-serif;font-size:0.5625rem;font-weight:500;color:#5A5E6E;">v2.4.1</div></div>
+        <div class="type-row type-row-dark" style="border-bottom:none;"><div class="type-meta type-meta-dark">Pill / Badge<br>0.5rem / 600 UC</div><div style="font-family:'Inter',sans-serif;font-size:0.5rem;font-weight:600;color:#1288FF;text-transform:uppercase;letter-spacing:0.05em;">PREMIUM</div></div>
+      </div>
+    </div>
+
+    <!-- Letter Spacing Reference -->
+    <div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:8px;">
+      <div style="font-size:0.75rem;font-weight:600;color:#6B7280;">Letter Spacing: <span style="color:#1A1A1A;">Headings -0.02em to -0.03em</span></div>
+      <div style="font-size:0.75rem;font-weight:600;color:#6B7280;">Section Labels: <span style="color:#1A1A1A;">0.12em</span></div>
+      <div style="font-size:0.75rem;font-weight:600;color:#6B7280;">Badges: <span style="color:#1A1A1A;">0.05em</span></div>
+      <div style="font-size:0.75rem;font-weight:600;color:#6B7280;">Body: <span style="color:#1A1A1A;">normal</span></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 4 · SPACING & RADIUS                                -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="spacing-radius">
+    <div class="section-title">Spacing & Radius</div>
+
+    <div class="dual-panel">
+      <!-- Spacing Light -->
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light — Spacing (4px grid)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">4px</div><div class="spacing-bar-light" style="width:4px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">8px</div><div class="spacing-bar-light" style="width:8px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">12px</div><div class="spacing-bar-light" style="width:12px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">16px</div><div class="spacing-bar-light" style="width:16px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">20px</div><div class="spacing-bar-light" style="width:20px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">24px</div><div class="spacing-bar-light" style="width:24px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">32px</div><div class="spacing-bar-light" style="width:32px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">40px</div><div class="spacing-bar-light" style="width:40px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">48px</div><div class="spacing-bar-light" style="width:48px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-light">64px</div><div class="spacing-bar-light" style="width:64px;"></div></div>
+        </div>
+
+        <div class="subsection-title subsection-title-light" style="margin-top:16px;">Border Radius</div>
+        <div class="radius-grid">
+          <div class="radius-item"><div class="radius-box radius-box-light" style="border-radius:8px;"></div><div class="radius-name radius-name-light">sm</div><div class="radius-val radius-val-light">8px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-light" style="border-radius:12px;"></div><div class="radius-name radius-name-light">md</div><div class="radius-val radius-val-light">12px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-light" style="border-radius:16px;"></div><div class="radius-name radius-name-light">lg</div><div class="radius-val radius-val-light">16px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-light" style="border-radius:20px;"></div><div class="radius-name radius-name-light">xl</div><div class="radius-val radius-val-light">20px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-light" style="border-radius:9999px;"></div><div class="radius-name radius-name-light">full</div><div class="radius-val radius-val-light">9999px</div></div>
+        </div>
+      </div>
+
+      <!-- Spacing Dark -->
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark — Spacing (4px grid)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">4px</div><div class="spacing-bar-dark" style="width:4px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">8px</div><div class="spacing-bar-dark" style="width:8px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">12px</div><div class="spacing-bar-dark" style="width:12px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">16px</div><div class="spacing-bar-dark" style="width:16px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">20px</div><div class="spacing-bar-dark" style="width:20px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">24px</div><div class="spacing-bar-dark" style="width:24px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">32px</div><div class="spacing-bar-dark" style="width:32px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">40px</div><div class="spacing-bar-dark" style="width:40px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">48px</div><div class="spacing-bar-dark" style="width:48px;"></div></div>
+          <div class="spacing-row"><div class="spacing-label spacing-label-dark">64px</div><div class="spacing-bar-dark" style="width:64px;"></div></div>
+        </div>
+
+        <div class="subsection-title subsection-title-dark" style="margin-top:16px;">Border Radius</div>
+        <div class="radius-grid">
+          <div class="radius-item"><div class="radius-box radius-box-dark" style="border-radius:8px;"></div><div class="radius-name radius-name-dark">sm</div><div class="radius-val radius-val-dark">8px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-dark" style="border-radius:12px;"></div><div class="radius-name radius-name-dark">md</div><div class="radius-val radius-val-dark">12px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-dark" style="border-radius:16px;"></div><div class="radius-name radius-name-dark">lg</div><div class="radius-val radius-val-dark">16px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-dark" style="border-radius:20px;"></div><div class="radius-name radius-name-dark">xl</div><div class="radius-val radius-val-dark">20px</div></div>
+          <div class="radius-item"><div class="radius-box radius-box-dark" style="border-radius:9999px;"></div><div class="radius-name radius-name-dark">full</div><div class="radius-val radius-val-dark">9999px</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 5 · SHADOWS & EFFECTS                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="shadows-effects">
+    <div class="section-title">Shadows & Effects — Glass &middot; Grain &middot; Ken Burns</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Shadows</div>
+        <div class="shadow-grid">
+          <div class="shadow-card shadow-card-light" style="box-shadow:0 1px 2px rgba(0,0,0,0.04);color:#1A1A1A;">sm</div>
+          <div class="shadow-card shadow-card-light" style="box-shadow:0 4px 12px rgba(0,0,0,0.06);color:#1A1A1A;">md</div>
+          <div class="shadow-card shadow-card-light" style="box-shadow:0 8px 24px rgba(0,0,0,0.08);color:#1A1A1A;">lg</div>
+        </div>
+      </div>
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Shadows</div>
+        <div class="shadow-grid">
+          <div class="shadow-card shadow-card-dark" style="box-shadow:0 1px 2px rgba(0,0,0,0.2);">sm</div>
+          <div class="shadow-card shadow-card-dark" style="box-shadow:0 4px 12px rgba(0,0,0,0.3);">md</div>
+          <div class="shadow-card shadow-card-dark" style="box-shadow:0 8px 24px rgba(0,0,0,0.4);">lg</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Glass Morphism -->
+    <div class="subsection-title subsection-title-light">Glass Morphism</div>
+    <div class="glass-demo">
+      <div class="glass-card">
+        <div class="glass-title">Glass Card</div>
+        <div class="glass-body">Frosted glass effect using backdrop-filter: blur(24px) with 6% white background and a subtle 10% white border.</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <div class="btn btn-sm btn-primary-dark">Accept</div>
+          <div class="btn btn-sm btn-ghost-dark" style="border-color:rgba(255,255,255,0.15);">Decline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 6 · BUTTONS                                         -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="buttons">
+    <div class="section-title">Buttons — 4 Variants &middot; 3 Sizes</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <div class="subsection-title subsection-title-light">Variants</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-primary-light">Primary</div>
+          <div class="btn btn-md btn-ghost-light">Ghost</div>
+          <div class="btn btn-md btn-amber-light">Amber</div>
+          <div class="btn btn-md btn-danger-light">Danger</div>
+        </div>
+
+        <div class="subsection-title subsection-title-light">Sizes</div>
+        <div class="btn-row">
+          <div class="btn btn-lg btn-primary-light">Large Button</div>
+          <div class="btn btn-md btn-primary-light">Default</div>
+          <div class="btn btn-sm btn-primary-light">Small</div>
+        </div>
+
+        <div class="subsection-title subsection-title-light">Pill Buttons</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-pill btn-primary-light">Search Rooms</div>
+          <div class="btn btn-md btn-pill btn-ghost-light">View All</div>
+          <div class="btn btn-sm btn-pill btn-amber-light">Upgrade</div>
+        </div>
+
+        <div class="subsection-title subsection-title-light">Tab Buttons</div>
+        <div class="btn-row">
+          <div class="btn btn-sm btn-tab-light">All Rooms</div>
+          <div class="btn btn-sm btn-tab-inactive-light">Suites</div>
+          <div class="btn btn-sm btn-tab-inactive-light">Deluxe</div>
+        </div>
+
+        <div class="subsection-title subsection-title-light">Button Pairs</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-ghost-light">Back</div>
+          <div class="btn btn-md btn-primary-light">Search</div>
+        </div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-ghost-light">Skip</div>
+          <div class="btn btn-md btn-primary-light">Continue</div>
+        </div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-danger-light">Dispute</div>
+          <div class="btn btn-md btn-primary-light">Confirm</div>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <div class="subsection-title subsection-title-dark">Variants</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-primary-dark">Primary</div>
+          <div class="btn btn-md btn-ghost-dark">Ghost</div>
+          <div class="btn btn-md btn-amber-dark">Amber</div>
+          <div class="btn btn-md btn-danger-dark">Danger</div>
+        </div>
+
+        <div class="subsection-title subsection-title-dark">Sizes</div>
+        <div class="btn-row">
+          <div class="btn btn-lg btn-primary-dark">Large Button</div>
+          <div class="btn btn-md btn-primary-dark">Default</div>
+          <div class="btn btn-sm btn-primary-dark">Small</div>
+        </div>
+
+        <div class="subsection-title subsection-title-dark">Pill Buttons</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-pill btn-primary-dark">Search Rooms</div>
+          <div class="btn btn-md btn-pill btn-ghost-dark">View All</div>
+          <div class="btn btn-sm btn-pill btn-amber-dark">Upgrade</div>
+        </div>
+
+        <div class="subsection-title subsection-title-dark">Tab Buttons</div>
+        <div class="btn-row">
+          <div class="btn btn-sm btn-tab-dark">All Rooms</div>
+          <div class="btn btn-sm btn-tab-inactive-dark">Suites</div>
+          <div class="btn btn-sm btn-tab-inactive-dark">Deluxe</div>
+        </div>
+
+        <div class="subsection-title subsection-title-dark">Button Pairs</div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-ghost-dark">Back</div>
+          <div class="btn btn-md btn-primary-dark">Search</div>
+        </div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-ghost-dark">Skip</div>
+          <div class="btn btn-md btn-primary-dark">Continue</div>
+        </div>
+        <div class="btn-row">
+          <div class="btn btn-md btn-danger-dark">Dispute</div>
+          <div class="btn btn-md btn-primary-dark">Confirm</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 7 · FORM INPUTS                                     -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="form-inputs">
+    <div class="section-title">Form Inputs — Text &middot; Select &middot; Textarea</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <!-- Search Input -->
+        <div class="input-field">
+          <div class="input-box input-box-light">
+            <svg class="input-search-icon" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span class="input-placeholder-light" style="font-size:0.9375rem;">Search rooms, amenities...</span>
+          </div>
+        </div>
+
+        <!-- Labeled Input -->
+        <div class="input-field">
+          <div class="input-label input-label-light">Guest Name</div>
+          <div class="input-box input-box-light">
+            <span style="font-size:0.9375rem;color:#1A1A1A;">John Anderson</span>
+          </div>
+        </div>
+
+        <!-- Select -->
+        <div class="input-field">
+          <div class="input-label input-label-light">Room Type</div>
+          <div class="select-box select-box-light">
+            <span style="font-size:0.9375rem;">Ocean View Suite</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="input-field">
+          <div class="input-label input-label-light">Special Requests</div>
+          <div class="textarea-box textarea-box-light">
+            <span class="input-placeholder-light" style="font-size:0.9375rem;">Any dietary restrictions, accessibility needs, or preferences...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <!-- Search Input -->
+        <div class="input-field">
+          <div class="input-box input-box-dark">
+            <svg class="input-search-icon" viewBox="0 0 24 24" fill="none" stroke="#5A5E6E" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span class="input-placeholder-dark" style="font-size:0.9375rem;">Search rooms, amenities...</span>
+          </div>
+        </div>
+
+        <!-- Labeled Input -->
+        <div class="input-field">
+          <div class="input-label input-label-dark">Guest Name</div>
+          <div class="input-box input-box-dark">
+            <span style="font-size:0.9375rem;color:#F0F0F0;">John Anderson</span>
+          </div>
+        </div>
+
+        <!-- Select -->
+        <div class="input-field">
+          <div class="input-label input-label-dark">Room Type</div>
+          <div class="select-box select-box-dark">
+            <span style="font-size:0.9375rem;color:#F0F0F0;">Ocean View Suite</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A5E6E" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Textarea -->
+        <div class="input-field">
+          <div class="input-label input-label-dark">Special Requests</div>
+          <div class="textarea-box textarea-box-dark">
+            <span class="input-placeholder-dark" style="font-size:0.9375rem;">Any dietary restrictions, accessibility needs, or preferences...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 8 · CARDS                                           -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="cards">
+    <div class="section-title">Cards — 3 Variants</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <!-- Default Card -->
+        <div class="demo-card demo-card-default-light">
+          <div class="card-title card-title-light">Default Card</div>
+          <div class="card-body card-body-light">Standard content card with subtle shadow. Used for listing items, information panels, and general content containers.</div>
+          <div class="btn btn-sm btn-primary-light" style="align-self:flex-start;">View Details</div>
+        </div>
+
+        <!-- Elevated Card -->
+        <div class="demo-card demo-card-elevated-light">
+          <div class="card-title card-title-light">Elevated Card</div>
+          <div class="card-body card-body-light">Higher elevation for modals, popovers, and floating elements. Uses medium shadow for prominence.</div>
+        </div>
+
+        <!-- Module Tile -->
+        <div class="module-tile module-tile-light">
+          <div class="module-icon module-icon-light" style="color:#FFFFFF;font-size:1.25rem;">&#9783;</div>
+          <div class="module-text">
+            <div class="module-name module-name-light">Room Service</div>
+            <div class="module-desc module-desc-light">Order food & beverages to your room</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <!-- Default Card -->
+        <div class="demo-card demo-card-default-dark">
+          <div class="card-title card-title-dark">Default Card</div>
+          <div class="card-body card-body-dark">Standard content card with subtle shadow. Used for listing items, information panels, and general content containers.</div>
+          <div class="btn btn-sm btn-primary-dark" style="align-self:flex-start;">View Details</div>
+        </div>
+
+        <!-- Elevated Card -->
+        <div class="demo-card demo-card-elevated-dark">
+          <div class="card-title card-title-dark">Elevated Card</div>
+          <div class="card-body card-body-dark">Higher elevation for modals, popovers, and floating elements. Uses medium shadow for prominence.</div>
+        </div>
+
+        <!-- Module Tile -->
+        <div class="module-tile module-tile-dark">
+          <div class="module-icon module-icon-dark" style="color:#FFFFFF;font-size:1.25rem;">&#9783;</div>
+          <div class="module-text">
+            <div class="module-name module-name-dark">Room Service</div>
+            <div class="module-desc module-desc-dark">Order food & beverages to your room</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 9 · PROGRESS & STATUS                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="progress-status">
+    <div class="section-title">Progress & Status</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <!-- Progress Bar -->
+        <div class="subsection-title subsection-title-light">Progress Bar (65%)</div>
+        <div class="progress-track progress-track-light">
+          <div class="progress-fill" style="width:65%;"></div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="subsection-title subsection-title-light">Processing</div>
+        <div class="spinner-area spinner-area-light">
+          <div class="spinner-ring"></div>
+          <div class="spinner-text spinner-text-light">Processing your check-in...</div>
+        </div>
+
+        <!-- Success -->
+        <div class="subsection-title subsection-title-light">Success State</div>
+        <div class="success-area success-area-light">
+          <div class="success-icon">&#10003;</div>
+          <div class="success-text success-text-light">Check-in complete! Your room key is ready.</div>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <!-- Progress Bar -->
+        <div class="subsection-title subsection-title-dark">Progress Bar (65%)</div>
+        <div class="progress-track progress-track-dark">
+          <div class="progress-fill" style="width:65%;"></div>
+        </div>
+
+        <!-- Spinner -->
+        <div class="subsection-title subsection-title-dark">Processing</div>
+        <div class="spinner-area spinner-area-dark">
+          <div class="spinner-ring"></div>
+          <div class="spinner-text spinner-text-dark">Processing your check-in...</div>
+        </div>
+
+        <!-- Success -->
+        <div class="subsection-title subsection-title-dark">Success State</div>
+        <div class="success-area success-area-dark">
+          <div class="success-icon">&#10003;</div>
+          <div class="success-text success-text-dark">Check-in complete! Your room key is ready.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 10 · GLOBAL HEADER                                  -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="global-header">
+    <div class="section-title">Global Header — 48px &middot; 2 Variants</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Default (Light Background)</div>
+        <div class="global-header global-header-light">
+          <div class="header-logo">
+            <svg width="28" height="24" viewBox="0 0 137.993 121.233" fill="#262626">
+              <g transform="translate(-6144.282 727.124)">
+                <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+                <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+                <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+                <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+              </g>
+            </svg>
+            <span style="font-family:'Mona Sans',sans-serif;font-size:0.9375rem;font-weight:700;color:#1A1A1A;">NEXI</span>
+          </div>
+          <div class="header-nav">
+            <span class="header-nav-item header-nav-item-active">Home</span>
+            <span class="header-nav-item header-nav-item-light">Rooms</span>
+            <span class="header-nav-item header-nav-item-light">Services</span>
+            <span class="header-nav-item header-nav-item-light">Help</span>
+            <div class="header-avatar">JA</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Cinematic (Transparent / Blur)</div>
+        <div style="background:linear-gradient(135deg,#0C0C0E,#1A1A2E);border-radius:16px;padding:24px;">
+          <div class="global-header global-header-cinematic">
+            <div class="header-logo">
+              <svg width="28" height="24" viewBox="0 0 137.993 121.233" fill="#FFFFFF">
+                <g transform="translate(-6144.282 727.124)">
+                  <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+                  <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+                  <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+                  <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+                </g>
+              </svg>
+              <span style="font-family:'Mona Sans',sans-serif;font-size:0.9375rem;font-weight:700;color:#F0F0F0;">NEXI</span>
+            </div>
+            <div class="header-nav">
+              <span class="header-nav-item header-nav-item-active">Home</span>
+              <span class="header-nav-item header-nav-item-dark">Rooms</span>
+              <span class="header-nav-item header-nav-item-dark">Services</span>
+              <span class="header-nav-item header-nav-item-dark">Help</span>
+              <div class="header-avatar">JA</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 11 · SPECIAL PATTERNS                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="special-patterns">
+    <div class="section-title">Special Patterns — Unique UI Elements</div>
+
+    <div class="dual-panel">
+      <div class="panel-light">
+        <div class="panel-label panel-label-light">Light Mode</div>
+
+        <!-- Quantity Counter -->
+        <div class="subsection-title subsection-title-light">Quantity Counter</div>
+        <div class="quantity-counter" style="border:1px solid #E8E8E3;">
+          <div class="qty-btn qty-btn-light">&#8722;</div>
+          <div class="qty-value qty-value-light">2</div>
+          <div class="qty-btn qty-btn-light">&#43;</div>
+        </div>
+
+        <!-- Amenity Pills -->
+        <div class="subsection-title subsection-title-light" style="margin-top:16px;">Amenity Pills</div>
+        <div class="btn-row">
+          <div class="pill pill-active-light">&#10003; Wi-Fi</div>
+          <div class="pill pill-active-light">&#10003; Pool</div>
+          <div class="pill pill-light">Gym</div>
+          <div class="pill pill-light">Spa</div>
+          <div class="pill pill-light">Parking</div>
+        </div>
+
+        <!-- Room Badge -->
+        <div class="subsection-title subsection-title-light" style="margin-top:16px;">Room Card Badge</div>
+        <div class="btn-row">
+          <div class="badge badge-amber-light">UPGRADE AVAILABLE</div>
+          <div class="badge badge-success-light">CONFIRMED</div>
+        </div>
+
+        <!-- Emoji Rating -->
+        <div class="subsection-title subsection-title-light" style="margin-top:16px;">Emoji Rating</div>
+        <div class="emoji-rating">
+          <div class="emoji-item"><div class="emoji-face">&#128544;</div><div class="emoji-label emoji-label-light">Terrible</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128577;</div><div class="emoji-label emoji-label-light">Poor</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128528;</div><div class="emoji-label emoji-label-light">Okay</div></div>
+          <div class="emoji-item emoji-item-active"><div class="emoji-face" style="transform:scale(1.2);">&#128522;</div><div class="emoji-label emoji-label-light" style="color:#1288FF;">Good</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128525;</div><div class="emoji-label emoji-label-light">Amazing</div></div>
+        </div>
+
+        <!-- Star Rating -->
+        <div class="subsection-title subsection-title-light" style="margin-top:16px;">Star Rating</div>
+        <div class="rating-stars">
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-empty-light">&#9733;</span>
+        </div>
+      </div>
+
+      <div class="panel-dark">
+        <div class="panel-label panel-label-dark">Dark Mode</div>
+
+        <!-- Quantity Counter -->
+        <div class="subsection-title subsection-title-dark">Quantity Counter</div>
+        <div class="quantity-counter" style="border:1px solid #2A2A30;">
+          <div class="qty-btn qty-btn-dark">&#8722;</div>
+          <div class="qty-value qty-value-dark">2</div>
+          <div class="qty-btn qty-btn-dark">&#43;</div>
+        </div>
+
+        <!-- Amenity Pills -->
+        <div class="subsection-title subsection-title-dark" style="margin-top:16px;">Amenity Pills</div>
+        <div class="btn-row">
+          <div class="pill pill-active-dark">&#10003; Wi-Fi</div>
+          <div class="pill pill-active-dark">&#10003; Pool</div>
+          <div class="pill pill-dark">Gym</div>
+          <div class="pill pill-dark">Spa</div>
+          <div class="pill pill-dark">Parking</div>
+        </div>
+
+        <!-- Room Badge -->
+        <div class="subsection-title subsection-title-dark" style="margin-top:16px;">Room Card Badge</div>
+        <div class="btn-row">
+          <div class="badge badge-amber-dark">UPGRADE AVAILABLE</div>
+          <div class="badge badge-success-dark">CONFIRMED</div>
+        </div>
+
+        <!-- Emoji Rating -->
+        <div class="subsection-title subsection-title-dark" style="margin-top:16px;">Emoji Rating</div>
+        <div class="emoji-rating">
+          <div class="emoji-item"><div class="emoji-face">&#128544;</div><div class="emoji-label emoji-label-dark">Terrible</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128577;</div><div class="emoji-label emoji-label-dark">Poor</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128528;</div><div class="emoji-label emoji-label-dark">Okay</div></div>
+          <div class="emoji-item emoji-item-active"><div class="emoji-face" style="transform:scale(1.2);">&#128522;</div><div class="emoji-label emoji-label-dark" style="color:#1288FF;">Good</div></div>
+          <div class="emoji-item"><div class="emoji-face">&#128525;</div><div class="emoji-label emoji-label-dark">Amazing</div></div>
+        </div>
+
+        <!-- Star Rating -->
+        <div class="subsection-title subsection-title-dark" style="margin-top:16px;">Star Rating</div>
+        <div class="rating-stars">
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-filled">&#9733;</span>
+          <span class="star star-empty-dark">&#9733;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <!-- SECTION 12 · LOGOS & BRANDING                               -->
+  <!-- ════════════════════════════════════════════════════════════ -->
+  <div class="section" id="logos-branding" style="padding-bottom:80px;">
+    <div class="section-title">Logos & Branding — 5 Assets</div>
+
+    <!-- NEXI Icon -->
+    <div class="subsection-title subsection-title-light" style="font-size:1.25rem;">NEXI Icon</div>
+    <div class="logo-row">
+      <div class="logo-cell logo-cell-light">
+        <div class="logo-cell-label logo-cell-label-light">Dark Icon on White</div>
+        <svg width="140" height="123" viewBox="0 0 137.993 121.233" fill="#262626">
+          <g transform="translate(-6144.282 727.124)">
+            <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+            <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+            <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+            <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-cell logo-cell-dark">
+        <div class="logo-cell-label logo-cell-label-dark">White Icon on Dark</div>
+        <svg width="140" height="123" viewBox="0 0 137.993 121.233" fill="#FFFFFF">
+          <g transform="translate(-6144.282 727.124)">
+            <path d="M71.349,87.094A21.555,21.555,0,0,1,60.563,84.2L43.631,101.134a45.086,45.086,0,0,0,55.823-.289l-16.9-16.9a21.556,21.556,0,0,1-11.207,3.145" transform="translate(6141.802 -731.895)"/>
+            <path d="M71.352,16.305a45.007,45.007,0,0,0-27.674,9.5L60.614,42.742a21.555,21.555,0,0,1,21.9.255l16.9-16.9a45.032,45.032,0,0,0-28.06-9.79" transform="translate(6141.8 -728.05)"/>
+            <path d="M115.72,78.45a44.824,44.824,0,0,0-.011-35.648L143.276,0,109.944,33.015c-.024-.031-.044-.064-.068-.094L92.944,49.852a21.576,21.576,0,0,1,.03,21.524v0l-.031,0,3.584,3.55,13.381,13.381c.019-.024.035-.051.054-.075l33.313,33Z" transform="translate(6139 -727.124)"/>
+            <path d="M27.556,78.45A44.823,44.823,0,0,1,27.567,42.8L0,0,33.332,33.015c.024-.031.044-.064.068-.094L50.332,49.852a21.576,21.576,0,0,0-.03,21.524v0l.031,0-3.584,3.55L33.367,88.312c-.019-.024-.035-.051-.054-.075L0,121.233Z" transform="translate(6144.282 -727.124)"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- NEXI Full Logo -->
+    <div class="subsection-title subsection-title-light" style="font-size:1.25rem;margin-top:16px;">NEXI Full Logo (Icon + Wordmark)</div>
+    <div class="logo-row">
+      <div class="logo-cell logo-cell-light">
+        <div class="logo-cell-label logo-cell-label-light">Dark Logo on White</div>
+        <svg width="360" height="152" viewBox="0 0 288.935 121.75" fill="#262626">
+          <g transform="translate(-53.3 -26.837)">
+            <g transform="translate(53.3 26.837)">
+              <circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/>
+              <g transform="translate(263.791 3.055)">
+                <rect width="25.144" height="46.812" transform="translate(0 71.883)"/>
+                <rect width="25.144" height="46.738"/>
+              </g>
+              <path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/>
+              <path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/>
+              <g transform="translate(165.47 3.055)">
+                <path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-cell logo-cell-dark">
+        <div class="logo-cell-label logo-cell-label-dark">White Logo on Dark</div>
+        <svg width="360" height="152" viewBox="0 0 288.935 121.75" fill="#FFFFFF">
+          <g transform="translate(-53.3 -26.837)">
+            <g transform="translate(53.3 26.837)">
+              <circle cx="5.325" cy="5.325" r="5.325" transform="translate(46.886 71.055)"/>
+              <g transform="translate(263.791 3.055)">
+                <rect width="25.144" height="46.812" transform="translate(0 71.883)"/>
+                <rect width="25.144" height="46.738"/>
+              </g>
+              <path d="M139.455,148.588H114.311V65.575c0-2-3-7.026-4.437-8.5-9.281-9.466-29.951-4.03-29.951,9.984v81.533H53.3V71.122c.185-24.774,16.2-42.856,41.229-44.187,27.659-1.479,43.484,14.014,44.964,41.229v80.424Z" transform="translate(-53.3 -26.837)"/>
+              <path d="M369.4,34.5V60.495H337.045a10.494,10.494,0,0,0-10.5,10.5h0a10.494,10.494,0,0,0,10.5,10.5h17.527v25.181H337.489a10.9,10.9,0,0,0-10.908,10.908h0a10.9,10.9,0,0,0,10.908,10.908H369.4v24.922H334.9a33.495,33.495,0,0,1-33.5-33.5V66.928A32.422,32.422,0,0,1,333.828,34.5H369.4Z" transform="translate(-209.661 -31.667)"/>
+              <g transform="translate(165.47 3.055)">
+                <path d="M593.279,35.1H564.991L547.021,64.053,529.087,35.1H500.8l32.1,56.389-32.1,62.232h28.287l17.934-34.795,17.971,34.795h28.287l-32.1-62.232Z" transform="translate(-500.8 -35.1)"/>
+              </g>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Powered by TrueOmni -->
+    <div class="subsection-title subsection-title-light" style="font-size:1.25rem;margin-top:16px;">Powered by TrueOmni</div>
+    <div class="logo-row">
+      <div class="logo-cell logo-cell-light">
+        <div class="logo-cell-label logo-cell-label-light">Dark on White</div>
+        <svg width="400" height="40" viewBox="0 0 342.236 34" fill="#262626">
+          <g transform="translate(-6097.471 603.783)">
+            <g transform="translate(6223.282 -608.781)">
+              <path d="M242.013,49.582a9.423,9.423,0,0,0-3.886.838,4.9,4.9,0,0,0-2.46,2.406v11.3h-4.778V45.446h4.385V49.44a8.514,8.514,0,0,1,1.177-1.729,9.046,9.046,0,0,1,1.462-1.337A6.765,6.765,0,0,1,239.5,45.5a4.379,4.379,0,0,1,1.551-.3h.588a1.944,1.944,0,0,1,.374.035Z" transform="translate(-159.04 -31.132)"/>
+              <path d="M283.4,65.038a5.3,5.3,0,0,1-4.385-1.854,8.594,8.594,0,0,1-1.5-5.491V46H282.3v10.66q0,4.314,3.1,4.314a4.906,4.906,0,0,0,2.692-.838,6.023,6.023,0,0,0,2.121-2.549V46h4.778V59.191a1.678,1.678,0,0,0,.267,1.07,1.168,1.168,0,0,0,.874.357v4.064a10.183,10.183,0,0,1-1.194.178c-.321.023-.612.036-.874.036a3.44,3.44,0,0,1-2.086-.588,2.315,2.315,0,0,1-.945-1.622l-.107-1.5a7.966,7.966,0,0,1-3.209,2.888,9.653,9.653,0,0,1-4.314.963" transform="translate(-191.16 -31.685)"/>
+              <path d="M357.823,64.328a10.373,10.373,0,0,1-4.064-.766,9.167,9.167,0,0,1-5.081-5.152,9.833,9.833,0,0,1-.7-3.672,10.4,10.4,0,0,1,.677-3.762,9.182,9.182,0,0,1,1.961-3.1,9.36,9.36,0,0,1,3.12-2.121,10.387,10.387,0,0,1,4.118-.785,10.13,10.13,0,0,1,4.082.785,9.4,9.4,0,0,1,3.066,2.1,8.958,8.958,0,0,1,1.925,3.066,10.221,10.221,0,0,1,.66,3.637q0,.464-.018.891a3.664,3.664,0,0,1-.089.713h-14.44a5.54,5.54,0,0,0,.535,1.961,4.8,4.8,0,0,0,2.638,2.389,5.039,5.039,0,0,0,1.783.321,5.512,5.512,0,0,0,2.692-.7,3.682,3.682,0,0,0,1.729-1.836l4.1,1.141a8.334,8.334,0,0,1-3.3,3.512,10.223,10.223,0,0,1-5.4,1.373m4.849-11.266a4.971,4.971,0,0,0-1.551-3.369,4.867,4.867,0,0,0-6.614.018,4.893,4.893,0,0,0-1.052,1.462,5.146,5.146,0,0,0-.481,1.89Z" transform="translate(-239.696 -30.975)"/>
+              <path d="M433.147,49.785a10.466,10.466,0,0,1-4.813-1.105,12.425,12.425,0,0,1-3.744-2.888,12.9,12.9,0,0,1-2.424-4.1,13.588,13.588,0,0,1-.855-4.742,13.16,13.16,0,0,1,.909-4.849,13.561,13.561,0,0,1,2.5-4.1,11.943,11.943,0,0,1,3.762-2.834,10.665,10.665,0,0,1,4.706-1.052,10.441,10.441,0,0,1,4.831,1.123,12.135,12.135,0,0,1,3.744,2.941,13.6,13.6,0,0,1,2.406,4.118,13.407,13.407,0,0,1-2.549,13.62,12.077,12.077,0,0,1-3.761,2.817,10.666,10.666,0,0,1-4.706,1.052M423.128,36.95a12.181,12.181,0,0,0,.731,4.189,11.3,11.3,0,0,0,2.068,3.565,10.174,10.174,0,0,0,3.191,2.478,8.953,8.953,0,0,0,4.064.927,8.736,8.736,0,0,0,4.118-.963,10.053,10.053,0,0,0,3.138-2.549,12.086,12.086,0,0,0,1.978-11.837,11.6,11.6,0,0,0-2.085-3.566,10.323,10.323,0,0,0-3.156-2.478,8.664,8.664,0,0,0-3.993-.927,8.839,8.839,0,0,0-4.136.962,10.186,10.186,0,0,0-3.173,2.549,11.71,11.71,0,0,0-2.032,3.583,11.989,11.989,0,0,0-.713,4.064" transform="translate(-290.204 -16.611)"/>
+              <path d="M539.289,64.287h-1.782V53.947a9.766,9.766,0,0,0-1.088-5.205,3.7,3.7,0,0,0-3.334-1.676,5.631,5.631,0,0,0-2.175.428,6.588,6.588,0,0,0-1.889,1.194,7.7,7.7,0,0,0-1.48,1.818,9.563,9.563,0,0,0-.98,2.335V64.287h-1.783V53.947a9.886,9.886,0,0,0-1.069-5.223,3.667,3.667,0,0,0-3.316-1.658,5.714,5.714,0,0,0-2.157.41,6.361,6.361,0,0,0-1.872,1.177,8.462,8.462,0,0,0-1.515,1.818,8.79,8.79,0,0,0-1.016,2.335V64.287H512.05V45.747h1.675v4.421a9.028,9.028,0,0,1,3-3.494,7.183,7.183,0,0,1,4.1-1.248,5.308,5.308,0,0,1,3.815,1.39,5.865,5.865,0,0,1,1.747,3.637q2.638-5.027,7.273-5.027a4.66,4.66,0,0,1,4.332,2.157,11.741,11.741,0,0,1,1.3,6.044Z" transform="translate(-352.707 -31.29)"/>
+              <path d="M632.611,64.287h-1.782V53.947a10.3,10.3,0,0,0-1.016-5.241,3.516,3.516,0,0,0-3.227-1.64,6.694,6.694,0,0,0-2.335.428,7.9,7.9,0,0,0-2.157,1.212,8.859,8.859,0,0,0-1.747,1.836,7.573,7.573,0,0,0-1.105,2.264V64.287h-1.782V45.747h1.676v4.421a8.712,8.712,0,0,1,1.408-1.943,8.874,8.874,0,0,1,1.89-1.5,9.52,9.52,0,0,1,2.228-.963,8.728,8.728,0,0,1,2.425-.339,4.556,4.556,0,0,1,4.279,2.121,12.118,12.118,0,0,1,1.248,6.079Z" transform="translate(-425.314 -31.29)"/>
+              <rect width="1.782" height="18.54" transform="translate(212.858 14.457)"/>
+              <path d="M173.444,26.379a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-115.941 -16.405)" fill="#079ee2"/>
+              <path d="M684.14,27.316a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-467.715 -17.05)" fill="#079ee2"/>
+              <path d="M203.307,29h-8.093V50h-4.885V29h.047V24.688h12.931Z" transform="translate(-131.102 -17.006)"/>
+            </g>
+            <text transform="translate(6097.471 -576.783)" fill="#262626" font-size="28" font-family="'Inter', sans-serif" font-weight="500"><tspan x="0" y="0">Powered by</tspan></text>
+          </g>
+        </svg>
+      </div>
+      <div class="logo-cell logo-cell-dark">
+        <div class="logo-cell-label logo-cell-label-dark">White on Dark</div>
+        <svg width="400" height="40" viewBox="0 0 342.236 34" fill="#FFFFFF">
+          <g transform="translate(-6097.471 603.783)">
+            <g transform="translate(6223.282 -608.781)">
+              <path d="M242.013,49.582a9.423,9.423,0,0,0-3.886.838,4.9,4.9,0,0,0-2.46,2.406v11.3h-4.778V45.446h4.385V49.44a8.514,8.514,0,0,1,1.177-1.729,9.046,9.046,0,0,1,1.462-1.337A6.765,6.765,0,0,1,239.5,45.5a4.379,4.379,0,0,1,1.551-.3h.588a1.944,1.944,0,0,1,.374.035Z" transform="translate(-159.04 -31.132)"/>
+              <path d="M283.4,65.038a5.3,5.3,0,0,1-4.385-1.854,8.594,8.594,0,0,1-1.5-5.491V46H282.3v10.66q0,4.314,3.1,4.314a4.906,4.906,0,0,0,2.692-.838,6.023,6.023,0,0,0,2.121-2.549V46h4.778V59.191a1.678,1.678,0,0,0,.267,1.07,1.168,1.168,0,0,0,.874.357v4.064a10.183,10.183,0,0,1-1.194.178c-.321.023-.612.036-.874.036a3.44,3.44,0,0,1-2.086-.588,2.315,2.315,0,0,1-.945-1.622l-.107-1.5a7.966,7.966,0,0,1-3.209,2.888,9.653,9.653,0,0,1-4.314.963" transform="translate(-191.16 -31.685)"/>
+              <path d="M357.823,64.328a10.373,10.373,0,0,1-4.064-.766,9.167,9.167,0,0,1-5.081-5.152,9.833,9.833,0,0,1-.7-3.672,10.4,10.4,0,0,1,.677-3.762,9.182,9.182,0,0,1,1.961-3.1,9.36,9.36,0,0,1,3.12-2.121,10.387,10.387,0,0,1,4.118-.785,10.13,10.13,0,0,1,4.082.785,9.4,9.4,0,0,1,3.066,2.1,8.958,8.958,0,0,1,1.925,3.066,10.221,10.221,0,0,1,.66,3.637q0,.464-.018.891a3.664,3.664,0,0,1-.089.713h-14.44a5.54,5.54,0,0,0,.535,1.961,4.8,4.8,0,0,0,2.638,2.389,5.039,5.039,0,0,0,1.783.321,5.512,5.512,0,0,0,2.692-.7,3.682,3.682,0,0,0,1.729-1.836l4.1,1.141a8.334,8.334,0,0,1-3.3,3.512,10.223,10.223,0,0,1-5.4,1.373m4.849-11.266a4.971,4.971,0,0,0-1.551-3.369,4.867,4.867,0,0,0-6.614.018,4.893,4.893,0,0,0-1.052,1.462,5.146,5.146,0,0,0-.481,1.89Z" transform="translate(-239.696 -30.975)"/>
+              <path d="M433.147,49.785a10.466,10.466,0,0,1-4.813-1.105,12.425,12.425,0,0,1-3.744-2.888,12.9,12.9,0,0,1-2.424-4.1,13.588,13.588,0,0,1-.855-4.742,13.16,13.16,0,0,1,.909-4.849,13.561,13.561,0,0,1,2.5-4.1,11.943,11.943,0,0,1,3.762-2.834,10.665,10.665,0,0,1,4.706-1.052,10.441,10.441,0,0,1,4.831,1.123,12.135,12.135,0,0,1,3.744,2.941,13.6,13.6,0,0,1,2.406,4.118,13.407,13.407,0,0,1-2.549,13.62,12.077,12.077,0,0,1-3.761,2.817,10.666,10.666,0,0,1-4.706,1.052M423.128,36.95a12.181,12.181,0,0,0,.731,4.189,11.3,11.3,0,0,0,2.068,3.565,10.174,10.174,0,0,0,3.191,2.478,8.953,8.953,0,0,0,4.064.927,8.736,8.736,0,0,0,4.118-.963,10.053,10.053,0,0,0,3.138-2.549,12.086,12.086,0,0,0,1.978-11.837,11.6,11.6,0,0,0-2.085-3.566,10.323,10.323,0,0,0-3.156-2.478,8.664,8.664,0,0,0-3.993-.927,8.839,8.839,0,0,0-4.136.962,10.186,10.186,0,0,0-3.173,2.549,11.71,11.71,0,0,0-2.032,3.583,11.989,11.989,0,0,0-.713,4.064" transform="translate(-290.204 -16.611)"/>
+              <path d="M539.289,64.287h-1.782V53.947a9.766,9.766,0,0,0-1.088-5.205,3.7,3.7,0,0,0-3.334-1.676,5.631,5.631,0,0,0-2.175.428,6.588,6.588,0,0,0-1.889,1.194,7.7,7.7,0,0,0-1.48,1.818,9.563,9.563,0,0,0-.98,2.335V64.287h-1.783V53.947a9.886,9.886,0,0,0-1.069-5.223,3.667,3.667,0,0,0-3.316-1.658,5.714,5.714,0,0,0-2.157.41,6.361,6.361,0,0,0-1.872,1.177,8.462,8.462,0,0,0-1.515,1.818,8.79,8.79,0,0,0-1.016,2.335V64.287H512.05V45.747h1.675v4.421a9.028,9.028,0,0,1,3-3.494,7.183,7.183,0,0,1,4.1-1.248,5.308,5.308,0,0,1,3.815,1.39,5.865,5.865,0,0,1,1.747,3.637q2.638-5.027,7.273-5.027a4.66,4.66,0,0,1,4.332,2.157,11.741,11.741,0,0,1,1.3,6.044Z" transform="translate(-352.707 -31.29)"/>
+              <path d="M632.611,64.287h-1.782V53.947a10.3,10.3,0,0,0-1.016-5.241,3.516,3.516,0,0,0-3.227-1.64,6.694,6.694,0,0,0-2.335.428,7.9,7.9,0,0,0-2.157,1.212,8.859,8.859,0,0,0-1.747,1.836,7.573,7.573,0,0,0-1.105,2.264V64.287h-1.782V45.747h1.676v4.421a8.712,8.712,0,0,1,1.408-1.943,8.874,8.874,0,0,1,1.89-1.5,9.52,9.52,0,0,1,2.228-.963,8.728,8.728,0,0,1,2.425-.339,4.556,4.556,0,0,1,4.279,2.121,12.118,12.118,0,0,1,1.248,6.079Z" transform="translate(-425.314 -31.29)"/>
+              <rect width="1.782" height="18.54" transform="translate(212.858 14.457)"/>
+              <path d="M173.444,26.379a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-115.941 -16.405)" fill="#079ee2"/>
+              <path d="M684.14,27.316a2.563,2.563,0,1,1-2.563-2.563,2.563,2.563,0,0,1,2.563,2.563" transform="translate(-467.715 -17.05)" fill="#079ee2"/>
+              <path d="M203.307,29h-8.093V50h-4.885V29h.047V24.688h12.931Z" transform="translate(-131.102 -17.006)"/>
+            </g>
+            <text transform="translate(6097.471 -576.783)" fill="#FFFFFF" font-size="28" font-family="'Inter', sans-serif" font-weight="500"><tspan x="0" y="0">Powered by</tspan></text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Logo Usage Rules -->
+    <div class="subsection-title subsection-title-light" style="font-size:1.25rem;margin-top:16px;">Logo Usage Rules</div>
+    <div class="dual-panel">
+      <div class="panel-light" style="overflow-x:auto;">
+        <table class="token-table token-table-light">
+          <thead><tr><th>Rule</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Minimum Size (Icon)</td><td>24px height</td></tr>
+            <tr><td>Minimum Size (Full Logo)</td><td>80px width</td></tr>
+            <tr><td>Clear Space</td><td>1x icon height on all sides</td></tr>
+            <tr><td>Light Background Color</td><td>#262626 (near black)</td></tr>
+            <tr><td>Dark Background Color</td><td>#FFFFFF (white)</td></tr>
+            <tr><td>Accent Dots Color</td><td>#079EE2 (always, both themes)</td></tr>
+            <tr><td>Do Not</td><td>Rotate, stretch, add effects, change colors beyond spec</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel-dark" style="overflow-x:auto;">
+        <table class="token-table token-table-dark">
+          <thead><tr><th>Rule</th><th>Specification</th></tr></thead>
+          <tbody>
+            <tr><td>Minimum Size (Icon)</td><td>24px height</td></tr>
+            <tr><td>Minimum Size (Full Logo)</td><td>80px width</td></tr>
+            <tr><td>Clear Space</td><td>1x icon height on all sides</td></tr>
+            <tr><td>Light Background Color</td><td>#262626 (near black)</td></tr>
+            <tr><td>Dark Background Color</td><td>#FFFFFF (white)</td></tr>
+            <tr><td>Accent Dots Color</td><td>#079EE2 (always, both themes)</td></tr>
+            <tr><td>Do Not</td><td>Rotate, stretch, add effects, change colors beyond spec</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.page -->
+</body>
+</html>
