@@ -24,10 +24,36 @@ export interface HotelBrand {
 }
 
 export interface HotelIntegrations {
+  // Avatar / video
   heygenApiKey: string;
   tavusApiKey: string;
   didApiKey: string;
+  // Email
   resendApiKey: string;
+  // PMS (property management systems)
+  cloudbedsApiKey: string;
+  mewsApiKey: string;
+  oracleApiKey: string;        // Oracle Hospitality / OPERA
+  // Payments
+  stripeApiKey: string;
+  // Destination / experiences
+  simpleViewApiKey: string;    // SimpleView DMO CMS
+  trybeApiKey: string;         // Trybe spa + experiences
+  book4timeApiKey: string;     // Book4Time spa booking
+  skyNavApiKey: string;        // SkyNav wayfinding
+  threshold360ApiKey: string;  // Threshold 360 virtual tours
+}
+
+/**
+ * Hotel policies document uploaded by the client. Rendered on the
+ * check-in signature screen (CKI-08). Either a data URL for a PDF
+ * or Word document, or a plain text block the kiosk renders inline.
+ */
+export interface HotelPolicies {
+  filename?: string;           // original filename for display
+  mimeType?: string;           // application/pdf, application/vnd.openxmlformats...
+  dataUrl?: string;            // base64 data URL for rendering / download
+  text?: string;               // optional plain text fallback shown inline on the kiosk
 }
 
 /**
@@ -115,7 +141,8 @@ export interface RoomType {
   sizeSqFt: number;
   baseRate: number;
   currency: string;
-  image: string;
+  image: string;         // primary card image
+  gallery?: string[];    // additional photos shown on the room-assigned gallery screen
   tag?: string;
 }
 
@@ -124,16 +151,25 @@ export interface UpgradeOption {
   title: string;
   description: string;
   price: string;
-  image: string;
+  image: string;         // primary card image
+  gallery?: string[];    // optional gallery shown when guest taps the upgrade
 }
 
 export interface HotelImages {
-  // Hero / backgrounds
+  // Main hero photos — shown on idle, dashboard, etc.
   heroExterior: string;
   heroLobby: string;
   heroPool: string;
   heroSpa: string;
   heroRestaurant: string;
+  // Flow backdrops — each reused across multiple screens
+  heroWelcome: string;      // brand-facing hero used by check-in intro, checkout intro, payment intro
+  heroSuccess: string;      // confirmation / success cards (CKO06, PAY03, etc.)
+  heroKey: string;          // duplicate key flow (DKY01/02/03)
+  heroNight: string;        // nighttime / late-stay (CKI13, CKO06)
+  heroBooking: string;      // booking flow (BKG08)
+  heroLoading: string;      // loading / processing backdrops (CKO02/04, PAY02)
+  heroEvents: string;       // events flow backdrop (EVT03/04)
   // Room backgrounds
   roomDeluxe: string;
   roomSuite: string;
@@ -207,6 +243,11 @@ export interface HotelConfig {
    * injects these into document.head so the kiosk can render with them.
    */
   customFonts?: CustomFont[];
+  /**
+   * Uploaded hotel policies document (PDF or Word). Referenced by the
+   * check-in signature screen.
+   */
+  policies?: HotelPolicies;
 }
 
 // ---------------------------------------------------------------------------
@@ -298,6 +339,11 @@ export const hotelConfig: HotelConfig = {
       baseRate: 189,
       currency: "USD",
       image: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+      gallery: [
+        "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+        "/images/unsplash/photo-1552321554-5fefe8c9ef14.jpg",
+        "/images/unsplash/photo-1507652313519-d4e9174996dd.jpg",
+      ],
       tag: "Best Value",
     },
     {
@@ -310,6 +356,11 @@ export const hotelConfig: HotelConfig = {
       baseRate: 329,
       currency: "USD",
       image: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+      gallery: [
+        "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+        "/images/unsplash/photo-1590490360182-c33d57733427.jpg",
+        "/images/unsplash/photo-1571896349842-33c89424de2d.jpg",
+      ],
       tag: "Popular",
     },
     {
@@ -322,6 +373,11 @@ export const hotelConfig: HotelConfig = {
       baseRate: 599,
       currency: "USD",
       image: "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
+      gallery: [
+        "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
+        "/images/unsplash/photo-1617098474202-0d0d7f60c56b.jpg",
+        "/images/unsplash/photo-1618773928121-c32242e63f39.jpg",
+      ],
       tag: "Premium",
     },
   ],
@@ -356,6 +412,13 @@ export const hotelConfig: HotelConfig = {
     heroPool: "/images/unsplash/photo-1507525428034-b723cf961d3e.jpg",
     heroSpa: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
     heroRestaurant: "/images/unsplash/photo-1517248135467-4c7edcad34c4.jpg",
+    heroWelcome: "/images/unsplash/photo-1551882547-ff40c63fe5fa.jpg",
+    heroSuccess: "/images/unsplash/photo-1566073771259-6a8506099945.jpg",
+    heroKey: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+    heroNight: "/images/unsplash/photo-1571896349842-33c89424de2d.jpg",
+    heroBooking: "/images/unsplash/photo-1542314831-068cd1dbfeeb.jpg",
+    heroLoading: "/images/unsplash/photo-1520250497591-112f2f40a3f4.jpg",
+    heroEvents: "/images/unsplash/photo-1510812431401-41d2bd2722f3.jpg",
     roomDeluxe: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
     roomSuite: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
     roomPresidential: "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
@@ -409,9 +472,20 @@ export const hotelConfig: HotelConfig = {
     tavusApiKey: "",
     didApiKey: "",
     resendApiKey: "",
+    cloudbedsApiKey: "",
+    mewsApiKey: "",
+    oracleApiKey: "",
+    stripeApiKey: "",
+    simpleViewApiKey: "",
+    trybeApiKey: "",
+    book4timeApiKey: "",
+    skyNavApiKey: "",
+    threshold360ApiKey: "",
   },
 
   enabledLocales: ["en", "es", "fr", "ja"],
 
   customFonts: [],
+
+  policies: { text: "" },
 };

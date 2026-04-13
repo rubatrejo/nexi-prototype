@@ -3,27 +3,38 @@
 import { useState } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
+import { useHotel } from "@/lib/theme-provider";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 import { useToast } from "@/lib/use-toast";
 
 const AMENITIES = ["WiFi", "Mini Bar", "Balcony", "Room Service", "Safe", "Iron", "Coffee Maker", "Bathrobe", "Smart TV"];
 
-const ROOM_PHOTOS = [
-  { url: "photo-1611892440504-42a792e24d32", labelKey: "cki.room.gallery.bedroom" },
-  { url: "photo-1552321554-5fefe8c9ef14", labelKey: "cki.room.gallery.livingArea" },
-  { url: "photo-1507652313519-d4e9174996dd", labelKey: "cki.room.gallery.bathroom" },
-  { url: "photo-1582719478250-c89cae4dc85b", labelKey: "cki.room.gallery.view" },
-  { url: "photo-1590490360182-c33d57733427", labelKey: "cki.room.gallery.balcony" },
-  { url: "photo-1571896349842-33c89424de2d", labelKey: "cki.room.gallery.lounge" },
+const FALLBACK_GALLERY = [
+  "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
+  "/images/unsplash/photo-1552321554-5fefe8c9ef14.jpg",
+  "/images/unsplash/photo-1507652313519-d4e9174996dd.jpg",
+  "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
+  "/images/unsplash/photo-1590490360182-c33d57733427.jpg",
+  "/images/unsplash/photo-1571896349842-33c89424de2d.jpg",
 ];
 
 export default function RoomAssigned() {
   const { navigate, guestName, roomNumber } = useKiosk();
   const { t } = useI18n();
+  const { rooms } = useHotel();
   const [showRoomMap, setShowRoomMap] = useState(false);
   const [showShareQR, setShowShareQR] = useState(false);
   const [activePhoto, setActivePhoto] = useState(0);
   const toast = useToast();
+
+  // Pick the assigned room (first room by default — PMS binding is out of
+  // scope for the prototype) and fall back to a static 6-photo gallery if
+  // the config doesn't ship one.
+  const assignedRoom = rooms[0];
+  const gallery = assignedRoom?.gallery && assignedRoom.gallery.length > 0
+    ? assignedRoom.gallery
+    : (assignedRoom?.image ? [assignedRoom.image, ...FALLBACK_GALLERY] : FALLBACK_GALLERY);
+  const safeIndex = Math.min(activePhoto, gallery.length - 1);
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -80,14 +91,14 @@ export default function RoomAssigned() {
           <div style={{
             position: "absolute",
             inset: 0,
-            background: `url('/images/unsplash/${ROOM_PHOTOS[activePhoto].url}.jpg') center/cover`,
+            background: `url('${gallery[safeIndex]}') center/cover`,
             transition: "background 400ms ease",
           }} />
           {/* Thumbnail strip — overlaid at bottom */}
           <div style={{ position: "absolute", bottom: 12, left: 12, right: 12, zIndex: 2 }}>
             <div className="cki12-thumbs" style={{ display: "flex", gap: 8, overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}>
               <style>{`.cki12-thumbs::-webkit-scrollbar { display: none; }`}</style>
-              {ROOM_PHOTOS.map((photo, i) => (
+              {gallery.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setActivePhoto(i)}
@@ -95,12 +106,12 @@ export default function RoomAssigned() {
                     width: 64,
                     height: 48,
                     flexShrink: 0,
-                    border: activePhoto === i ? "2px solid #fff" : "2px solid rgba(255,255,255,0.4)",
+                    border: safeIndex === i ? "2px solid #fff" : "2px solid rgba(255,255,255,0.4)",
                     borderRadius: "var(--radius-sm)",
                     cursor: "pointer",
                     position: "relative",
                     overflow: "hidden",
-                    opacity: activePhoto === i ? 1 : 0.7,
+                    opacity: safeIndex === i ? 1 : 0.7,
                     transition: "all 200ms",
                     padding: 0,
                     background: "none",
@@ -110,7 +121,7 @@ export default function RoomAssigned() {
                   <div style={{
                     position: "absolute",
                     inset: 0,
-                    background: `url('/images/unsplash/${photo.url}.jpg') center/cover`,
+                    background: `url('${src}') center/cover`,
                     borderRadius: 6,
                   }} />
                 </button>

@@ -43,6 +43,7 @@ const ICONS: Record<string, React.ReactNode> = {
   timers: <svg {...sp}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
   apis: <svg {...sp}><rect x="2" y="9" width="20" height="6" rx="2" /><path d="M6 12h.01M10 12h.01M14 12h.01" /><path d="M18 12h2" /></svg>,
   languages: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
+  policies: <svg {...sp}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>,
 };
 
 const ADMIN_LOCALES: { code: string; label: string; name: string; flag: string }[] = [
@@ -66,6 +67,7 @@ const SECTIONS = [
   { key: "timers", num: "09", label: "Timers", title: "Inactivity Timers", desc: "Tune the auto-reset thresholds for your lobby traffic." },
   { key: "apis", num: "10", label: "API Credentials", title: "API Credentials", desc: "Third-party service keys used by this client. Stored privately, never rendered on the kiosk." },
   { key: "languages", num: "11", label: "Languages", title: "Supported Languages", desc: "Pick which locales the language picker exposes on the kiosk." },
+  { key: "policies", num: "12", label: "Policies", title: "Hotel Policies", desc: "Upload the PDF or Word document guests sign on check-in, or paste the text inline." },
 ];
 
 // ─── presets: signature fields only, rest inherits from defaultConfig ──
@@ -258,6 +260,10 @@ export default function AdminCMS() {
     });
   }, []);
 
+  const patchPolicies = useCallback((p: Partial<NonNullable<HotelConfig["policies"]>>) => {
+    setCurrent((c) => (c ? { ...c, policies: { ...(c.policies ?? {}), ...p } } : c));
+  }, []);
+
   const setKioskTheme = useCallback((theme: "light" | "dark") => {
     setPreviewTheme(theme);
     const win = iframeRef.current?.contentWindow;
@@ -359,64 +365,85 @@ export default function AdminCMS() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, margin: "0 auto" }}>
-              {configs.map((cfg) => (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20, margin: "0 auto" }}>
+              {configs.map((cfg) => {
+                const enabledModules = cfg.modules?.filter((m) => m.enabled).length ?? 0;
+                const roomCount = cfg.rooms?.length ?? 0;
+                const upgradeCount = cfg.upgrades?.length ?? 0;
+                return (
                 <button key={cfg.slug} onClick={() => { setCurrent(structuredClone(cfg)); setActiveTab("client"); }} style={{
                   display: "flex", flexDirection: "column", textAlign: "left",
-                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
+                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16,
                   overflow: "hidden", cursor: "pointer", padding: 0,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 180ms",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.06)", transition: "all 180ms",
                 }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 14px 40px rgba(0,0,0,0.10)"; e.currentTarget.style.borderColor = T.borderHi; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = T.border; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 18px 50px rgba(0,0,0,0.12)"; e.currentTarget.style.borderColor = T.borderHi; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; e.currentTarget.style.borderColor = T.border; }}
                 >
-                  <div style={{ height: 150, background: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.35)), url('${cfg.images.heroExterior}') center/cover, ${T.surfaceHi}`, position: "relative" }}>
-                    <div style={{ position: "absolute", bottom: 12, left: 14, display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 14, height: 14, borderRadius: 4, background: cfg.colors.primary, boxShadow: "0 0 0 2px rgba(255,255,255,0.9)" }} />
-                      <div style={{ color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>Client</div>
+                  <div style={{ aspectRatio: "16/9", background: `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.55) 100%), url('${cfg.images.heroExterior}') center/cover, ${T.surfaceHi}`, position: "relative" }}>
+                    <div style={{ position: "absolute", top: 14, left: 16, display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: cfg.colors.primary, boxShadow: `0 0 8px ${cfg.colors.primary}` }} />
+                      <div style={{ color: "#fff", fontSize: 9, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase" }}>Client</div>
+                    </div>
+                    {cfg.brand.logo && (
+                      <div style={{ position: "absolute", top: 14, right: 16, padding: "8px 14px", background: "rgba(255,255,255,0.95)", borderRadius: 8, boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+                        <img src={cfg.brand.logo} alt={cfg.brand.name} style={{ height: 22, display: "block", maxWidth: 120, objectFit: "contain" }} />
+                      </div>
+                    )}
+                    <div style={{ position: "absolute", bottom: 16, left: 20, right: 20, color: "#fff" }}>
+                      <div style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", textShadow: "0 2px 8px rgba(0,0,0,0.5)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.brand.name}</div>
+                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", textShadow: "0 1px 4px rgba(0,0,0,0.5)", marginTop: 2 }}>{cfg.brand.tagline || "—"}</div>
                     </div>
                   </div>
-                  <div style={{ padding: "16px 18px 18px" }}>
-                    <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{cfg.brand.name}</div>
-                    <div style={{ fontSize: 11, color: T.textMuted, fontFamily: "ui-monospace, monospace" }}>{cfg.slug}</div>
+                  <div style={{ padding: "14px 20px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: T.surface }}>
+                    <div style={{ display: "flex", gap: 14, fontSize: 10, color: T.textMuted, fontFamily: T.fontBody, minWidth: 0 }}>
+                      <div><strong style={{ color: T.text, fontSize: 13, fontFamily: T.fontDisplay, fontWeight: 800 }}>{enabledModules}</strong> modules</div>
+                      <div><strong style={{ color: T.text, fontSize: 13, fontFamily: T.fontDisplay, fontWeight: 800 }}>{roomCount}</strong> rooms</div>
+                      <div><strong style={{ color: T.text, fontSize: 13, fontFamily: T.fontDisplay, fontWeight: 800 }}>{upgradeCount}</strong> upgrades</div>
+                    </div>
+                    <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "ui-monospace, monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 180 }} title={cfg.slug}>{cfg.slug}</div>
                   </div>
                 </button>
-              ))}
+              );
+              })}
               {PRESETS.map((p) => (
                 <button key={p.key} onClick={() => handlePreset(p)} style={{
                   display: "flex", flexDirection: "column", textAlign: "left",
-                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14,
+                  background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16,
                   overflow: "hidden", cursor: "pointer", padding: 0,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)", transition: "all 180ms",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.06)", transition: "all 180ms",
                 }}
-                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 14px 40px rgba(0,0,0,0.10)"; e.currentTarget.style.borderColor = T.borderHi; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; e.currentTarget.style.borderColor = T.border; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 18px 50px rgba(0,0,0,0.12)"; e.currentTarget.style.borderColor = T.borderHi; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.06)"; e.currentTarget.style.borderColor = T.border; }}
                 >
-                  <div style={{ height: 150, background: `linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.35)), url('${p.hero}') center/cover`, position: "relative" }}>
-                    <div style={{ position: "absolute", bottom: 12, left: 14, display: "flex", alignItems: "center", gap: 8 }}>
-                      <div style={{ width: 14, height: 14, borderRadius: 4, background: p.primary, boxShadow: "0 0 0 2px rgba(255,255,255,0.9)" }} />
-                      <div style={{ color: "#fff", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: "uppercase", textShadow: "0 1px 3px rgba(0,0,0,0.5)" }}>Template</div>
+                  <div style={{ aspectRatio: "16/9", background: `linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.55) 100%), url('${p.hero}') center/cover`, position: "relative" }}>
+                    <div style={{ position: "absolute", top: 14, left: 16, display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)", borderRadius: 999, border: "1px solid rgba(255,255,255,0.12)" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: p.primary, boxShadow: `0 0 8px ${p.primary}` }} />
+                      <div style={{ color: "#fff", fontSize: 9, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase" }}>Template</div>
+                    </div>
+                    <div style={{ position: "absolute", bottom: 16, left: 20, right: 20, color: "#fff" }}>
+                      <div style={{ fontFamily: T.fontDisplay, fontSize: 24, fontWeight: 800, letterSpacing: "-0.02em", textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>{p.label}</div>
+                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", textShadow: "0 1px 4px rgba(0,0,0,0.5)", marginTop: 2 }}>{p.tag}</div>
                     </div>
                   </div>
-                  <div style={{ padding: "16px 18px 18px" }}>
-                    <div style={{ fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, letterSpacing: "-0.01em", marginBottom: 4 }}>{p.label}</div>
-                    <div style={{ fontSize: 12, color: T.textDim }}>{p.tag}</div>
+                  <div style={{ padding: "14px 20px 16px", fontSize: 11, color: T.textMuted, background: T.surface }}>
+                    Start from this preset → edit everything
                   </div>
                 </button>
               ))}
               <button onClick={handleNew} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
-                background: "transparent", border: `1.5px dashed ${T.borderHi}`, borderRadius: 14,
-                cursor: "pointer", padding: "24px 16px", minHeight: 240, color: T.textDim,
-                transition: "all 180ms",
+                background: "transparent", border: `1.5px dashed ${T.borderHi}`, borderRadius: 16,
+                cursor: "pointer", padding: "24px 16px", aspectRatio: "16/9", color: T.textDim,
+                transition: "all 180ms", gridColumn: "span 2",
               }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.textDim; }}
               >
-                <div style={{ width: 48, height: 48, borderRadius: 14, border: `1.5px dashed currentColor`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 14, border: `1.5px dashed currentColor`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 12 }}>
                   <svg {...sp} width={22} height={22}><path d="M12 5v14M5 12h14" /></svg>
                 </div>
-                <div style={{ fontFamily: T.fontDisplay, fontSize: 16, fontWeight: 800, color: T.text, marginBottom: 4 }}>Blank</div>
+                <div style={{ fontFamily: T.fontDisplay, fontSize: 18, fontWeight: 800, color: T.text, marginBottom: 4 }}>Blank</div>
                 <div style={{ fontSize: 12, color: T.textDim }}>Start from scratch</div>
               </button>
             </div>
@@ -586,12 +613,29 @@ export default function AdminCMS() {
             )}
 
             {activeTab === "images" && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 10 }}>
-                <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact spec={SPEC_HERO} />
-                <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact spec={SPEC_HERO} />
-                <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact spec={SPEC_HERO} />
-                <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact spec={SPEC_HERO} />
-                <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact spec={SPEC_HERO} />
+              <div style={{ display: "grid", gap: 14 }}>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Hotel venue</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
+                    <ImageField label="Hero Exterior (idle)" value={c.images.heroExterior} onChange={(v) => patchImages("heroExterior", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Hero Lobby (dashboard)" value={c.images.heroLobby} onChange={(v) => patchImages("heroLobby", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Hero Pool" value={c.images.heroPool} onChange={(v) => patchImages("heroPool", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Hero Spa" value={c.images.heroSpa} onChange={(v) => patchImages("heroSpa", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Hero Restaurant" value={c.images.heroRestaurant} onChange={(v) => patchImages("heroRestaurant", v)} compact spec={SPEC_HERO} />
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Flow backdrops</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 8 }}>
+                    <ImageField label="Welcome (check-in intro)" value={c.images.heroWelcome} onChange={(v) => patchImages("heroWelcome", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Success / Confirmation" value={c.images.heroSuccess} onChange={(v) => patchImages("heroSuccess", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Duplicate Key" value={c.images.heroKey} onChange={(v) => patchImages("heroKey", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Night / Late stay" value={c.images.heroNight} onChange={(v) => patchImages("heroNight", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Booking flow" value={c.images.heroBooking} onChange={(v) => patchImages("heroBooking", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Loading / Processing" value={c.images.heroLoading} onChange={(v) => patchImages("heroLoading", v)} compact spec={SPEC_HERO} />
+                    <ImageField label="Events" value={c.images.heroEvents} onChange={(v) => patchImages("heroEvents", v)} compact spec={SPEC_HERO} />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -656,11 +700,40 @@ export default function AdminCMS() {
             )}
 
             {activeTab === "apis" && (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <SecretField label="HeyGen API Key" help="Avatar streaming" value={c.integrations?.heygenApiKey ?? ""} onChange={(v) => patchIntegrations("heygenApiKey", v)} />
-                <SecretField label="Tavus API Key" help="Conversational video" value={c.integrations?.tavusApiKey ?? ""} onChange={(v) => patchIntegrations("tavusApiKey", v)} />
-                <SecretField label="D-ID API Key" help="Avatar fallback" value={c.integrations?.didApiKey ?? ""} onChange={(v) => patchIntegrations("didApiKey", v)} />
-                <SecretField label="Resend API Key" help="Email delivery" value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
+              <div style={{ display: "grid", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Property Management (PMS)</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    <SecretField label="Cloudbeds" help="PMS + reservations" value={c.integrations?.cloudbedsApiKey ?? ""} onChange={(v) => patchIntegrations("cloudbedsApiKey", v)} />
+                    <SecretField label="MEWS" help="PMS" value={c.integrations?.mewsApiKey ?? ""} onChange={(v) => patchIntegrations("mewsApiKey", v)} />
+                    <SecretField label="Oracle OPERA" help="Hospitality PMS" value={c.integrations?.oracleApiKey ?? ""} onChange={(v) => patchIntegrations("oracleApiKey", v)} />
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Payments</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    <SecretField label="Stripe" help="Payment processing" value={c.integrations?.stripeApiKey ?? ""} onChange={(v) => patchIntegrations("stripeApiKey", v)} />
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Destination & experiences</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                    <SecretField label="SimpleView" help="DMO CMS" value={c.integrations?.simpleViewApiKey ?? ""} onChange={(v) => patchIntegrations("simpleViewApiKey", v)} />
+                    <SecretField label="Trybe" help="Spa + experiences" value={c.integrations?.trybeApiKey ?? ""} onChange={(v) => patchIntegrations("trybeApiKey", v)} />
+                    <SecretField label="Book4Time" help="Spa booking" value={c.integrations?.book4timeApiKey ?? ""} onChange={(v) => patchIntegrations("book4timeApiKey", v)} />
+                    <SecretField label="SkyNav" help="Wayfinding" value={c.integrations?.skyNavApiKey ?? ""} onChange={(v) => patchIntegrations("skyNavApiKey", v)} />
+                    <SecretField label="Threshold 360" help="Virtual tours" value={c.integrations?.threshold360ApiKey ?? ""} onChange={(v) => patchIntegrations("threshold360ApiKey", v)} />
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Avatar, video & email</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
+                    <SecretField label="HeyGen" help="Avatar streaming" value={c.integrations?.heygenApiKey ?? ""} onChange={(v) => patchIntegrations("heygenApiKey", v)} />
+                    <SecretField label="Tavus" help="Conversational video" value={c.integrations?.tavusApiKey ?? ""} onChange={(v) => patchIntegrations("tavusApiKey", v)} />
+                    <SecretField label="D-ID" help="Avatar fallback" value={c.integrations?.didApiKey ?? ""} onChange={(v) => patchIntegrations("didApiKey", v)} />
+                    <SecretField label="Resend" help="Email" value={c.integrations?.resendApiKey ?? ""} onChange={(v) => patchIntegrations("resendApiKey", v)} />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -704,6 +777,10 @@ export default function AdminCMS() {
                 </div>
               );
             })()}
+
+            {activeTab === "policies" && (
+              <PoliciesTab policies={c.policies} onPatch={patchPolicies} onToastError={(msg) => flashToast(msg, "error")} />
+            )}
           </div>
         </div>
 
@@ -824,12 +901,101 @@ function ModuleGlyph({ icon }: { icon: string }) {
   return <>{G[icon] ?? <circle cx="12" cy="12" r="10" />}</>;
 }
 
+function DroppableImage({ value, onChange, spec = SPEC_HERO, width = 160, height = 100, empty = "+ Drop image" }: { value: string; onChange: (v: string) => void; spec?: UploadSpec; width?: number; height?: number; empty?: string }) {
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > spec.maxBytes) return;
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      onChange(dataUrl);
+    } catch {}
+  };
+  return (
+    <div
+      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
+      onClick={() => fileRef.current?.click()}
+      title={`Click to upload or drop · ${spec.formats} · max ${formatBytes(spec.maxBytes)}`}
+      style={{
+        width, height, borderRadius: 9, flexShrink: 0, cursor: "pointer", position: "relative",
+        background: value ? `url('${value}') center/cover, ${T.surfaceHi}` : T.surfaceHi,
+        border: `${dragOver ? "1.5px dashed " + T.accent : "1px solid " + T.border}`,
+        transition: "all 120ms",
+        overflow: "hidden",
+      }}
+    >
+      <input ref={fileRef} type="file" accept={spec.accept} style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.currentTarget.value = ""; }} />
+      {!value && (
+        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: T.textMuted, fontSize: 10, fontWeight: 600, textAlign: "center", padding: 8 }}>
+          {empty}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GalleryStrip({ gallery, onChange, spec = SPEC_HERO }: { gallery: string[]; onChange: (next: string[]) => void; spec?: UploadSpec }) {
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const handleFiles = async (files: FileList | File[]) => {
+    const arr = Array.from(files);
+    const next: string[] = [...gallery];
+    for (const f of arr) {
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > spec.maxBytes) continue;
+      try { next.push(await readFileAsDataURL(f)); } catch {}
+    }
+    onChange(next);
+  };
+  const removeAt = (i: number) => onChange(gallery.filter((_, idx) => idx !== i));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8 }}>Gallery ({gallery.length})</div>
+        <div style={{ fontSize: 9, color: T.textMuted }}>Drop multiple · {spec.formats} · max {formatBytes(spec.maxBytes)}</div>
+      </div>
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files?.length) handleFiles(e.dataTransfer.files); }}
+        style={{
+          display: "flex", flexWrap: "wrap", gap: 6, padding: 6, borderRadius: 8,
+          background: dragOver ? `${T.accent}10` : T.bg,
+          border: `1.5px dashed ${dragOver ? T.accent : T.border}`,
+          minHeight: 58,
+          transition: "all 120ms",
+        }}
+      >
+        <input ref={fileRef} type="file" accept={spec.accept} multiple style={{ display: "none" }} onChange={(e) => { if (e.target.files) handleFiles(e.target.files); e.currentTarget.value = ""; }} />
+        {gallery.map((src, i) => (
+          <div key={i} style={{ position: "relative", width: 46, height: 46, borderRadius: 6, background: `url('${src}') center/cover, ${T.surfaceHi}`, border: `1px solid ${T.border}` }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); removeAt(i); }}
+              title="Remove"
+              style={{ position: "absolute", top: -5, right: -5, width: 16, height: 16, borderRadius: "50%", background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 10, lineHeight: 1, padding: 0 }}
+            >×</button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          style={{ width: 46, height: 46, borderRadius: 6, background: "transparent", border: `1px dashed ${T.borderHi}`, color: T.textMuted, cursor: "pointer", fontSize: 18, fontWeight: 400, padding: 0 }}
+        >+</button>
+      </div>
+    </div>
+  );
+}
+
 function RoomCard({ room, onChange, onRemove }: { room: RoomType; onChange: (p: Partial<RoomType>) => void; onRemove: () => void }) {
   const [hover, setHover] = useState(false);
   return (
     <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "flex", gap: 14, padding: 14, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, position: "relative" }}>
-      <div style={{ width: 160, height: 100, borderRadius: 9, background: `url('${room.image}') center/cover, ${T.surfaceHi}`, flexShrink: 0, border: `1px solid ${T.border}` }} />
+      <DroppableImage value={room.image} onChange={(v) => onChange({ image: v })} spec={SPEC_HERO} empty="Main photo" />
       <div style={{ flex: 1, display: "grid", gap: 8, minWidth: 0 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
           <input style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, padding: 0, letterSpacing: "-0.01em" }} value={room.name} onChange={(e) => onChange({ name: e.target.value })} />
@@ -840,10 +1006,13 @@ function RoomCard({ room, onChange, onRemove }: { room: RoomType; onChange: (p: 
           </div>
         </div>
         <input style={{ background: "transparent", border: "none", outline: "none", fontSize: 12, color: T.textDim, padding: 0, width: "100%" }} value={room.description} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description" />
-        <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", width: 100 }} value={room.bedType} onChange={(e) => onChange({ bedType: e.target.value })} placeholder="Bed" />
-          <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", flex: 1 }} value={room.image} onChange={(e) => onChange({ image: e.target.value })} placeholder="Image URL" />
+          <input type="number" style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", width: 80 }} value={room.sizeSqFt} onChange={(e) => onChange({ sizeSqFt: Number(e.target.value) })} placeholder="sq ft" />
+          <input type="number" style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", width: 60 }} value={room.maxGuests} onChange={(e) => onChange({ maxGuests: Number(e.target.value) })} placeholder="max" />
+          <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", flex: 1 }} value={room.tag ?? ""} onChange={(e) => onChange({ tag: e.target.value })} placeholder="Tag (e.g. Best Value)" />
         </div>
+        <GalleryStrip gallery={room.gallery ?? []} onChange={(next) => onChange({ gallery: next })} />
       </div>
       {hover && (
         <button onClick={onRemove} style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 7, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
@@ -857,14 +1026,14 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   return (
     <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "flex", gap: 14, padding: 14, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, position: "relative" }}>
-      <div style={{ width: 160, height: 100, borderRadius: 9, background: `url('${upgrade.image}') center/cover, ${T.surfaceHi}`, flexShrink: 0, border: `1px solid ${T.border}` }} />
+      <DroppableImage value={upgrade.image} onChange={(v) => onChange({ image: v })} spec={SPEC_HERO} empty="Main photo" />
       <div style={{ flex: 1, display: "grid", gap: 8, minWidth: 0 }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8 }}>
           <input style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 800, color: T.text, padding: 0, letterSpacing: "-0.01em" }} value={upgrade.title} onChange={(e) => onChange({ title: e.target.value })} />
           <input style={{ width: 110, background: "transparent", border: "none", outline: "none", color: T.accent, fontFamily: T.fontDisplay, fontWeight: 800, fontSize: 20, textAlign: "right", letterSpacing: "-0.01em" }} value={upgrade.price} onChange={(e) => onChange({ price: e.target.value })} />
         </div>
         <input style={{ background: "transparent", border: "none", outline: "none", fontSize: 12, color: T.textDim, padding: 0, width: "100%" }} value={upgrade.description} onChange={(e) => onChange({ description: e.target.value })} placeholder="Short description" />
-        <input style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 9px", fontSize: 11, color: T.textDim, outline: "none", marginTop: 4 }} value={upgrade.image} onChange={(e) => onChange({ image: e.target.value })} placeholder="Image URL" />
+        <GalleryStrip gallery={upgrade.gallery ?? []} onChange={(next) => onChange({ gallery: next })} />
       </div>
       {hover && (
         <button onClick={onRemove} style={{ position: "absolute", top: 10, right: 10, width: 26, height: 26, borderRadius: 7, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 14, lineHeight: 1 }}>×</button>
@@ -1240,6 +1409,82 @@ function Toggle({ on, onClick }: { on: boolean; onClick: (e: React.MouseEvent) =
     }}>
       <div style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 150ms" }} />
     </button>
+  );
+}
+
+function PoliciesTab({ policies, onPatch, onToastError }: {
+  policies: HotelConfig["policies"];
+  onPatch: (p: Partial<NonNullable<HotelConfig["policies"]>>) => void;
+  onToastError: (msg: string) => void;
+}) {
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const MAX = 3 * 1024 * 1024; // 3 MB
+  const handleFile = async (file: File) => {
+    const ok = /\.(pdf|docx?)$/i.test(file.name) || /pdf|word|document/.test(file.type);
+    if (!ok) { onToastError("Use .pdf or .docx"); return; }
+    if (file.size > MAX) { onToastError(`Too large (${formatBytes(file.size)} · max ${formatBytes(MAX)})`); return; }
+    try {
+      const dataUrl = await readFileAsDataURL(file);
+      onPatch({ filename: file.name, mimeType: file.type, dataUrl });
+    } catch {
+      onToastError("Couldn't read the file");
+    }
+  };
+  const clearFile = () => onPatch({ filename: undefined, mimeType: undefined, dataUrl: undefined });
+  const hasFile = !!policies?.dataUrl;
+
+  return (
+    <div style={{ display: "grid", gap: 10 }}>
+      <div>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>Document upload</div>
+        <div
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleFile(f); }}
+          style={{
+            display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 10,
+            background: dragOver ? `${T.accent}10` : T.surface,
+            border: `1.5px dashed ${dragOver ? T.accent : T.borderHi}`,
+            transition: "all 120ms",
+          }}
+        >
+          <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.currentTarget.value = ""; }} />
+          <div style={{ width: 44, height: 44, borderRadius: 8, background: `${T.accent}14`, border: `1px solid ${T.accent}28`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {hasFile ? (
+              <>
+                <div style={{ fontSize: 13, fontWeight: 700, color: T.text, fontFamily: T.fontDisplay, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{policies?.filename ?? "policies"}</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>{Math.round((policies?.dataUrl?.length ?? 0) / 1024)} KB · will be shown on CKI-08 sign-and-accept</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 13, fontWeight: 700, color: T.text, fontFamily: T.fontDisplay }}>Drop a PDF or Word file</div>
+                <div style={{ fontSize: 10, color: T.textMuted }}>or click to choose · .pdf · .doc · .docx · max 3 MB</div>
+              </>
+            )}
+          </div>
+          <button type="button" onClick={() => fileRef.current?.click()} style={{ padding: "7px 14px", borderRadius: 7, background: T.accent, color: "#fff", border: `1px solid ${T.accent}`, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+            {hasFile ? "Replace" : "Choose file"}
+          </button>
+          {hasFile && (
+            <button type="button" onClick={clearFile} style={{ padding: "7px 10px", borderRadius: 7, background: "transparent", border: `1px solid ${T.border}`, color: T.error, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>Remove</button>
+          )}
+        </div>
+      </div>
+
+      <div>
+        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>Inline text (optional)</div>
+        <textarea
+          value={policies?.text ?? ""}
+          onChange={(e) => onPatch({ text: e.target.value })}
+          placeholder="Paste or type the policies text. This is what actually renders inside the kiosk's signature screen. Leave empty to use the default template."
+          style={{ ...baseInput, minHeight: 100, fontFamily: T.fontBody, resize: "vertical", lineHeight: 1.5 }}
+        />
+      </div>
+    </div>
   );
 }
 

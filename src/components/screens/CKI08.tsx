@@ -2,10 +2,11 @@
 
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
+import { useHotel } from "@/lib/theme-provider";
 import { useRef, useState, useCallback, useEffect } from "react";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 
-const POLICIES = `Hotel Policies & Terms of Stay
+const POLICIES_FALLBACK = `Hotel Policies & Terms of Stay
 
 1. Check-in / Check-out
 Check-in time is 3:00 PM. Check-out time is 11:00 AM. Late check-out may be available upon request and subject to availability.
@@ -34,9 +35,11 @@ Guest information is collected for reservation and service purposes only. We do 
 export default function TermsSignature() {
   const { navigate, goBack } = useKiosk();
   const { t } = useI18n();
+  const { images, policies } = useHotel();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSigned, setHasSigned] = useState(false);
+  const POLICIES = policies?.text?.trim() || POLICIES_FALLBACK;
 
   const getPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
@@ -97,7 +100,7 @@ export default function TermsSignature() {
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, background: "url('/images/unsplash/photo-1566073771259-6a8506099945.jpg') center/cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: `url('${images.heroExterior}') center/cover` }} />
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.75))" }} />
       <div className="grain" />
 
