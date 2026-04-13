@@ -909,11 +909,11 @@ export default function AdminCMS() {
         </div>
 
         {/* Preview panel — bottom 50%, left nav + iframe 16:9 with breathing room */}
-        <div style={{ flex: "0 0 50%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", display: "flex", gap: 0 }}>
+        <div style={{ flex: "0 0 50%", borderTop: `1px solid ${T.border}`, background: T.surface, minHeight: 0, overflow: "hidden", display: "flex", gap: 0 }}>
           <ModuleNav iframeRef={iframeRef} modules={c.modules} />
-          <div style={{ flex: 1, padding: "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0 }}>
-            <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.bg, display: "flex" }}>
-              <iframe ref={iframeRef} key={previewKey} src={previewUrl} onLoad={handleIframeLoad} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
+          <div style={{ flex: 1, padding: "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0, background: T.surface }}>
+            <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.surface, display: "flex" }}>
+              <iframe ref={iframeRef} key={previewKey} src={previewUrl} onLoad={handleIframeLoad} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.surface }} title="Kiosk preview" />
             </div>
           </div>
         </div>
