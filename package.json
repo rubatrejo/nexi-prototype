@@ -19,6 +19,7 @@
     "@heygen/streaming-avatar": "^2.1.0",
     "@types/node": "^25.3.0",
     "@types/react": "^19.2.14",
+    "@upstash/redis": "^1.37.0",
     "framer-motion": "^12.34.3",
     "leaflet": "^1.9.4",
     "next": "^16.2.3",
