@@ -398,7 +398,7 @@ export default function AdminCMS() {
               </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 20, margin: "0 auto" }}>
               {configs.map((cfg) => {
                 const enabledModules = cfg.modules?.filter((m) => m.enabled).length ?? 0;
                 const roomCount = cfg.rooms?.length ?? 0;
@@ -467,8 +467,8 @@ export default function AdminCMS() {
               <button onClick={handleNew} style={{
                 display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
                 background: "transparent", border: `1.5px dashed ${T.borderHi}`, borderRadius: 16,
-                cursor: "pointer", padding: "24px 16px", aspectRatio: "16/9", color: T.textDim,
-                transition: "all 180ms",
+                cursor: "pointer", padding: "24px 16px", color: T.textDim,
+                transition: "all 180ms", minHeight: 325,
               }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.color = T.accent; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.textDim; }}
