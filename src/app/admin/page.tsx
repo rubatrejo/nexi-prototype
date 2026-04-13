@@ -954,6 +954,21 @@ function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFra
         Quick Nav
       </div>
       <button
+        onClick={() => send("IDL-01")}
+        style={{
+          display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 7,
+          background: "transparent", border: "none", cursor: "pointer", textAlign: "left",
+          color: T.text, fontFamily: T.fontBody, fontSize: 11, fontWeight: 600,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = `${T.accent}12`; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+      >
+        <div style={{ width: 18, height: 18, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 2a10 10 0 0 0 0 20" /></svg>
+        </div>
+        Idle Screen
+      </button>
+      <button
         onClick={() => send("DSH-01")}
         style={{
           display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 7,
