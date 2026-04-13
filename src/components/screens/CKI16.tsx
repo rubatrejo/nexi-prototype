@@ -2,7 +2,8 @@
 
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
-import { NexiLogoFull, PoweredByTrueOmni } from "@/components/ui/Icons";
+import { PoweredByTrueOmni } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function WelcomeComplete() {
   const { navigate, guestName } = useKiosk();
@@ -17,7 +18,7 @@ export default function WelcomeComplete() {
       <div style={{ position: "relative", zIndex: 2, height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "32px 48px" }}>
         {/* Center content */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10 }}>
-          <NexiLogoFull height={28} color="#fff" />
+          <BrandLogo theme="dark" height={28} color="#fff" />
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "2rem", fontWeight: 800, color: "#fff", letterSpacing: -0.5, marginTop: 8 }}>
             {t("cki.welcome.home").replace("{name}", guestName.split(" ")[0])}
           </h1>

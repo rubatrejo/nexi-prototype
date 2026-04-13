@@ -1,7 +1,7 @@
 "use client";
 
 import { useKiosk } from "@/lib/kiosk-context";
-import { NexiLogoFull } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 const OPTIONS = [
   {
@@ -41,7 +41,7 @@ export default function ECI01() {
       <div className="grain" />
 
       <div style={{ position: "absolute", top: "5%", left: "6%", right: "6%", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 3 }}>
-        <NexiLogoFull height={28} color="#fff" />
+        <BrandLogo theme="dark" height={28} color="#fff" />
       </div>
 
       <div style={{ position: "absolute", inset: 0, zIndex: 3, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", paddingBottom: 40 }}>

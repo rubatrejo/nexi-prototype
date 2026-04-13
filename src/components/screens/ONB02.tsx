@@ -3,7 +3,7 @@
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n, LOCALES } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
-import { NexiLogoFull } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 const ACTIONS = [
   {
@@ -68,7 +68,7 @@ export default function OnboardingAction() {
 
       {/* Top Bar */}
       <div style={{ position: "absolute", top: "5%", left: "6%", right: "6%", display: "flex", justifyContent: "space-between", alignItems: "center", zIndex: 5 }}>
-        <NexiLogoFull height={28} color="#fff" />
+        <BrandLogo theme="dark" height={28} color="#fff" />
         {/* Language pills */}
         <div style={{ display: "flex", gap: 6 }}>
           {LOCALES.map((l) => (

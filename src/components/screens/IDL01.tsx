@@ -4,7 +4,8 @@ import { useRef, useCallback } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
 import { useHotel } from "@/lib/theme-provider";
-import { NexiLogoFull, PoweredByTrueOmni } from "@/components/ui/Icons";
+import { PoweredByTrueOmni } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function IdleScreen() {
   const { navigate } = useKiosk();
@@ -72,7 +73,7 @@ export default function IdleScreen() {
         }}
       >
         <div onClick={handleLogoTap} style={{ cursor: "pointer" }}>
-          <NexiLogoFull height={30} color="#fff" />
+          <BrandLogo theme="dark" height={30} color="#fff" />
         </div>
         <div
           style={{

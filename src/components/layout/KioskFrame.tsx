@@ -7,7 +7,8 @@ import { getTransitionType, getMotionProps } from "@/lib/transitions";
 import ErrorModal from "@/components/ui/ErrorModal";
 import AIConcierge from "@/components/ui/AIConcierge";
 import InactivityModal from "@/components/ui/InactivityModal";
-import { NexiLogoFull, PoweredByTrueOmni } from "@/components/ui/Icons";
+import { PoweredByTrueOmni } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function KioskFrame({ children, onBackToSelection, onGoToROI }: { children: React.ReactNode; onBackToSelection?: () => void; onGoToROI?: () => void }) {
   const { currentScreen, previousScreen, theme, navOpen, toggleTheme, guestMode, toggleGuestMode } = useKiosk();
@@ -35,7 +36,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI }: {
     >
       {/* Logo + Toggles */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, flexShrink: 0 }}>
-        <NexiLogoFull color="#1A1A1A" height={38} />
+        <BrandLogo color="#1A1A1A" height={38} />
         <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
           <button
             onClick={toggleTheme}
