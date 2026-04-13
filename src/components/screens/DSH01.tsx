@@ -7,56 +7,9 @@ import { useHotel } from "@/lib/theme-provider";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 import ADS01 from "@/components/screens/ADS01";
 
-const MODULE_KEYS: { id: string; labelKey: string; icon: string; color: string }[] = [
-  { id: "RSV-01", labelKey: "dsh.roomService", icon: "concierge-bell", color: "var(--primary)" },
-  { id: "EVT-01", labelKey: "dsh.events", icon: "calendar", color: "var(--purple)" },
-  { id: "LST-01", labelKey: "dsh.explore", icon: "compass", color: "var(--success)" },
-  { id: "WAY-01", labelKey: "dsh.wayfinding", icon: "map-pin", color: "var(--amber)" },
-  { id: "WIF-01", labelKey: "dsh.wifi", icon: "wifi", color: "var(--primary)" },
-  { id: "FAQ-01", labelKey: "dsh.faq", icon: "help-circle", color: "var(--text-secondary)" },
-  { id: "DKY-01", labelKey: "dsh.duplicateKey", icon: "key", color: "var(--amber)" },
-  { id: "LCO-01", labelKey: "dsh.lateCheckout", icon: "clock", color: "var(--purple)" },
-  { id: "CKO-01", labelKey: "dsh.checkout", icon: "log-out", color: "var(--error)" },
-];
-
-const UPGRADES = [
-  {
-    title: "Suite Upgrade",
-    price: "$89/night",
-    img: "/images/unsplash/photo-1590490360182-c33d57733427.jpg",
-  },
-  {
-    title: "Breakfast Package",
-    price: "$35/person",
-    img: "/images/unsplash/photo-1504674900247-0877df9cc836.jpg",
-  },
-  {
-    title: "Spa Access",
-    price: "$45",
-    img: "/images/unsplash/photo-1544161515-4ab6ce6db874.jpg",
-  },
-];
-
-const AVAILABLE_ROOMS = [
-  {
-    title: "Deluxe King",
-    price: "From $189/night",
-    tag: "Best Value",
-    img: "/images/unsplash/photo-1611892440504-42a792e24d32.jpg",
-  },
-  {
-    title: "Ocean Suite",
-    price: "From $329/night",
-    tag: "Popular",
-    img: "/images/unsplash/photo-1582719478250-c89cae4dc85b.jpg",
-  },
-  {
-    title: "Presidential Suite",
-    price: "From $599/night",
-    tag: "Premium",
-    img: "/images/unsplash/photo-1631049307264-da0ec9d70304.jpg",
-  },
-];
+// Dashboard modules, upgrades, and rooms now come from hotelConfig via
+// useHotel() — see A5 refactor. Previously a MODULE_KEYS / UPGRADES /
+// AVAILABLE_ROOMS const lived here and duplicated the config values.
 
 function ModuleIcon({ name, size = 20 }: { name: string; size?: number }) {
   const s = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const };
@@ -78,10 +31,20 @@ function ModuleIcon({ name, size = 20 }: { name: string; size?: number }) {
 export default function DashboardScreen() {
   const { navigate, guestName, roomNumber, roomType, checkOutDate, guestMode } = useKiosk();
   const { t } = useI18n();
-  const { brand, images } = useHotel();
+  const { brand, images, modules, upgrades, rooms } = useHotel();
   const isCheckedIn = !guestMode && !!roomNumber;
   const [showAd, setShowAd] = useState(false);
   const [adDismissed, setAdDismissed] = useState(false);
+
+  // Dashboard modules: filter by enabled + having a dashboardOrder, then sort.
+  const dashboardModules = modules
+    .filter((m) => m.enabled && m.dashboardOrder != null)
+    .sort((a, b) => (a.dashboardOrder ?? 0) - (b.dashboardOrder ?? 0));
+
+  // Sidebar items: upgrades when checked in, rooms when browsing.
+  const sidebarItems = isCheckedIn
+    ? upgrades.map((u) => ({ title: u.title, price: u.price, img: u.image, tag: undefined as string | undefined }))
+    : rooms.map((r) => ({ title: r.name, price: `From $${r.baseRate}/night`, img: r.image, tag: r.tag }));
 
   useEffect(() => {
     if (adDismissed) return;
@@ -186,10 +149,10 @@ export default function DashboardScreen() {
                 gap: 12,
               }}
             >
-              {MODULE_KEYS.map((mod) => (
+              {dashboardModules.map((mod) => (
                 <button
                   key={mod.id}
-                  onClick={() => navigate(mod.id as any)}
+                  onClick={() => navigate(mod.entryScreen as any)}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -234,7 +197,7 @@ export default function DashboardScreen() {
                       color: "var(--text)",
                     }}
                   >
-                    {t(mod.labelKey)}
+                    {mod.labelKey ? t(mod.labelKey) : mod.label}
                   </span>
                 </button>
               ))}
@@ -269,7 +232,7 @@ export default function DashboardScreen() {
             {isCheckedIn ? t("dsh.upgradesOffers") : t("dsh.availableRooms")}
           </h3>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {(isCheckedIn ? UPGRADES : AVAILABLE_ROOMS).map((item, i) => (
+            {sidebarItems.map((item, i) => (
               <button
                 key={i}
                 onClick={() => navigate(roomNumber ? "UPS-01" as any : "BKG-01" as any)}
@@ -289,8 +252,8 @@ export default function DashboardScreen() {
                     background: `url('${item.img}') center/cover`,
                   }}
                 />
-                {"tag" in item && (
-                  <div style={{ position: "absolute", top: 6, right: 6, background: "var(--primary)", color: "#fff", fontSize: "0.5625rem", fontWeight: 700, padding: "2px 8px", borderRadius: "var(--radius-full)" }}>{(item as any).tag}</div>
+                {item.tag && (
+                  <div style={{ position: "absolute", top: 6, right: 6, background: "var(--primary)", color: "#fff", fontSize: "0.5625rem", fontWeight: 700, padding: "2px 8px", borderRadius: "var(--radius-full)" }}>{item.tag}</div>
                 )}
                 <div style={{ padding: "10px 12px" }}>
                   <div

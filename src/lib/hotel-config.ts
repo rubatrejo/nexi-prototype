@@ -65,10 +65,18 @@ export interface HotelFonts {
 export interface HotelModule {
   id: string;
   label: string;
+  /** Optional i18n key. When set, screens prefer t(labelKey) over label. */
+  labelKey?: string;
   icon: string;
   entryScreen: string;
   enabled: boolean;
   color: string;
+  /**
+   * Optional placement on the Dashboard grid. Modules without this field are
+   * considered "internal" (still usable via navigate) and don't render in the
+   * DSH-01 grid. Modules with this field render sorted ascending.
+   */
+  dashboardOrder?: number;
 }
 
 export interface RoomType {
@@ -211,22 +219,22 @@ export const hotelConfig: HotelConfig = {
   },
 
   modules: [
-    { id: "check-in",       label: "Check In",        icon: "log-in",         entryScreen: "CKI-01",  enabled: true,  color: "var(--primary)" },
-    { id: "check-out",      label: "Check Out",       icon: "log-out",        entryScreen: "CKO-01",  enabled: true,  color: "var(--error)" },
-    { id: "booking",        label: "Booking",         icon: "calendar-plus",  entryScreen: "BKG-01",  enabled: true,  color: "var(--purple)" },
-    { id: "room-service",   label: "Room Service",    icon: "concierge-bell", entryScreen: "RSV-01",  enabled: true,  color: "var(--primary)" },
-    { id: "wayfinding",     label: "Wayfinding",      icon: "map-pin",        entryScreen: "WAY-01",  enabled: true,  color: "var(--amber)" },
-    { id: "events",         label: "Events",          icon: "calendar",       entryScreen: "EVT-01",  enabled: true,  color: "var(--purple)" },
-    { id: "explore",        label: "Explore",         icon: "compass",        entryScreen: "LST-01",  enabled: true,  color: "var(--success)" },
-    { id: "wifi",           label: "Wi-Fi",           icon: "wifi",           entryScreen: "WIF-01",  enabled: true,  color: "var(--primary)" },
-    { id: "faq",            label: "FAQ",             icon: "help-circle",    entryScreen: "FAQ-01",  enabled: true,  color: "var(--text-secondary)" },
-    { id: "upsells",        label: "Upsells",         icon: "gift",           entryScreen: "UPS-01",  enabled: true,  color: "var(--amber)" },
-    { id: "ads",            label: "Advertisements",  icon: "megaphone",      entryScreen: "ADS-01",  enabled: true,  color: "var(--orange)" },
-    { id: "payments",       label: "TruePay",         icon: "credit-card",    entryScreen: "PAY-01",  enabled: true,  color: "var(--success)" },
-    { id: "late-checkout",  label: "Late Check-out",  icon: "clock",          entryScreen: "LCO-01",  enabled: true,  color: "var(--purple)" },
-    { id: "early-checkin",  label: "Early Check-in",  icon: "sunrise",        entryScreen: "ECI-01",  enabled: true,  color: "var(--amber)" },
-    { id: "duplicate-key",  label: "Duplicate Key",   icon: "key",            entryScreen: "DKY-01",  enabled: true,  color: "var(--amber)" },
-    { id: "ai-avatar",      label: "AI Concierge",    icon: "bot",            entryScreen: "AVT-01",  enabled: true,  color: "var(--primary)" },
+    { id: "check-in",       label: "Check In",        labelKey: "dsh.checkin",       icon: "log-in",         entryScreen: "CKI-01",  enabled: true,  color: "var(--primary)"        },
+    { id: "check-out",      label: "Check Out",       labelKey: "dsh.checkout",      icon: "log-out",        entryScreen: "CKO-01",  enabled: true,  color: "var(--error)",          dashboardOrder: 9 },
+    { id: "booking",        label: "Booking",         labelKey: "dsh.booking",       icon: "calendar-plus",  entryScreen: "BKG-01",  enabled: true,  color: "var(--purple)"         },
+    { id: "room-service",   label: "Room Service",    labelKey: "dsh.roomService",   icon: "concierge-bell", entryScreen: "RSV-01",  enabled: true,  color: "var(--primary)",        dashboardOrder: 1 },
+    { id: "events",         label: "Events",          labelKey: "dsh.events",        icon: "calendar",       entryScreen: "EVT-01",  enabled: true,  color: "var(--purple)",         dashboardOrder: 2 },
+    { id: "explore",        label: "Explore",         labelKey: "dsh.explore",       icon: "compass",        entryScreen: "LST-01",  enabled: true,  color: "var(--success)",        dashboardOrder: 3 },
+    { id: "wayfinding",     label: "Wayfinding",      labelKey: "dsh.wayfinding",    icon: "map-pin",        entryScreen: "WAY-01",  enabled: true,  color: "var(--amber)",          dashboardOrder: 4 },
+    { id: "wifi",           label: "Wi-Fi",           labelKey: "dsh.wifi",          icon: "wifi",           entryScreen: "WIF-01",  enabled: true,  color: "var(--primary)",        dashboardOrder: 5 },
+    { id: "faq",            label: "FAQ",             labelKey: "dsh.faq",           icon: "help-circle",    entryScreen: "FAQ-01",  enabled: true,  color: "var(--text-secondary)", dashboardOrder: 6 },
+    { id: "duplicate-key",  label: "Duplicate Key",   labelKey: "dsh.duplicateKey",  icon: "key",            entryScreen: "DKY-01",  enabled: true,  color: "var(--amber)",          dashboardOrder: 7 },
+    { id: "late-checkout",  label: "Late Check-out",  labelKey: "dsh.lateCheckout",  icon: "clock",          entryScreen: "LCO-01",  enabled: true,  color: "var(--purple)",         dashboardOrder: 8 },
+    { id: "upsells",        label: "Upsells",         labelKey: "dsh.upsells",       icon: "gift",           entryScreen: "UPS-01",  enabled: true,  color: "var(--amber)"          },
+    { id: "ads",            label: "Advertisements",  labelKey: "dsh.ads",           icon: "megaphone",      entryScreen: "ADS-01",  enabled: true,  color: "var(--orange)"         },
+    { id: "payments",       label: "TruePay",         labelKey: "dsh.payments",      icon: "credit-card",    entryScreen: "PAY-01",  enabled: true,  color: "var(--success)"        },
+    { id: "early-checkin",  label: "Early Check-in",  labelKey: "dsh.earlyCheckin",  icon: "sunrise",        entryScreen: "ECI-01",  enabled: true,  color: "var(--amber)"          },
+    { id: "ai-avatar",      label: "AI Concierge",    labelKey: "dsh.aiConcierge",   icon: "bot",            entryScreen: "AVT-01",  enabled: true,  color: "var(--primary)"        },
   ],
 
   rooms: [
