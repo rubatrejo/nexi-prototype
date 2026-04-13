@@ -136,6 +136,7 @@ export default function AdminCMS() {
   const [previewKey, setPreviewKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const flashToast = useCallback((msg: string) => {
     setToast(msg);
@@ -146,6 +147,43 @@ export default function AdminCMS() {
   useEffect(() => {
     fetch("/api/admin/configs").then((r) => r.json()).then((d) => setConfigs(d.configs ?? [])).catch(() => {});
   }, []);
+
+  // ─── live preview: post current config to iframe on every edit ─────
+  // Debounced so we don't flood postMessage during rapid typing.
+  useEffect(() => {
+    if (!current) return;
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return;
+    const t = setTimeout(() => {
+      try { win.postMessage({ type: "nexi-cms:config-update", config: current }, "*"); } catch {}
+    }, 120);
+    return () => clearTimeout(t);
+  }, [current]);
+
+  // Re-post the config when the iframe finishes loading (handles Save reloads).
+  const handleIframeLoad = useCallback(() => {
+    if (!current) return;
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return;
+    try { win.postMessage({ type: "nexi-cms:config-update", config: current }, "*"); } catch {}
+  }, [current]);
+
+  // Listen for the iframe's "ready" announcement and immediately push
+  // the current config in response. This handshake eliminates the race
+  // where onLoad fires before the iframe's React tree mounts its own
+  // message listener.
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { type?: string } | null;
+      if (!data || data.type !== "nexi-cms:ready") return;
+      if (!current) return;
+      const win = iframeRef.current?.contentWindow;
+      if (!win) return;
+      try { win.postMessage({ type: "nexi-cms:config-update", config: current }, "*"); } catch {}
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [current]);
 
   // ─── patchers ────────────────────────────────────────────────────
   const patch = useCallback(<K extends keyof HotelConfig>(key: K, value: HotelConfig[K]) => {
@@ -366,8 +404,8 @@ export default function AdminCMS() {
       </div>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0 }}>
-        {/* Form panel — top 40% */}
-        <div style={{ flex: "0 0 40%", overflow: "auto", padding: "16px 40px 20px", background: T.bg, minHeight: 0 }}>
+        {/* Form panel — top 50% */}
+        <div style={{ flex: "0 0 50%", overflow: "auto", padding: "16px 40px 20px", background: T.bg, minHeight: 0 }}>
           <div style={{ maxWidth: 1280, margin: "0 auto" }}>
             <SectionHeader section={activeSection} />
 
@@ -521,10 +559,13 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        {/* Preview panel — bottom 60%, iframe sized 16:9 with breathing room */}
-        <div style={{ flex: "0 0 60%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", padding: "28px 48px 32px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.bg, display: "flex" }}>
-            <iframe key={previewKey} src={previewUrl} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
+        {/* Preview panel — bottom 50%, left nav + iframe 16:9 with breathing room */}
+        <div style={{ flex: "0 0 50%", borderTop: `1px solid ${T.border}`, background: T.bg, minHeight: 0, overflow: "hidden", display: "flex", gap: 0 }}>
+          <ModuleNav iframeRef={iframeRef} modules={c.modules} />
+          <div style={{ flex: 1, padding: "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0 }}>
+            <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.bg, display: "flex" }}>
+              <iframe ref={iframeRef} key={previewKey} src={previewUrl} onLoad={handleIframeLoad} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.bg }} title="Kiosk preview" />
+            </div>
           </div>
         </div>
       </div>
@@ -895,6 +936,58 @@ function Toggle({ on, onClick }: { on: boolean; onClick: (e: React.MouseEvent) =
     }}>
       <div style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 150ms" }} />
     </button>
+  );
+}
+
+function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFrameElement | null>; modules: HotelModule[] }) {
+  const send = (screen: string) => {
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return;
+    try { win.postMessage({ type: "nexi-cms:navigate", screen }, "*"); } catch {}
+  };
+  return (
+    <div style={{
+      width: 168, flexShrink: 0, borderRight: `1px solid ${T.border}`, background: T.surface,
+      padding: "14px 10px", overflow: "auto", display: "flex", flexDirection: "column", gap: 2,
+    }}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, padding: "4px 10px 8px" }}>
+        Quick Nav
+      </div>
+      <button
+        onClick={() => send("DSH-01")}
+        style={{
+          display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 7,
+          background: "transparent", border: "none", cursor: "pointer", textAlign: "left",
+          color: T.text, fontFamily: T.fontBody, fontSize: 11, fontWeight: 600,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = `${T.accent}12`; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+      >
+        <div style={{ width: 18, height: 18, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /></svg>
+        </div>
+        Dashboard
+      </button>
+      {modules.filter((m) => m.enabled).map((m) => (
+        <button
+          key={m.id}
+          onClick={() => send(m.entryScreen)}
+          style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 7,
+            background: "transparent", border: "none", cursor: "pointer", textAlign: "left",
+            color: T.text, fontFamily: T.fontBody, fontSize: 11, fontWeight: 500,
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = `${T.accent}12`; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+        >
+          <div style={{ width: 18, height: 18, color: T.textDim, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><ModuleGlyph icon={m.icon} /></svg>
+          </div>
+          <span style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.label}</span>
+          <span style={{ fontSize: 8, color: T.textMuted, fontFamily: "ui-monospace, monospace", flexShrink: 0 }}>{m.entryScreen}</span>
+        </button>
+      ))}
+    </div>
   );
 }
 

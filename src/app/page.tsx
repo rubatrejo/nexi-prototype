@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { KioskProvider } from "@/lib/kiosk-context";
+import { KioskProvider, useKiosk } from "@/lib/kiosk-context";
 import { ThemeProvider } from "@/lib/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
 import KioskFrame from "@/components/layout/KioskFrame";
@@ -13,6 +13,29 @@ import OrientationSelect from "@/components/onboarding/OrientationSelect";
 import OnboardingFooter from "@/components/onboarding/OnboardingFooter";
 import ROICalculator from "@/components/onboarding/ROICalculator";
 import type { HotelConfig } from "@/lib/hotel-config";
+import type { ScreenId } from "@/lib/navigation";
+
+/**
+ * PreviewBridge — only used when the kiosk is rendered inside the
+ * /admin iframe with `?embed=1`. Listens for postMessage events from
+ * the parent admin window and forwards navigation commands into the
+ * KioskProvider via useKiosk(). Must be mounted INSIDE KioskProvider.
+ */
+function PreviewBridge() {
+  const { navigate } = useKiosk();
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { type?: string; screen?: string } | null;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "nexi-cms:navigate" && data.screen) {
+        navigate(data.screen as ScreenId);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [navigate]);
+  return null;
+}
 
 // Steps: 0=Welcome, 1=Slide1, 2=Slide2, 3=Slide3, 4=Orientation, 5=Demo, 6=ROI Calculator
 const TOTAL_STEPS = 6;
@@ -50,6 +73,30 @@ export default function Home() {
         /* fall back to default hotelConfig on any error */
       })
       .finally(() => setClientLoading(false));
+  }, []);
+
+  // Live preview bridge: when rendered inside the /admin iframe,
+  // accept config updates from the parent window so edits reflect
+  // before the user clicks Save. We also announce "ready" to the
+  // parent so it can (re)send the current config without waiting
+  // for the next edit.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("embed") !== "1") return;
+    const handler = (e: MessageEvent) => {
+      const data = e.data as { type?: string; config?: HotelConfig } | null;
+      if (!data || typeof data !== "object") return;
+      if (data.type === "nexi-cms:config-update" && data.config) {
+        setClientConfig(data.config);
+        setClientLoading(false);
+        setStep(5);
+      }
+    };
+    window.addEventListener("message", handler);
+    // Tell the parent we're ready to receive config.
+    try { window.parent?.postMessage({ type: "nexi-cms:ready" }, "*"); } catch {}
+    return () => window.removeEventListener("message", handler);
   }, []);
 
   const goNext = useCallback(() => {
@@ -104,6 +151,7 @@ export default function Home() {
             >
               <ScreenRouter />
             </KioskFrame>
+            {embedMode && <PreviewBridge />}
             {!embedMode && <ScreenNav />}
           </KioskProvider>
         </I18nProvider>
