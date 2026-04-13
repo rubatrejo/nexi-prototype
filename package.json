@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev --port 3100",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
@@ -21,7 +21,7 @@
     "@types/react": "^19.2.14",
     "framer-motion": "^12.34.3",
     "leaflet": "^1.9.4",
-    "next": "^16.1.6",
+    "next": "^16.2.3",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-leaflet": "^5.0.0",
