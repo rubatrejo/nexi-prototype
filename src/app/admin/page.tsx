@@ -12,20 +12,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
 import type { HotelConfig, HotelModule, RoomType, UpgradeOption } from "@/lib/hotel-config";
 
-// ─── design tokens (dark surface palette, independent of kiosk theme) ─────
+// ─── design tokens (light surface palette, matches kiosk Nordic theme) ────
 const T = {
-  bg: "#0A0A0C",
-  surface: "#121217",
-  surfaceHi: "#1A1A21",
-  border: "#22222A",
-  borderHi: "#2E2E38",
-  text: "#F2F2F5",
-  textDim: "#8A8F9C",
-  textMuted: "#5A5E6B",
+  bg: "#F5F5F0",
+  surface: "#FFFFFF",
+  surfaceHi: "#FAFAF7",
+  border: "#E8E8E3",
+  borderHi: "#D4D4CF",
+  text: "#1A1A1A",
+  textDim: "#6B7280",
+  textMuted: "#9CA3AF",
   accent: "#1288FF",
-  accentHover: "#3BA0FF",
+  accentHover: "#0B6FD4",
   success: "#16A34A",
-  error: "#EF4444",
+  error: "#DC2626",
   fontDisplay: "'Mona Sans', sans-serif",
   fontBody: "'Inter', sans-serif",
 };
@@ -480,8 +480,8 @@ export default function AdminCMS() {
           <div style={{ flex: 1, padding: 20, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <div style={{
               width: "100%", aspectRatio: "16/9", borderRadius: 12, overflow: "hidden",
-              border: `1px solid ${T.border}`, boxShadow: `0 20px 60px rgba(0,0,0,0.5)`,
-              background: "#000",
+              border: `1px solid ${T.border}`, boxShadow: "0 20px 60px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)",
+              background: T.bg,
             }}>
               <iframe
                 key={previewKey}
@@ -500,9 +500,9 @@ export default function AdminCMS() {
       {toast && (
         <div style={{
           position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)",
-          background: T.surfaceHi, border: `1px solid ${T.borderHi}`, borderRadius: 10,
+          background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
           padding: "12px 20px", fontSize: 13, fontWeight: 600, color: T.text,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.5)", zIndex: 100,
+          boxShadow: "0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)", zIndex: 100,
           animation: "toastIn 200ms ease",
         }}>
           {toast}
@@ -581,7 +581,7 @@ function TopBar({ slug, brandName, saveState, configs, currentSlug, onSelectClie
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10" /></svg>
             </button>
             <button onClick={onDelete} style={{ padding: "9px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody, cursor: "pointer", background: "transparent", border: `1px solid ${T.border}`, color: T.error }}>Delete</button>
-            <button onClick={onSave} style={{ padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: T.accent, border: `1px solid ${T.accent}`, color: "#fff", boxShadow: `0 4px 20px ${T.accent}44` }}>
+            <button onClick={onSave} style={{ padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: T.accent, border: `1px solid ${T.accent}`, color: "#fff", boxShadow: `0 4px 14px ${T.accent}33` }}>
               {saveState === "saving" ? "Saving…" : "Save"}
             </button>
           </>
@@ -644,8 +644,8 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew }: {
       {open && (
         <div style={{
           position: "absolute", top: 44, left: 0, minWidth: 280,
-          background: T.surfaceHi, border: `1px solid ${T.borderHi}`, borderRadius: 10,
-          boxShadow: "0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset",
+          background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10,
+          boxShadow: "0 16px 50px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04)",
           padding: 6, zIndex: 50, maxHeight: 420, overflow: "auto",
         }}>
           <div style={{ padding: "6px 10px 4px", fontSize: 9, fontWeight: 700, color: T.textMuted, letterSpacing: 1.2, textTransform: "uppercase" }}>
