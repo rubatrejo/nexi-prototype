@@ -1,3 +1,18 @@
+/**
+ * TrueOmni NEXI sales funnel welcome email.
+ *
+ * IMPORTANT: This endpoint sends MARKETING emails to hotel prospects who
+ * filled out the onboarding form on OnboardingWelcome.tsx. It is NOT the
+ * hotel-to-guest welcome email (that flow does not exist in the kiosko
+ * today). Every "NEXI" and "TrueOmni" reference below is product/vendor
+ * branding for TrueOmni's own sales funnel and should NOT be replaced
+ * with useHotel().brand.name — the email is about the NEXI software
+ * itself, not about whichever hotel is currently loaded in the CMS.
+ *
+ * If a future feature adds a "hotel welcome email to guest" flow, it
+ * should live at a different route (e.g. /api/hotel/welcome) with its
+ * own template pulling from hotelConfig.
+ */
 import { Resend } from "resend";
 import { NextResponse } from "next/server";
 
