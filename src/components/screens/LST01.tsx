@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useKiosk } from "@/lib/kiosk-context";
+import { useHotel } from "@/lib/theme-provider";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 
 const LSTMap = dynamic(() => import("./LSTMap"), { ssr: false });
@@ -97,6 +98,7 @@ type View = "categories" | "listings" | "detail" | "directions";
 
 export default function LST01() {
   const { goBack, navigate: kioskNavigate } = useKiosk();
+  const { brand } = useHotel();
   const [view, setView] = useState<View>("categories");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<number | null>(null);
@@ -348,7 +350,7 @@ export default function LST01() {
                       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 8 }}>
                         <div>
                           <div style={{ fontSize: "0.5rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.5 }}>From</div>
-                          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.6875rem", color: "var(--text)" }}>NEXI Hotel</div>
+                          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "0.6875rem", color: "var(--text)" }}>{brand.name}</div>
                         </div>
                         <div>
                           <div style={{ fontSize: "0.5rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.5 }}>To</div>

@@ -189,7 +189,7 @@ const es: Record<string, string> = {
   "dsh.yourRoom": "Tu Habitación",
   "dsh.myReceipts": "Mis Recibos",
   "dsh.welcomeBack": "Bienvenido de nuevo",
-  "dsh.welcomeGuest": "Bienvenido a NEXI Hotel",
+  "dsh.welcomeGuest": "Bienvenido a {hotelName}",
   "dsh.exploreServices": "Explora nuestros servicios y amenidades",
   "dsh.upgradesOffers": "Mejoras y Ofertas",
   "dsh.availableRooms": "Habitaciones Disponibles",

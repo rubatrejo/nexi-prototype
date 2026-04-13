@@ -3,11 +3,13 @@
 import { useRef, useCallback } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
+import { useHotel } from "@/lib/theme-provider";
 import { NexiLogoFull, PoweredByTrueOmni } from "@/components/ui/Icons";
 
 export default function IdleScreen() {
   const { navigate } = useKiosk();
   const { t } = useI18n();
+  const { brand } = useHotel();
   const tapCount = useRef(0);
   const tapTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -124,7 +126,7 @@ export default function IdleScreen() {
           >
             {t("idle.welcome")}
             <br />
-            NEXI Hotel
+            {brand.name}
           </h1>
           <p
             style={{

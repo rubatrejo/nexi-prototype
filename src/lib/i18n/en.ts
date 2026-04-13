@@ -199,7 +199,7 @@ const en = {
   "dsh.yourRoom": "Your Room",
   "dsh.myReceipts": "My Receipts",
   "dsh.welcomeBack": "Welcome back",
-  "dsh.welcomeGuest": "Welcome to NEXI Hotel",
+  "dsh.welcomeGuest": "Welcome to {hotelName}",
   "dsh.exploreServices": "Explore our services and amenities",
   "dsh.upgradesOffers": "Upgrades & Offers",
   "dsh.availableRooms": "Available Rooms",

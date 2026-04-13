@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { NexiLogoFull } from "@/components/ui/Icons";
+import { useHotel } from "@/lib/theme-provider";
 
 export default function OrientationSelect({ name, onSelect }: { name?: string; onSelect: (mode: "landscape" | "portrait") => void }) {
   const [selected, setSelected] = useState<"landscape" | "portrait" | null>(null);
+  const { brand } = useHotel();
 
   return (
     <div style={{
@@ -58,12 +60,12 @@ export default function OrientationSelect({ name, onSelect }: { name?: string; o
               {/* Simulated kiosk UI */}
               <div style={{ position: "absolute", top: 10, left: 14, display: "flex", alignItems: "center", gap: 4 }}>
                 <img src="/logos/nexi-icon-white.svg" alt="NEXI" style={{ width: 14, height: 14 }} />
-                <span style={{ color: "#fff", fontSize: 5, fontWeight: 700, fontFamily: "var(--font-display)" }}>NEXI Hotel</span>
+                <span style={{ color: "#fff", fontSize: 5, fontWeight: 700, fontFamily: "var(--font-display)" }}>{brand.name}</span>
               </div>
               {/* Center content */}
               <div style={{ position: "absolute", bottom: 20, left: 14, right: 14 }}>
                 <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 4, fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 3 }}>Welcome to</div>
-                <div style={{ color: "#fff", fontSize: 11, fontWeight: 800, fontFamily: "var(--font-display)", lineHeight: 1.1, marginBottom: 6 }}>NEXI Hotel</div>
+                <div style={{ color: "#fff", fontSize: 11, fontWeight: 800, fontFamily: "var(--font-display)", lineHeight: 1.1, marginBottom: 6 }}>{brand.name}</div>
                 <div style={{ width: 60, height: 14, borderRadius: 7, background: "#1288FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span style={{ color: "#fff", fontSize: 4.5, fontWeight: 700 }}>Touch to Begin</span>
                 </div>
@@ -107,7 +109,7 @@ export default function OrientationSelect({ name, onSelect }: { name?: string; o
               </div>
               <div style={{ position: "absolute", bottom: 30, left: 10, right: 10 }}>
                 <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 3, fontWeight: 600, letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 2 }}>Welcome to</div>
-                <div style={{ color: "#fff", fontSize: 8, fontWeight: 800, fontFamily: "var(--font-display)", lineHeight: 1.1, marginBottom: 5 }}>NEXI Hotel</div>
+                <div style={{ color: "#fff", fontSize: 8, fontWeight: 800, fontFamily: "var(--font-display)", lineHeight: 1.1, marginBottom: 5 }}>{brand.name}</div>
                 <div style={{ width: 40, height: 10, borderRadius: 5, background: "#1288FF", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span style={{ color: "#fff", fontSize: 3.5, fontWeight: 700 }}>Touch to Begin</span>
                 </div>

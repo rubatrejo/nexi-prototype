@@ -185,7 +185,7 @@ const ja: Record<string, string> = {
   "dsh.yourRoom": "お部屋",
   "dsh.myReceipts": "領収書",
   "dsh.welcomeBack": "おかえりなさい",
-  "dsh.welcomeGuest": "NEXI Hotelへようこそ",
+  "dsh.welcomeGuest": "{hotelName}へようこそ",
   "dsh.exploreServices": "サービスとアメニティをご覧ください",
   "dsh.upgradesOffers": "アップグレードと特典",
   "dsh.availableRooms": "空室情報",

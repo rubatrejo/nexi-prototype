@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
+import { useHotel } from "@/lib/theme-provider";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 import ADS01 from "@/components/screens/ADS01";
 
@@ -77,6 +78,7 @@ function ModuleIcon({ name, size = 20 }: { name: string; size?: number }) {
 export default function DashboardScreen() {
   const { navigate, guestName, roomNumber, roomType, checkOutDate, guestMode } = useKiosk();
   const { t } = useI18n();
+  const { brand } = useHotel();
   const isCheckedIn = !guestMode && !!roomNumber;
   const [showAd, setShowAd] = useState(false);
   const [adDismissed, setAdDismissed] = useState(false);
@@ -167,7 +169,7 @@ export default function DashboardScreen() {
                   lineHeight: 1.2,
                 }}
               >
-                {isCheckedIn ? `${t("dsh.welcomeBack")}, ${guestName.split(" ")[0]}` : t("dsh.welcomeGuest")}
+                {isCheckedIn ? `${t("dsh.welcomeBack")}, ${guestName.split(" ")[0]}` : t("dsh.welcomeGuest").replace("{hotelName}", brand.name)}
               </h1>
               <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.875rem", marginTop: 4, fontWeight: 600 }}>
                 {isCheckedIn ? `${roomType} · ${t("dsh.checkout")} ${checkOutDate}` : t("dsh.exploreServices")}

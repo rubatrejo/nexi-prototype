@@ -1,9 +1,11 @@
 "use client";
 
 import { NexiIcon } from "@/components/ui/Icons";
+import { useHotel } from "@/lib/theme-provider";
 
 export default function GlobalHeader({ variant }: { variant?: "default" | "cinematic" } = {}) {
   const isCinematic = variant === "cinematic";
+  const { brand } = useHotel();
 
   return (
     <div
@@ -34,7 +36,7 @@ export default function GlobalHeader({ variant }: { variant?: "default" | "cinem
             letterSpacing: "0.5px",
           }}
         >
-          NEXI Hotel
+          {brand.name}
         </span>
       </div>
 

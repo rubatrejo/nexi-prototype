@@ -185,7 +185,7 @@ const fr: Record<string, string> = {
   "dsh.yourRoom": "Votre Chambre",
   "dsh.myReceipts": "Mes Reçus",
   "dsh.welcomeBack": "Bon retour",
-  "dsh.welcomeGuest": "Bienvenue au NEXI Hotel",
+  "dsh.welcomeGuest": "Bienvenue au {hotelName}",
   "dsh.exploreServices": "Découvrez nos services et équipements",
   "dsh.upgradesOffers": "Surclassements et Offres",
   "dsh.availableRooms": "Chambres Disponibles",
