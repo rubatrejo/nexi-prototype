@@ -22,18 +22,20 @@ import type { ScreenId } from "@/lib/navigation";
  * KioskProvider via useKiosk(). Must be mounted INSIDE KioskProvider.
  */
 function PreviewBridge() {
-  const { navigate } = useKiosk();
+  const { navigate, theme, toggleTheme } = useKiosk();
   useEffect(() => {
     const handler = (e: MessageEvent) => {
-      const data = e.data as { type?: string; screen?: string } | null;
+      const data = e.data as { type?: string; screen?: string; theme?: "light" | "dark" } | null;
       if (!data || typeof data !== "object") return;
       if (data.type === "nexi-cms:navigate" && data.screen) {
         navigate(data.screen as ScreenId);
+      } else if (data.type === "nexi-cms:set-theme" && (data.theme === "light" || data.theme === "dark")) {
+        if (data.theme !== theme) toggleTheme();
       }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, [navigate]);
+  }, [navigate, theme, toggleTheme]);
   return null;
 }
 

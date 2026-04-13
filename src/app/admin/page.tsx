@@ -144,6 +144,7 @@ export default function AdminCMS() {
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
   const [toast, setToast] = useState<{ msg: string; tone: "success" | "error" | "info" } | null>(null);
+  const [previewTheme, setPreviewTheme] = useState<"light" | "dark">("light");
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -255,6 +256,13 @@ export default function AdminCMS() {
       if (!c) return c;
       return { ...c, customFonts: (c.customFonts ?? []).filter((f) => f.family !== family) };
     });
+  }, []);
+
+  const setKioskTheme = useCallback((theme: "light" | "dark") => {
+    setPreviewTheme(theme);
+    const win = iframeRef.current?.contentWindow;
+    if (!win) return;
+    try { win.postMessage({ type: "nexi-cms:set-theme", theme }, "*"); } catch {}
   }, []);
 
   const toggleModule = useCallback((id: string) => {
@@ -508,20 +516,57 @@ export default function AdminCMS() {
                   <ColorField label="Amber Accent" value={c.colors.amber} onChange={(v) => patchColors("amber", v)} />
                   <ColorField label="Purple Accent" value={c.colors.purple} onChange={(v) => patchColors("purple", v)} />
                 </div>
+
+                {/* Light / Dark toggle — drives the preview iframe theme */}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 0" }}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+                    Preview mode
+                  </div>
+                  <div style={{ display: "flex", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: 3, gap: 2 }}>
+                    <button
+                      onClick={() => setKioskTheme("light")}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 6,
+                        border: "none", cursor: "pointer", fontFamily: T.fontBody, fontSize: 11, fontWeight: 700,
+                        background: previewTheme === "light" ? T.accent : "transparent",
+                        color: previewTheme === "light" ? "#fff" : T.textDim,
+                      }}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>
+                      Light
+                    </button>
+                    <button
+                      onClick={() => setKioskTheme("dark")}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 6, padding: "5px 12px", borderRadius: 6,
+                        border: "none", cursor: "pointer", fontFamily: T.fontBody, fontSize: 11, fontWeight: 700,
+                        background: previewTheme === "dark" ? T.accent : "transparent",
+                        color: previewTheme === "dark" ? "#fff" : T.textDim,
+                      }}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
+                      Dark
+                    </button>
+                  </div>
+                  <div style={{ fontSize: 10, color: T.textMuted, marginLeft: 4 }}>
+                    Edits below update the kiosk in real time
+                  </div>
+                </div>
+
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <ColorGroup title="Light Mode">
+                  <ColorGroup title="Light Mode" active={previewTheme === "light"}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                      <ColorField label="Background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
-                      <ColorField label="Card" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
-                      <ColorField label="Text" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
+                      <ColorField label="Page background" value={c.colors.light.bg} onChange={(v) => patchColors("light.bg", v)} />
+                      <ColorField label="Card / surface" value={c.colors.light.bgCard} onChange={(v) => patchColors("light.bgCard", v)} />
+                      <ColorField label="Text color" value={c.colors.light.text} onChange={(v) => patchColors("light.text", v)} />
                       <ColorField label="Border" value={c.colors.light.border} onChange={(v) => patchColors("light.border", v)} />
                     </div>
                   </ColorGroup>
-                  <ColorGroup title="Dark Mode">
+                  <ColorGroup title="Dark Mode" active={previewTheme === "dark"}>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                      <ColorField label="Background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
-                      <ColorField label="Card" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
-                      <ColorField label="Text" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
+                      <ColorField label="Page background" value={c.colors.dark.bg} onChange={(v) => patchColors("dark.bg", v)} />
+                      <ColorField label="Card / surface" value={c.colors.dark.bgCard} onChange={(v) => patchColors("dark.bgCard", v)} />
+                      <ColorField label="Text color" value={c.colors.dark.text} onChange={(v) => patchColors("dark.text", v)} />
                       <ColorField label="Border" value={c.colors.dark.border} onChange={(v) => patchColors("dark.border", v)} />
                     </div>
                   </ColorGroup>
@@ -997,10 +1042,25 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   );
 }
 
-function ColorGroup({ title, children }: { title: string; children: React.ReactNode }) {
+function ColorGroup({ title, children, active }: { title: string; children: React.ReactNode; active?: boolean }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 10 }}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 8 }}>{title}</div>
+    <div style={{
+      background: T.surface,
+      border: `1.5px solid ${active ? T.accent : T.border}`,
+      borderRadius: 10,
+      padding: 10,
+      boxShadow: active ? `0 0 0 3px ${T.accent}14` : "none",
+      transition: "all 150ms",
+      position: "relative",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: active ? T.accent : T.textDim, textTransform: "uppercase", letterSpacing: 0.8 }}>{title}</div>
+        {active && (
+          <div style={{ fontSize: 8, fontWeight: 700, color: T.accent, background: `${T.accent}14`, padding: "2px 6px", borderRadius: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>
+            Live in preview
+          </div>
+        )}
+      </div>
       {children}
     </div>
   );
