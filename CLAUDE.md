@@ -69,7 +69,7 @@ These are non-negotiable. Breaking any of these is grounds for rejecting the wor
 These are mistakes that have happened before. Read them carefully.
 
 - **DON'T use heavy transitions.** No blur/scale effects on screen changes. Ruben explicitly rejected these. Transitions are subtle: opacity crossfade between modules, 40px slide within flows.
-- **DON'T change `zoom` on KioskFrame** without testing extensively in both themes across multiple screens. The current value is `1`; it was previously `1.4` (reverted in 2026-04 because the kiosk felt too zoomed-in). If you change it, verify IDL-01, DSH-01, ONB-02 and a form-heavy screen like CKI-01 in light AND dark mode to catch overflow/legibility regressions.
+- **DON'T touch the inner content scale on KioskFrame** without testing extensively in both themes across multiple screens. The outer frame is `52vw / max 980px / 16:9`, and an inner wrapper has `width/height: 125%` + `transform: scale(0.8)` to give screen content ~25% more breathing room without modifying the 82 screen files. If you adjust it, keep the two numbers linked: `width/height: (100/N)%` with `transform: scale(N)`. Verify IDL-01, DSH-01, ONB-02, CKI-01 in light AND dark mode. Previous iterations tried `zoom: 1.4` (too dense) and a 1920×1080 virtual viewport with `scale: 0.47` (too sparse) before landing here.
 - **DON'T reverse the provider order.** `I18nProvider` MUST wrap `KioskProvider`. Reversing this breaks translations silently.
 - **DON'T confuse file names with Screen IDs.** Files omit the dash (`CKI01.tsx`), IDs include it (`"CKI-01"`). Getting this wrong causes screens to not load.
 - **DON'T use `as any` for Screen IDs.** Use the `ScreenId` type from `navigation.ts`. If a screen doesn't exist in the type, add it.
@@ -109,7 +109,7 @@ src/
 ├── components/
 │   ├── ScreenRouter.tsx            # Maps screen IDs → lazy-loaded components (with ErrorBoundary)
 │   ├── layout/
-│   │   ├── KioskFrame.tsx          # Main kiosk wrapper (zoom 1, theme toggle, footer)
+│   │   ├── KioskFrame.tsx          # Main kiosk wrapper (52vw/980, inner scale 0.8, theme toggle, footer)
 │   │   ├── GlobalHeader.tsx        # Hotel name, date/time, weather (48px bar)
 │   │   └── ScreenLayout.tsx        # Shared layout wrapper
 │   ├── screens/                    # 82 screen files (CKI01.tsx → WIF01.tsx)
@@ -365,11 +365,12 @@ Direction is auto-detected from `FLOW_ORDER` in `transitions.ts`.
 
 ## KioskFrame Details
 
-- **Viewport:** `52vw / max-width: 980px` with `zoom: 1`
-- **Aspect ratio:** 16:9 (landscape)
+- **Outer frame:** `52vw / max-width: 980px`, `aspect-ratio: 16/9` (landscape), rounded 12px, with the Nordic drop shadow
+- **Inner content scale:** wrapper div with `width: 125%, height: 125%, transform: scale(0.8), transform-origin: top left`. Net effect: each screen renders in a 125% layout box and gets visually downscaled to exactly fill the frame, giving content 25% more breathing room without touching any screen file. The two numbers (125% and 0.8) are linked: `N%` must equal `100/scale`.
 - **Theme:** `data-theme` attribute on the kiosk frame div — CSS variables respond automatically
-- **Background:** `#E8E8E3` (warm gray, outside the kiosk)
-- **History:** The frame previously ran at `zoom: 1.4`; reverted to `1` in 2026-04 because the experience felt too zoomed-in. The zoom is a pure visual multiplier — nothing in the codebase depends on its value algorithmically, so adjusting it is safe as long as you verify multiple screens in both themes.
+- **Background outside the frame:** `#E8E8E3` (warm gray)
+- **History:** The frame originally had `zoom: 1.4` on the outer div — felt too dense. We tried removing the zoom (just `zoom: 1`) — still felt dense because screens were rendered at native px in a smaller container. Then tried a 1920×1080 virtual viewport with `transform: scale(frame_width/1920)` — that ran scale ~0.47 which felt too sparse. Landed on the current approach (outer frame stays at the original 52vw/980, inner content scaled to 0.8) because Ruben's concern was specifically about content density inside the frame, not the frame size itself.
+- **CRITICAL:** The overlays (ErrorModal, AIConcierge, InactivityModal) live INSIDE the scaled wrapper so they share the content density. The transform creates a new stacking context — `position: fixed` inside overlays becomes relative to the wrapper, which is the intended behaviour (they should cover the kiosk frame, not the browser viewport). Moving them outside the wrapper would make them render at 100% density while screens render at 80%, creating a mismatch.
 
 ---
 
