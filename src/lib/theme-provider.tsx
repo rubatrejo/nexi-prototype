@@ -6,6 +6,38 @@ import { hotelConfig, type HotelConfig, type CustomFont } from "./hotel-config";
 const CUSTOM_FONT_ATTR = "data-nexi-custom-font";
 
 /**
+ * Defensive: only accept simple solid color values for CSS variables that
+ * are also used as `stroke` / `fill` on SVGs. A gradient string like
+ * "linear-gradient(...)" works as a `background` but breaks every icon
+ * (stroke goes invalid → invisible) and every coloured progress bar.
+ *
+ * Accepted shapes:
+ *   - #RGB, #RRGGBB, #RRGGBBAA
+ *   - rgb()/rgba()
+ *   - hsl()/hsla()
+ *   - color()
+ *   - named colors (red, blue, …) — we accept any single-token alphabetic
+ *     value as a heuristic since enumerating CSS named colors is overkill
+ *
+ * Anything that contains "(" without matching one of the above (i.e.
+ * "linear-gradient(…)" / "radial-gradient(…)" / "conic-gradient(…)") is
+ * rejected and the caller falls back to the supplied default.
+ */
+function sanitizeColor(value: string | undefined, fallback: string): string {
+  if (!value || typeof value !== "string") return fallback;
+  const v = value.trim();
+  if (!v) return fallback;
+  // Hex
+  if (/^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v)) return v;
+  // rgb/rgba/hsl/hsla/color
+  if (/^(rgb|rgba|hsl|hsla|color)\s*\(/i.test(v)) return v;
+  // Single-token alphabetic (named colors like "red", "transparent")
+  if (/^[a-zA-Z]+$/.test(v)) return v;
+  // Anything else (gradients, expressions, malformed) → fallback
+  return fallback;
+}
+
+/**
  * Inject (and re-sync) custom fonts from a HotelConfig into document.head.
  * Google and Adobe entries become <link rel="stylesheet">; upload entries
  * become <style>@font-face</style>. All injected nodes carry a
@@ -71,33 +103,37 @@ export function ThemeProvider({ children, config }: ThemeProviderProps) {
   useEffect(() => {
     const root = document.documentElement;
     const c = activeConfig.colors;
+    const def = hotelConfig.colors;
 
-    // Shared colors (both modes)
-    root.style.setProperty("--primary", c.primary);
-    root.style.setProperty("--primary-hover", c.primaryHover);
-    root.style.setProperty("--primary-light", c.primaryLight);
-    root.style.setProperty("--primary-glow", c.primaryGlow);
-    root.style.setProperty("--amber", c.amber);
-    root.style.setProperty("--amber-light", c.amberLight);
-    root.style.setProperty("--success", c.success);
-    root.style.setProperty("--error", c.error);
-    root.style.setProperty("--warning", c.warning);
-    root.style.setProperty("--purple", c.purple);
+    // Shared colors (both modes) — sanitized so a malformed value like
+    // a gradient string in primary doesn't break every SVG icon (which
+    // uses the same variable for stroke/fill).
+    root.style.setProperty("--primary", sanitizeColor(c.primary, def.primary));
+    root.style.setProperty("--primary-hover", sanitizeColor(c.primaryHover, def.primaryHover));
+    root.style.setProperty("--primary-light", sanitizeColor(c.primaryLight, def.primaryLight));
+    root.style.setProperty("--primary-glow", sanitizeColor(c.primaryGlow, def.primaryGlow));
+    root.style.setProperty("--amber", sanitizeColor(c.amber, def.amber));
+    root.style.setProperty("--amber-light", sanitizeColor(c.amberLight, def.amberLight));
+    root.style.setProperty("--success", sanitizeColor(c.success, def.success));
+    root.style.setProperty("--error", sanitizeColor(c.error, def.error));
+    root.style.setProperty("--warning", sanitizeColor(c.warning, def.warning));
+    root.style.setProperty("--purple", sanitizeColor(c.purple, def.purple));
 
     // Mode-specific colors are handled via data-theme attribute
     // and the CSS variables in globals.css — but we override the base values
     // so a new hotel's colors propagate automatically.
     const theme = root.getAttribute("data-theme") || "light";
     const modeColors = theme === "dark" ? c.dark : c.light;
+    const defModeColors = theme === "dark" ? def.dark : def.light;
 
-    root.style.setProperty("--bg", modeColors.bg);
-    root.style.setProperty("--bg-card", modeColors.bgCard);
-    root.style.setProperty("--bg-elevated", modeColors.bgElevated);
-    root.style.setProperty("--text", modeColors.text);
-    root.style.setProperty("--text-secondary", modeColors.textSecondary);
-    root.style.setProperty("--text-tertiary", modeColors.textTertiary);
-    root.style.setProperty("--border", modeColors.border);
-    root.style.setProperty("--border-hover", modeColors.borderHover);
+    root.style.setProperty("--bg", sanitizeColor(modeColors.bg, defModeColors.bg));
+    root.style.setProperty("--bg-card", sanitizeColor(modeColors.bgCard, defModeColors.bgCard));
+    root.style.setProperty("--bg-elevated", sanitizeColor(modeColors.bgElevated, defModeColors.bgElevated));
+    root.style.setProperty("--text", sanitizeColor(modeColors.text, defModeColors.text));
+    root.style.setProperty("--text-secondary", sanitizeColor(modeColors.textSecondary, defModeColors.textSecondary));
+    root.style.setProperty("--text-tertiary", sanitizeColor(modeColors.textTertiary, defModeColors.textTertiary));
+    root.style.setProperty("--border", sanitizeColor(modeColors.border, defModeColors.border));
+    root.style.setProperty("--border-hover", sanitizeColor(modeColors.borderHover, defModeColors.borderHover));
 
     // Font family
     root.style.setProperty("--font-display", activeConfig.fonts.display);
@@ -116,16 +152,18 @@ export function ThemeProvider({ children, config }: ThemeProviderProps) {
       const root = document.documentElement;
       const theme = root.getAttribute("data-theme") || "light";
       const c = activeConfig.colors;
+      const def = hotelConfig.colors;
       const modeColors = theme === "dark" ? c.dark : c.light;
+      const defModeColors = theme === "dark" ? def.dark : def.light;
 
-      root.style.setProperty("--bg", modeColors.bg);
-      root.style.setProperty("--bg-card", modeColors.bgCard);
-      root.style.setProperty("--bg-elevated", modeColors.bgElevated);
-      root.style.setProperty("--text", modeColors.text);
-      root.style.setProperty("--text-secondary", modeColors.textSecondary);
-      root.style.setProperty("--text-tertiary", modeColors.textTertiary);
-      root.style.setProperty("--border", modeColors.border);
-      root.style.setProperty("--border-hover", modeColors.borderHover);
+      root.style.setProperty("--bg", sanitizeColor(modeColors.bg, defModeColors.bg));
+      root.style.setProperty("--bg-card", sanitizeColor(modeColors.bgCard, defModeColors.bgCard));
+      root.style.setProperty("--bg-elevated", sanitizeColor(modeColors.bgElevated, defModeColors.bgElevated));
+      root.style.setProperty("--text", sanitizeColor(modeColors.text, defModeColors.text));
+      root.style.setProperty("--text-secondary", sanitizeColor(modeColors.textSecondary, defModeColors.textSecondary));
+      root.style.setProperty("--text-tertiary", sanitizeColor(modeColors.textTertiary, defModeColors.textTertiary));
+      root.style.setProperty("--border", sanitizeColor(modeColors.border, defModeColors.border));
+      root.style.setProperty("--border-hover", sanitizeColor(modeColors.borderHover, defModeColors.borderHover));
     });
 
     observer.observe(document.documentElement, {
