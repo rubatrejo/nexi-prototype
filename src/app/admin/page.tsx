@@ -498,8 +498,8 @@ export default function AdminCMS() {
 
   const handleSave = useCallback(async () => {
     if (!current) return;
-    if (slugError) { flashToast(slugError, "error"); return; }
-    if (overKvHard) { flashToast(`Config is ${Math.round(configBytes / 1024)} KB — exceeds the 1 MB storage limit. Remove some uploaded images.`, "error"); return; }
+    if (slugError) { flashToast(`Slug error: ${slugError}. Fix it in tab 01 Client before saving.`, "error"); return; }
+    if (overKvHard) { flashToast(`Config is ${Math.round(configBytes / 1024)} KB — over the 950 KB safe limit. Remove or compress some uploaded images in tab 04 Images before saving.`, "error"); return; }
     setSaveState("saving");
     try {
       const res = await fetch("/api/admin/configs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
@@ -1409,20 +1409,19 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
             <button onClick={onDelete} style={{ ...tbBtn, color: T.error }}>Delete</button>
             <button
               onClick={onSave}
-              disabled={!!saveDisabled}
-              title={saveDisabled ? "Fix errors before saving" : dirty ? "Cmd+S" : "No changes"}
+              title={saveDisabled ? "Click to see what needs fixing" : dirty ? "Cmd+S" : "No changes"}
               style={{
                 padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody,
-                cursor: saveDisabled ? "not-allowed" : "pointer",
-                background: saveDisabled ? T.border : T.accent,
-                border: `1px solid ${saveDisabled ? T.border : T.accent}`,
-                color: saveDisabled ? T.textMuted : "#fff",
-                boxShadow: dirty && !saveDisabled ? `0 0 0 3px ${T.accent}22, 0 4px 14px ${T.accent}33` : `0 4px 14px ${T.accent}33`,
+                cursor: "pointer",
+                background: saveDisabled ? "#D4960A" : T.accent,
+                border: `1px solid ${saveDisabled ? "#D4960A" : T.accent}`,
+                color: "#fff",
+                boxShadow: dirty ? `0 0 0 3px ${saveDisabled ? "#D4960A22" : T.accent + "22"}, 0 4px 14px rgba(0,0,0,0.1)` : `0 4px 14px rgba(0,0,0,0.1)`,
                 opacity: !dirty && !saveDisabled ? 0.85 : 1,
                 transition: "all 150ms",
               }}
             >
-              {saveState === "saving" ? "Saving…" : dirty ? "Save changes" : "Save"}
+              {saveState === "saving" ? "Saving…" : saveDisabled ? "⚠ Save" : dirty ? "Save changes" : "Save"}
             </button>
           </>
         )}
