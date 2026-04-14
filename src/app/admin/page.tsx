@@ -516,6 +516,24 @@ export default function AdminCMS() {
     return null;
   }, [current, savedSnapshot, configs]);
 
+  // Walks current.colors and counts every string field that doesn't
+  // pass isValidColor. Used to gate Save the same way slugError does
+  // so configs can't be persisted with broken color values that would
+  // poison the kiosk preview (gradients in --primary etc.).
+  const colorErrorCount = useMemo(() => {
+    if (!current?.colors) return 0;
+    let bad = 0;
+    const walk = (obj: unknown) => {
+      if (obj == null) return;
+      if (typeof obj === "string") { if (!isValidColor(obj)) bad++; return; }
+      if (typeof obj === "object") {
+        for (const v of Object.values(obj as Record<string, unknown>)) walk(v);
+      }
+    };
+    walk(current.colors);
+    return bad;
+  }, [current?.colors]);
+
   const confirmSwitch = useCallback((next: () => void) => {
     if (!isDirty) { next(); return; }
     const ok = typeof window !== "undefined"
@@ -527,6 +545,7 @@ export default function AdminCMS() {
   const handleSave = useCallback(async () => {
     if (!current) return;
     if (slugError) { flashToast(`Slug error: ${slugError}. Fix it in tab 01 Client before saving.`, "error"); return; }
+    if (colorErrorCount > 0) { flashToast(`${colorErrorCount} invalid color value${colorErrorCount === 1 ? "" : "s"}. Fix in tab 02 Colors before saving.`, "error"); return; }
     setSaveState("saving");
     try {
       // Auto-compress images when the config is heavier than the
@@ -564,7 +583,7 @@ export default function AdminCMS() {
       flashToast(`We couldn't save your changes. ${reason}`, "error");
       setTimeout(() => setSaveState("idle"), 4000);
     }
-  }, [current, slugError, KV_SOFT, flashToast]);
+  }, [current, slugError, colorErrorCount, KV_SOFT, flashToast]);
 
   // Debounced snapshot recorder — runs on every `current` change but
   // waits 500 ms of quiet before pushing the *previous* state to the
@@ -1008,7 +1027,7 @@ export default function AdminCMS() {
         configBytes={configBytes}
         kvSoft={KV_SOFT}
         kvHard={KV_HARD}
-        saveDisabled={overKvHard || !!slugError}
+        saveDisabled={overKvHard || !!slugError || colorErrorCount > 0}
       />
 
       {/* Tab bar */}
@@ -2013,15 +2032,41 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+// Mirror of theme-provider's sanitizeColor — kept local so the admin
+// has zero runtime deps on theme-provider, and so the validation rules
+// stay collocated with the input that produces them. If the rules drift,
+// fix both places.
+function isValidColor(value: string): boolean {
+  if (!value || typeof value !== "string") return false;
+  const v = value.trim();
+  if (!v) return false;
+  if (/^#([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(v)) return true;
+  if (/^(rgb|rgba|hsl|hsla|color)\s*\(/i.test(v)) return true;
+  if (/^[a-zA-Z]+$/.test(v)) return true;
+  return false;
+}
+
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
+  const valid = isValidColor(value);
   return (
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6, padding: 2, minWidth: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${valid ? T.border : T.error}`, borderRadius: 6, padding: 2, minWidth: 0 }}>
         <input type="color" value={hex} onChange={(e) => onChange(e.target.value)} style={{ width: 22, height: 22, border: "none", background: "transparent", cursor: "pointer", padding: 0, flexShrink: 0 }} />
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} style={{ flex: 1, minWidth: 0, background: "transparent", border: "none", outline: "none", color: T.text, fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "3px 0" }} />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          title={valid ? "" : "Use #RRGGBB, rgb(), rgba(), hsl(), hsla(), or a named color. Gradients are not supported here."}
+          style={{ flex: 1, minWidth: 0, background: "transparent", border: "none", outline: "none", color: valid ? T.text : T.error, fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "3px 0" }}
+        />
       </div>
+      {!valid && (
+        <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600, lineHeight: 1.3 }}>
+          Invalid color — use #RRGGBB, rgb(), hsl(), or a named color (no gradients)
+        </div>
+      )}
     </div>
   );
 }
