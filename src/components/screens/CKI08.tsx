@@ -42,6 +42,16 @@ export default function TermsSignature() {
   const [hasSigned, setHasSigned] = useState(false);
   const POLICIES = policies?.text?.trim() || POLICIES_FALLBACK;
 
+  // Decide what to show in the policies panel. PDF wins over text,
+  // text wins over the hardcoded fallback. We trust mimeType when the
+  // admin sets it, but also fall back to sniffing the filename so
+  // hand-edited configs still work.
+  const isPdf = !!policies?.dataUrl && (
+    policies.mimeType === "application/pdf" ||
+    !!policies.filename?.toLowerCase().endsWith(".pdf") ||
+    policies.dataUrl.startsWith("data:application/pdf")
+  );
+
   const getPos = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
@@ -119,12 +129,30 @@ export default function TermsSignature() {
       <div style={{ position: "relative", zIndex: 2, flex: 1, display: "flex", gap: 20, padding: "24px", height: "calc(100% - 48px - 4px - 72px)", overflow: "hidden" }}>
         {/* Left - Policies */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: 0, overflow: "hidden", background: "rgba(255,255,255,0.1)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "var(--radius-lg)" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1rem", fontWeight: 700, color: "#fff" }}>{t("cki.terms.policiesHeader")}</h2>
+            {isPdf && policies?.filename && (
+              <span style={{ fontSize: "0.625rem", color: "rgba(255,255,255,0.55)", fontFamily: "ui-monospace, monospace", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }} title={policies.filename}>
+                {policies.filename}
+              </span>
+            )}
           </div>
-          <div style={{ flex: 1, overflow: "auto", padding: "16px 20px", fontSize: "0.8125rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
-            {POLICIES}
-          </div>
+          {isPdf && policies?.dataUrl ? (
+            // Native browser PDF viewer inside the glass card. White
+            // background behind the iframe keeps scrolling smooth and
+            // avoids a flash of glass when the PDF is loading.
+            <div style={{ flex: 1, background: "#fff", borderBottomLeftRadius: "var(--radius-lg)", borderBottomRightRadius: "var(--radius-lg)", overflow: "hidden" }}>
+              <iframe
+                src={policies.dataUrl}
+                title="Hotel policies PDF"
+                style={{ width: "100%", height: "100%", border: "none", display: "block" }}
+              />
+            </div>
+          ) : (
+            <div style={{ flex: 1, overflow: "auto", padding: "16px 20px", fontSize: "0.8125rem", color: "rgba(255,255,255,0.85)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+              {POLICIES}
+            </div>
+          )}
         </div>
 
         {/* Right - Signature */}
