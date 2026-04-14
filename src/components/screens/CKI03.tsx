@@ -19,7 +19,7 @@ export default function ScanPassport() {
       <GlobalHeader />
       {/* Progress bar step 3/8 */}
       <div style={{ height: 4, background: "var(--border)", position: "relative" }}>
-        <div style={{ height: "100%", width: `${(3/8)*100}%`, background: "var(--primary)", borderRadius: 2, transition: "width 500ms ease" }} />
+        <div style={{ height: "100%", width: `${(3/8)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2, transition: "width 500ms ease" }} />
       </div>
 
       <div style={{ flex: 1, display: "flex" }}>

@@ -39,7 +39,7 @@ export default function EncodingKeyCard() {
 
         {/* Progress bar */}
         <div style={{ width: 280, height: 4, background: "rgba(255,255,255,0.15)", borderRadius: 2, overflow: "hidden" }}>
-          <div style={{ height: "100%", background: "var(--primary)", borderRadius: 2, animation: "encodeProgress 5s ease-in-out forwards" }} />
+          <div style={{ height: "100%", background: "var(--primary-bg, var(--primary))", borderRadius: 2, animation: "encodeProgress 5s ease-in-out forwards" }} />
         </div>
 
         <style>{`

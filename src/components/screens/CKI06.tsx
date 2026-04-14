@@ -24,7 +24,7 @@ export default function FaceScanActive() {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <GlobalHeader />
       <div style={{ height: 4, background: "var(--border)", position: "relative" }}>
-        <div style={{ height: "100%", width: `${(4/8)*100}%`, background: "var(--primary)", borderRadius: 2 }} />
+        <div style={{ height: "100%", width: `${(4/8)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2 }} />
       </div>
 
       <div style={{ flex: 1, display: "flex" }}>

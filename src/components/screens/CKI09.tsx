@@ -23,7 +23,7 @@ export default function RoomUpgrades() {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <GlobalHeader />
       <div style={{ height: 4, background: "var(--border)", position: "relative" }}>
-        <div style={{ height: "100%", width: `${(7/8)*100}%`, background: "var(--primary)", borderRadius: 2, transition: "width 500ms ease" }} />
+        <div style={{ height: "100%", width: `${(7/8)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2, transition: "width 500ms ease" }} />
       </div>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "20px 32px 16px", overflow: "hidden" }}>

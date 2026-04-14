@@ -123,7 +123,7 @@ export default function RoomSelection() {
 
       {/* Progress bar — step 2 of 6 */}
       <div style={{ height: 3, background: "var(--border)" }}>
-        <div style={{ height: "100%", width: `${(2/6)*100}%`, background: "var(--primary)", borderRadius: 2 }} />
+        <div style={{ height: "100%", width: `${(2/6)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2 }} />
       </div>
 
       <div style={{ flex: 1, overflow: "auto", padding: "16px 28px 24px" }}>

@@ -20,7 +20,7 @@ export default function ProcessingScanning() {
 
       {/* Progress bar */}
       <div style={{ width: 280, height: 4, background: "var(--border)", borderRadius: 2, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: "60%", background: "var(--primary)", borderRadius: 2, animation: "progressPulse 2s ease-in-out infinite" }} />
+        <div style={{ height: "100%", width: "60%", background: "var(--primary-bg, var(--primary))", borderRadius: 2, animation: "progressPulse 2s ease-in-out infinite" }} />
       </div>
 
       <div style={{ textAlign: "center" }}>

@@ -26,7 +26,7 @@ export default function VerificationComplete() {
       {/* Dark glass header */}
       <div style={{ position: "relative", zIndex: 2 }}>
         <GlobalHeader variant="cinematic" />
-        <div style={{ height: 4, background: "rgba(255,255,255,0.1)" }}><div style={{ height: "100%", width: `${(5/8)*100}%`, background: "var(--primary)", borderRadius: 2, transition: "width 500ms ease" }} /></div>
+        <div style={{ height: 4, background: "rgba(255,255,255,0.1)" }}><div style={{ height: "100%", width: `${(5/8)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2, transition: "width 500ms ease" }} /></div>
       </div>
 
       {/* Centered glass card */}

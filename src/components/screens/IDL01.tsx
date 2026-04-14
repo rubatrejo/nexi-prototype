@@ -144,7 +144,7 @@ export default function IdleScreen() {
               display: "inline-flex",
               alignItems: "center",
               gap: 10,
-              background: "var(--primary)",
+              background: "var(--primary-bg, var(--primary))",
               color: "#fff",
               padding: "14px 32px",
               borderRadius: "var(--radius-full)",

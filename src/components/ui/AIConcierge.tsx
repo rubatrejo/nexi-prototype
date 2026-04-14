@@ -41,7 +41,7 @@ export default function AIConcierge() {
             style={{
               position: "absolute", top: -8, right: -8, zIndex: 51,
               width: 24, height: 24, borderRadius: "50%",
-              background: "linear-gradient(135deg, #1288FF, #0a5cbf)",
+              background: "var(--primary-bg, linear-gradient(135deg, #1288FF, #0a5cbf))",
               border: "2px solid rgba(255,255,255,0.25)",
               cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
               boxShadow: "0 2px 8px rgba(18,136,255,0.4)",
@@ -57,7 +57,7 @@ export default function AIConcierge() {
               gap: 10,
               padding: "8px 16px 8px 10px",
               borderRadius: "var(--radius-full)",
-              background: "linear-gradient(135deg, #1288FF, #0a5cbf)",
+              background: "var(--primary-bg, linear-gradient(135deg, #1288FF, #0a5cbf))",
               border: "none",
               cursor: "pointer",
               boxShadow: "0 4px 20px rgba(18,136,255,0.4)",

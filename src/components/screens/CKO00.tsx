@@ -17,7 +17,7 @@ export default function CheckoutLookup() {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <GlobalHeader />
       <div style={{ height: 4, background: "var(--border)", position: "relative" }}>
-        <div style={{ height: "100%", width: `${(1/5)*100}%`, background: "var(--primary)", borderRadius: 2, transition: "width 500ms ease" }} />
+        <div style={{ height: "100%", width: `${(1/5)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2, transition: "width 500ms ease" }} />
       </div>
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 48px", gap: 32 }}>

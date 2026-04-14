@@ -122,7 +122,7 @@ export default function TermsSignature() {
 
       {/* Progress */}
       <div style={{ position: "relative", zIndex: 2, height: 4, background: "rgba(255,255,255,0.1)" }}>
-        <div style={{ height: "100%", width: `${(6/8)*100}%`, background: "var(--primary)", borderRadius: 2, transition: "width 500ms ease" }} />
+        <div style={{ height: "100%", width: `${(6/8)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2, transition: "width 500ms ease" }} />
       </div>
 
       {/* Content */}

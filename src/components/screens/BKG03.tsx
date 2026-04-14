@@ -23,7 +23,7 @@ export default function RoomDetails() {
       <GlobalHeader />
       {/* Progress bar — step 3 of 6 */}
       <div style={{ height: 3, background: "var(--border)" }}>
-        <div style={{ height: "100%", width: `${(3/6)*100}%`, background: "var(--primary)", borderRadius: 2 }} />
+        <div style={{ height: "100%", width: `${(3/6)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2 }} />
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>

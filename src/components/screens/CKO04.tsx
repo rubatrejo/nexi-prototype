@@ -134,7 +134,7 @@ export default function FeedbackRating() {
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)", filter: "blur(2px)", pointerEvents: "none" }}>
         <GlobalHeader />
         <div style={{ height: 4, background: "var(--border)", position: "relative" }}>
-          <div style={{ height: "100%", width: "40%", background: "var(--primary)", borderRadius: 2 }} />
+          <div style={{ height: "100%", width: "40%", background: "var(--primary-bg, var(--primary))", borderRadius: 2 }} />
         </div>
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <div style={{ flex: 1, padding: "20px 28px" }}>

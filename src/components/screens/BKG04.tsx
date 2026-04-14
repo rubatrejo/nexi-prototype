@@ -18,7 +18,7 @@ export default function GuestInformation() {
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
       <GlobalHeader />
       <div style={{ height: 3, background: "var(--border)" }}>
-        <div style={{ height: "100%", width: `${(4/6)*100}%`, background: "var(--primary)", borderRadius: 2 }} />
+        <div style={{ height: "100%", width: `${(4/6)*100}%`, background: "var(--primary-bg, var(--primary))", borderRadius: 2 }} />
       </div>
 
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
