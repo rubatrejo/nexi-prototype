@@ -151,10 +151,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--primary);
+  /* --primary-bg is optionally a gradient (set via /admin Colors).
+     Falls back to the solid --primary when no gradient is configured. */
+  background: var(--primary-bg, var(--primary));
   color: #fff;
 }
-.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:hover { filter: brightness(1.08); }
 
 .btn-ghost {
   background: transparent;

@@ -517,17 +517,26 @@ export default function AdminCMS() {
   }, [current, savedSnapshot, configs]);
 
   // Walks current.colors and counts every string field that doesn't
-  // pass isValidColor. Used to gate Save the same way slugError does
-  // so configs can't be persisted with broken color values that would
-  // poison the kiosk preview (gradients in --primary etc.).
+  // pass validation. Used to gate Save the same way slugError does so
+  // configs can't be persisted with broken color values that would
+  // poison the kiosk preview. The `primaryGradient` field gets the
+  // gradient validator instead of the solid-color one — it's allowed
+  // (and intended) to be a CSS gradient.
   const colorErrorCount = useMemo(() => {
     if (!current?.colors) return 0;
     let bad = 0;
-    const walk = (obj: unknown) => {
+    const walk = (obj: unknown, key?: string) => {
       if (obj == null) return;
-      if (typeof obj === "string") { if (!isValidColor(obj)) bad++; return; }
+      if (typeof obj === "string") {
+        if (key === "primaryGradient") {
+          if (!isValidGradient(obj)) bad++;
+        } else if (!isValidColor(obj)) {
+          bad++;
+        }
+        return;
+      }
       if (typeof obj === "object") {
-        for (const v of Object.values(obj as Record<string, unknown>)) walk(v);
+        for (const [k, v] of Object.entries(obj as Record<string, unknown>)) walk(v, k);
       }
     };
     walk(current.colors);
@@ -1101,6 +1110,14 @@ export default function AdminCMS() {
                   <ColorField label="Primary Hover" value={c.colors.primaryHover} onChange={(v) => patchColors("primaryHover", v)} />
                   <ColorField label="Amber Accent" value={c.colors.amber} onChange={(v) => patchColors("amber", v)} />
                   <ColorField label="Purple Accent" value={c.colors.purple} onChange={(v) => patchColors("purple", v)} />
+                </div>
+                <GradientField
+                  label="Primary Gradient (optional)"
+                  value={c.colors.primaryGradient ?? ""}
+                  onChange={(v) => patchColors("primaryGradient", v)}
+                />
+                <div style={{ fontSize: 9, color: T.textMuted, padding: "0 2px", lineHeight: 1.4 }}>
+                  Applies to primary buttons and other large primary surfaces. Icons, text and borders still use the solid <strong>Primary</strong> above. Leave empty to disable.
                 </div>
 
                 {/* Light / Dark toggle — drives the preview iframe theme */}
@@ -2047,6 +2064,16 @@ function isValidColor(value: string): boolean {
   return false;
 }
 
+// Validates a CSS gradient string. Used only for the primaryGradient
+// field where the user explicitly wants a gradient. Empty strings are
+// considered valid (the field is optional).
+function isValidGradient(value: string | undefined): boolean {
+  if (!value) return true;
+  const v = value.trim();
+  if (!v) return true;
+  return /^(linear|radial|conic|repeating-linear|repeating-radial|repeating-conic)-gradient\s*\(/i.test(v);
+}
+
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
   const valid = isValidColor(value);
@@ -2066,6 +2093,58 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
       {!valid && (
         <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600, lineHeight: 1.3 }}>
           Invalid color — use #RRGGBB, rgb(), hsl(), or a named color (no gradients)
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Free-form input for a CSS gradient string. Validates against
+ * isValidGradient (empty allowed; otherwise must start with one of
+ * the gradient functions). Renders a live swatch on the left so the
+ * user sees the gradient as soon as they paste it in.
+ */
+function GradientField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const valid = isValidGradient(value);
+  const trimmed = value.trim();
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{label}</div>
+      <div style={{ display: "flex", alignItems: "stretch", gap: 8, background: T.surface, border: `1px solid ${valid ? T.border : T.error}`, borderRadius: 6, padding: 4, minWidth: 0 }}>
+        <div
+          style={{
+            width: 44,
+            minHeight: 26,
+            borderRadius: 5,
+            border: `1px solid ${T.border}`,
+            flexShrink: 0,
+            background: valid && trimmed ? trimmed : "repeating-linear-gradient(45deg, #f0f0eb 0 6px, #fafaf7 6px 12px)",
+          }}
+          title={trimmed || "No gradient set"}
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder='linear-gradient(90deg, #1288FF 0%, #8B5CF6 100%)'
+          title={valid ? "" : "Must start with linear-gradient, radial-gradient, or conic-gradient"}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: valid ? T.text : T.error,
+            fontFamily: "ui-monospace, monospace",
+            fontSize: 10,
+            padding: "4px 4px",
+          }}
+        />
+      </div>
+      {!valid && (
+        <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600, lineHeight: 1.3 }}>
+          Must start with linear-gradient(…), radial-gradient(…), or conic-gradient(…)
         </div>
       )}
     </div>

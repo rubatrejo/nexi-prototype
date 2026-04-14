@@ -38,6 +38,21 @@ function sanitizeColor(value: string | undefined, fallback: string): string {
 }
 
 /**
+ * Validate a CSS gradient string. Used for fields like primaryGradient
+ * where the user explicitly wants a gradient (and we want to reject any
+ * accidentally-pasted solid color so the button doesn't lose its
+ * intended look). Empty/undefined returns null which the caller treats
+ * as "no gradient set, fall back to solid primary".
+ */
+function sanitizeGradient(value: string | undefined): string | null {
+  if (!value || typeof value !== "string") return null;
+  const v = value.trim();
+  if (!v) return null;
+  if (/^(linear|radial|conic|repeating-linear|repeating-radial|repeating-conic)-gradient\s*\(/i.test(v)) return v;
+  return null;
+}
+
+/**
  * Inject (and re-sync) custom fonts from a HotelConfig into document.head.
  * Google and Adobe entries become <link rel="stylesheet">; upload entries
  * become <style>@font-face</style>. All injected nodes carry a
@@ -108,10 +123,16 @@ export function ThemeProvider({ children, config }: ThemeProviderProps) {
     // Shared colors (both modes) — sanitized so a malformed value like
     // a gradient string in primary doesn't break every SVG icon (which
     // uses the same variable for stroke/fill).
-    root.style.setProperty("--primary", sanitizeColor(c.primary, def.primary));
+    const safePrimary = sanitizeColor(c.primary, def.primary);
+    root.style.setProperty("--primary", safePrimary);
     root.style.setProperty("--primary-hover", sanitizeColor(c.primaryHover, def.primaryHover));
     root.style.setProperty("--primary-light", sanitizeColor(c.primaryLight, def.primaryLight));
     root.style.setProperty("--primary-glow", sanitizeColor(c.primaryGlow, def.primaryGlow));
+    // --primary-bg: optional gradient for buttons / progress bars / pills.
+    // Falls back to the solid primary when no gradient is configured so
+    // unconfigured clients render the same as before.
+    const grad = sanitizeGradient(c.primaryGradient);
+    root.style.setProperty("--primary-bg", grad ?? safePrimary);
     root.style.setProperty("--amber", sanitizeColor(c.amber, def.amber));
     root.style.setProperty("--amber-light", sanitizeColor(c.amberLight, def.amberLight));
     root.style.setProperty("--success", sanitizeColor(c.success, def.success));

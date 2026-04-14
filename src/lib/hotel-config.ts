@@ -183,6 +183,16 @@ export interface HotelColors {
   primaryHover: string;
   primaryLight: string;
   primaryGlow: string;
+  /**
+   * Optional CSS gradient (linear-gradient/radial-gradient/conic-gradient)
+   * applied to large primary surfaces — buttons, progress bars, active
+   * pills. When set, exposed as --primary-bg; when unset, --primary-bg
+   * falls back to the solid `primary`. The solid `primary` is still used
+   * for SVG strokes, text, borders and other contexts where a gradient
+   * is invalid, so this is purely additive: clients can opt into a
+   * branded gradient without breaking iconography.
+   */
+  primaryGradient?: string;
   amber: string;
   amberLight: string;
   success: string;
