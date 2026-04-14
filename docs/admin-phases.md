@@ -21,13 +21,13 @@ Commit: `4416cb2` + follow-ups (`e8f4810`, `18c1b51`, `a54ce94`, `8f7a0ad`)
 
 ---
 
-## Phase 2 — Productivity (próximo)
+## Phase 2 — Productivity ✅ (2026-04-14)
 
-1. **Search en clients dropdown** — filtro por slug o brand.name en el TopBar dropdown
-2. **Duplicate client** — clona config con nuevo slug
-3. **Export / Import JSON** — download config, upload JSON para crear cliente
-4. **Undo / Redo** — stack de history con Cmd+Z / Cmd+Shift+Z (debounced 500ms, ~50 entradas)
-5. **Preview full-screen** — botón que expande iframe a 100vw/100vh, Esc para salir
+1. **Search en clients dropdown** — `6021ba3` — filtro case-insensitive por slug/brand/templates con autofocus, Esc limpia query, no-results state
+2. **Preview fullscreen toggle** — `80ceb8f` — botón expand en top-right del preview, position fixed inset 0 z-index 200, Esc para salir
+3. **Duplicate client** — `eadf605` — clona current in-memory con slug `-copy`/`-copy-2` y nombre `(Copy)`, dirty until Save
+4. **Export / Import JSON** — `81b3fb3` — download como `nexi-config-{slug}-{date}.json`; import valida shape, corre normalizeConfig, maneja colisiones de slug, Import disponible desde empty state también
+5. **Undo / Redo** — `9426b27` — 2 stacks de 50 snapshots, debounced 500ms, skipSnapshotRef para evitar loops, Cmd+Z / Cmd+Shift+Z, botones visuales con estado disabled, resetHistory en todos los puntos de carga
 
 ---
 
