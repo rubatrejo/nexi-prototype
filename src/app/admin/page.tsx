@@ -33,6 +33,9 @@ import DroppableImage from "./_components/DroppableImage";
 import GalleryStrip from "./_components/GalleryStrip";
 import RoomCard from "./_components/RoomCard";
 import UpgradeCard from "./_components/UpgradeCard";
+import SurveyTab from "./_components/SurveyTab";
+import FaqTab from "./_components/FaqTab";
+import { baseInput, addCardBtn } from "./_lib/styles";
 
 export default function AdminCMS() {
   const [configs, setConfigs] = useState<HotelConfig[]>([]);
@@ -1337,13 +1340,6 @@ export default function AdminCMS() {
 
 // ═══════════════════ SUBCOMPONENTS ═══════════════════
 
-const addCardBtn: React.CSSProperties = {
-  width: "100%", marginTop: 12, padding: "14px 16px", borderRadius: 12,
-  background: "transparent", border: `1.5px dashed ${T.borderHi}`,
-  color: T.textDim, fontSize: 12, fontWeight: 600, fontFamily: T.fontBody,
-  cursor: "pointer", transition: "all 150ms",
-};
-
 function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson, onUndo, onRedo, canUndo, canRedo, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
@@ -2005,186 +2001,6 @@ function HeroExteriorEditor({ imageUrl, asset, onImageChange, onAssetChange, onT
             }}
           />
         </div>
-      )}
-    </div>
-  );
-}
-
-const SURVEY_TYPES: { value: SurveyQuestionType; label: string }[] = [
-  { value: "rating", label: "Rating" },
-  { value: "yesno", label: "Yes / No" },
-  { value: "choice", label: "Multiple choice" },
-  { value: "text", label: "Open text" },
-];
-
-function SurveyTab({ survey, onPatch, onUpdateQ, onAddQ, onRemoveQ }: {
-  survey: SurveyConfig;
-  onPatch: (p: Partial<SurveyConfig>) => void;
-  onUpdateQ: (i: number, p: Partial<SurveyQuestion>) => void;
-  onAddQ: () => void;
-  onRemoveQ: (i: number) => void;
-}) {
-  return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Settings</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-          <Field label="Title"><input style={baseInput} value={survey.title} onChange={(e) => onPatch({ title: e.target.value })} /></Field>
-          <Field label="Subtitle"><input style={baseInput} value={survey.subtitle ?? ""} onChange={(e) => onPatch({ subtitle: e.target.value })} placeholder="Optional" /></Field>
-        </div>
-        <Field label="Thank you message">
-          <input style={baseInput} value={survey.thankYouMessage ?? ""} onChange={(e) => onPatch({ thankYouMessage: e.target.value })} placeholder="Shown after submission" />
-        </Field>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
-          <Toggle on={survey.showAfterCheckOut} onClick={(e) => { e.stopPropagation(); onPatch({ showAfterCheckOut: !survey.showAfterCheckOut }); }} />
-          <div style={{ fontSize: 11, color: T.textDim }}>Show on the checkout feedback screen (CKO-04)</div>
-        </div>
-      </div>
-      <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
-            {survey.questions.length} questions
-          </div>
-        </div>
-        {survey.questions.length === 0 ? (
-          <div style={{ padding: 24, textAlign: "center", background: T.surface, border: `1.5px dashed ${T.borderHi}`, borderRadius: 10, color: T.textDim, fontSize: 12 }}>
-            No questions yet.
-          </div>
-        ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {survey.questions.map((q, i) => (
-              <SurveyQuestionCard key={q.id} q={q} index={i} onChange={(p) => onUpdateQ(i, p)} onRemove={() => onRemoveQ(i)} />
-            ))}
-          </div>
-        )}
-        <button onClick={onAddQ} style={addCardBtn}>+ Add question</button>
-      </div>
-    </div>
-  );
-}
-
-function SurveyQuestionCard({ q, index, onChange, onRemove }: { q: SurveyQuestion; index: number; onChange: (p: Partial<SurveyQuestion>) => void; onRemove: () => void }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ padding: 12, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, position: "relative", display: "grid", gap: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ width: 22, height: 22, borderRadius: 5, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, fontFamily: "ui-monospace, monospace", flexShrink: 0 }}>{index + 1}</div>
-        <input
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text, padding: 0, minWidth: 0 }}
-          value={q.text}
-          onChange={(e) => onChange({ text: e.target.value })}
-          placeholder="Question text"
-        />
-        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
-          <Toggle on={q.required} onClick={(e) => { e.stopPropagation(); onChange({ required: !q.required }); }} />
-          <span style={{ fontSize: 9, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>req</span>
-        </div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.8 }}>Type</div>
-        {SURVEY_TYPES.map((t) => {
-          const active = q.type === t.value;
-          return (
-            <button
-              key={t.value}
-              onClick={() => onChange({ type: t.value })}
-              style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: active ? T.accent : "transparent", color: active ? "#fff" : T.textDim, border: `1px solid ${active ? T.accent : T.border}` }}
-            >{t.label}</button>
-          );
-        })}
-        {q.type === "rating" && (
-          <>
-            <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.8, marginLeft: 8 }}>Scale</div>
-            <input type="number" min={2} max={10} value={q.maxRating ?? 5} onChange={(e) => onChange({ maxRating: Number(e.target.value) })}
-              style={{ width: 50, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "4px 8px", fontSize: 11, color: T.text, outline: "none" }} />
-          </>
-        )}
-      </div>
-      {q.type === "choice" && (
-        <input
-          style={{ ...baseInput, fontSize: 11 }}
-          value={(q.options ?? []).join(", ")}
-          onChange={(e) => onChange({ options: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
-          placeholder="Option 1, Option 2, Option 3"
-        />
-      )}
-      {hover && (
-        <button onClick={onRemove} style={{ position: "absolute", top: 8, right: 8, width: 22, height: 22, borderRadius: 6, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
-      )}
-    </div>
-  );
-}
-
-function FaqTab({ faq, onPatch, onUpdateItem, onAdd, onRemove }: {
-  faq: FaqConfig;
-  onPatch: (p: Partial<FaqConfig>) => void;
-  onUpdateItem: (i: number, p: Partial<FaqItem>) => void;
-  onAdd: () => void;
-  onRemove: (i: number) => void;
-}) {
-  return (
-    <div style={{ display: "grid", gap: 12 }}>
-      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Categories</div>
-        <input
-          style={baseInput}
-          value={faq.categories.join(", ")}
-          onChange={(e) => onPatch({ categories: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
-          placeholder="General, Check-in, Amenities, Billing"
-        />
-        <div style={{ fontSize: 10, color: T.textMuted, marginTop: 4 }}>Comma-separated. Each Q&A picks one of these.</div>
-      </div>
-      <div>
-        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
-          {faq.items.length} questions
-        </div>
-        {faq.items.length === 0 ? (
-          <div style={{ padding: 24, textAlign: "center", background: T.surface, border: `1.5px dashed ${T.borderHi}`, borderRadius: 10, color: T.textDim, fontSize: 12 }}>
-            No questions yet.
-          </div>
-        ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {faq.items.map((item, i) => (
-              <FaqItemCard key={item.id} item={item} index={i} categories={faq.categories} onChange={(p) => onUpdateItem(i, p)} onRemove={() => onRemove(i)} />
-            ))}
-          </div>
-        )}
-        <button onClick={onAdd} style={addCardBtn}>+ Add question</button>
-      </div>
-    </div>
-  );
-}
-
-function FaqItemCard({ item, index, categories, onChange, onRemove }: { item: FaqItem; index: number; categories: string[]; onChange: (p: Partial<FaqItem>) => void; onRemove: () => void }) {
-  const [hover, setHover] = useState(false);
-  return (
-    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-      style={{ padding: 12, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, position: "relative", display: "grid", gap: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <div style={{ width: 22, height: 22, borderRadius: 5, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, fontFamily: "ui-monospace, monospace", flexShrink: 0 }}>{index + 1}</div>
-        <input
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text, padding: 0, minWidth: 0 }}
-          value={item.question}
-          onChange={(e) => onChange({ question: e.target.value })}
-          placeholder="Question"
-        />
-        <select
-          value={item.category ?? (categories[0] ?? "General")}
-          onChange={(e) => onChange({ category: e.target.value })}
-          style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 11, color: T.text, outline: "none", flexShrink: 0 }}
-        >
-          {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
-        </select>
-      </div>
-      <textarea
-        style={{ ...baseInput, minHeight: 60, fontFamily: T.fontBody, resize: "vertical", lineHeight: 1.4 }}
-        value={item.answer}
-        onChange={(e) => onChange({ answer: e.target.value })}
-        placeholder="Answer"
-      />
-      {hover && (
-        <button onClick={onRemove} style={{ position: "absolute", top: 8, right: 8, width: 22, height: 22, borderRadius: 6, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
       )}
     </div>
   );
@@ -2945,11 +2761,6 @@ function FontsTab({ config, allFamilies, onPatchFont, onAddFont, onRemoveFont, o
     </div>
   );
 }
-
-const baseInput: React.CSSProperties = {
-  width: "100%", padding: "7px 10px", background: T.surface, border: `1px solid ${T.border}`,
-  borderRadius: 7, color: T.text, fontSize: 12, fontFamily: T.fontBody, outline: "none",
-};
 
 function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFrameElement | null>; modules: HotelModule[] }) {
   const send = (screen: string) => {
