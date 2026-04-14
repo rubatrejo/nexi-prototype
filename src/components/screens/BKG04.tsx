@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 
 export default function GuestInformation() {
   const { navigate, goBack, guestName } = useKiosk();
+  const [specialRequests, setSpecialRequests] = useState("Late check-in, high floor preferred");
   const FIELDS = [
     { label: "First Name", value: guestName.split(" ")[0] },
     { label: "Last Name", value: guestName.split(" ").slice(1).join(" ") || "Guest" },
@@ -48,8 +50,10 @@ export default function GuestInformation() {
           <div style={{ marginTop: 10 }}>
             <label style={{ fontSize: "0.5rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-secondary)", marginBottom: 3, display: "block" }}>Special Requests</label>
             <textarea
-              readOnly
-              value="Late check-in, high floor preferred"
+              data-kiosk-keyboard
+              inputMode="none"
+              value={specialRequests}
+              onChange={(e) => setSpecialRequests(e.target.value)}
               style={{ width: "100%", height: 44, padding: "8px 12px", background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.6875rem", resize: "none", outline: "none", fontFamily: "var(--font-body), sans-serif" }}
             />
           </div>

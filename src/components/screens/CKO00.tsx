@@ -10,6 +10,8 @@ export default function CheckoutLookup() {
   const { navigate, goBack } = useKiosk();
   const { t } = useI18n();
   const [step, setStep] = useState<1 | 2>(1);
+  const [confirmation, setConfirmation] = useState("RES-2026-48291");
+  const [lastName, setLastName] = useState("Mitchell");
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -41,9 +43,11 @@ export default function CheckoutLookup() {
               <SearchIcon size={18} color="var(--text-tertiary)" />
               <input
                 type="text"
+                data-kiosk-keyboard
+                inputMode="none"
                 placeholder={t("cko.lookup.confirmationPlaceholder")}
-                readOnly
-                defaultValue="RES-2026-48291"
+                value={confirmation}
+                onChange={(e) => setConfirmation(e.target.value)}
                 style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "0.9375rem", color: "var(--text)", fontFamily: "Inter, sans-serif" }}
               />
             </div>
@@ -62,9 +66,11 @@ export default function CheckoutLookup() {
               </svg>
               <input
                 type="text"
+                data-kiosk-keyboard
+                inputMode="none"
                 placeholder={t("cko.lookup.lastNamePlaceholder")}
-                readOnly
-                defaultValue="Mitchell"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: "0.9375rem", color: "var(--text)", fontFamily: "Inter, sans-serif" }}
               />
             </div>

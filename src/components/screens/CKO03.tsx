@@ -9,6 +9,7 @@ export default function MinibarDispute() {
   const { navigate } = useKiosk();
   const { t } = useI18n();
   const [selectedCharge, setSelectedCharge] = useState("");
+  const [reason, setReason] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   const CHARGES = [
@@ -58,6 +59,10 @@ export default function MinibarDispute() {
           {/* Reason */}
           <label style={{ fontSize: "0.625rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-tertiary)", marginBottom: 6, display: "block" }}>{t("cko.dispute.reasonLabel")}</label>
           <textarea
+            data-kiosk-keyboard
+            inputMode="none"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
             placeholder={t("cko.dispute.reasonPlaceholder")}
             style={{ width: "100%", height: 72, padding: "10px 12px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.75rem", resize: "none", outline: "none", fontFamily: "Inter, sans-serif", lineHeight: 1.5 }}
           />

@@ -42,6 +42,7 @@ export default function RSV03() {
   const [selectedTime, setSelectedTime] = useState("ASAP");
   const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [specialInstructions, setSpecialInstructions] = useState("");
 
   const toggleAllergy = (a: string) => setSelectedAllergies((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
   const toggleOption = (o: string) => setSelectedOptions((prev) => prev.includes(o) ? prev.filter((x) => x !== o) : [...prev, o]);
@@ -218,7 +219,14 @@ export default function RSV03() {
             {/* Special instructions */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: "0.5625rem", fontWeight: 700, color: "var(--text)", marginBottom: 4 }}>Special Instructions</div>
-              <textarea placeholder="E.g. extra egg in my omelette, no ice in drinks..." style={{ width: "100%", height: 48, padding: "8px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.625rem", resize: "none", outline: "none", fontFamily: "var(--font-body), sans-serif" }} />
+              <textarea
+                data-kiosk-keyboard
+                inputMode="none"
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}
+                placeholder="E.g. extra egg in my omelette, no ice in drinks..."
+                style={{ width: "100%", height: 48, padding: "8px 10px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", color: "var(--text)", fontSize: "0.625rem", resize: "none", outline: "none", fontFamily: "var(--font-body), sans-serif" }}
+              />
             </div>
 
             {/* Actions */}

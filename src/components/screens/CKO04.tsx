@@ -246,6 +246,8 @@ export default function FeedbackRating() {
 
                   {q.type === "text" && (
                     <textarea
+                      data-kiosk-keyboard
+                      inputMode="none"
                       value={typeof answer === "string" ? answer : ""}
                       onChange={(e) => setAnswer(q.id, e.target.value)}
                       placeholder="Type your answer…"

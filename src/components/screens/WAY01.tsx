@@ -368,7 +368,7 @@ export default function WAY01() {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2" style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)" }}>
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
-              <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{
+              <input type="text" data-kiosk-keyboard inputMode="none" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search..." style={{
                 width: "100%", padding: "7px 10px 7px 30px", borderRadius: 999, border: "1px solid var(--border)",
                 background: "var(--bg-card)", color: "var(--text)", fontSize: "0.6875rem", outline: "none", fontFamily: "inherit",
               }} />
