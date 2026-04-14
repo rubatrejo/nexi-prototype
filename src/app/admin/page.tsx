@@ -193,6 +193,7 @@ function applyPreset(preset: Preset): HotelConfig {
 export default function AdminCMS() {
   const [configs, setConfigs] = useState<HotelConfig[]>([]);
   const [current, setCurrent] = useState<HotelConfig | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState<HotelConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>("client");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
@@ -462,14 +463,50 @@ export default function AdminCMS() {
   const removeUpgrade = (i: number) => setCurrent((c) => c ? { ...c, upgrades: c.upgrades.filter((_, idx) => idx !== i) } : c);
   const reorderUpgrades = (arr: UpgradeOption[]) => setCurrent((c) => c ? { ...c, upgrades: arr } : c);
 
-  const handleSave = async () => {
+  // ─── Phase 1: dirty state + KV size + slug validation ──────────
+  const isDirty = useMemo(() => {
+    if (!current || !savedSnapshot) return false;
+    try { return JSON.stringify(current) !== JSON.stringify(savedSnapshot); } catch { return false; }
+  }, [current, savedSnapshot]);
+
+  const configBytes = useMemo(() => {
+    if (!current) return 0;
+    try { return new Blob([JSON.stringify(current)]).size; } catch { return 0; }
+  }, [current]);
+
+  const KV_SOFT = 700 * 1024;
+  const KV_HARD = 950 * 1024;
+  const overKvHard = configBytes > KV_HARD;
+
+  const slugError = useMemo(() => {
+    if (!current) return null;
+    if (!current.slug) return "Slug is required";
+    if (!/^[a-z0-9-]+$/.test(current.slug)) return "Only lowercase letters, digits, hyphens";
+    const savedSlug = savedSnapshot?.slug;
+    const collision = configs.find((c) => c.slug === current.slug && c.slug !== savedSlug);
+    if (collision) return `Already used by "${collision.brand.name}"`;
+    return null;
+  }, [current, savedSnapshot, configs]);
+
+  const confirmSwitch = useCallback((next: () => void) => {
+    if (!isDirty) { next(); return; }
+    const ok = typeof window !== "undefined"
+      ? window.confirm(`"${current?.brand.name ?? "This client"}" has unsaved changes. Discard them?`)
+      : true;
+    if (ok) next();
+  }, [isDirty, current]);
+
+  const handleSave = useCallback(async () => {
     if (!current) return;
+    if (slugError) { flashToast(slugError, "error"); return; }
+    if (overKvHard) { flashToast(`Config is ${Math.round(configBytes / 1024)} KB — exceeds the 1 MB storage limit. Remove some uploaded images.`, "error"); return; }
     setSaveState("saving");
     try {
       const res = await fetch("/api/admin/configs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
       if (!res.ok) throw new Error(await res.text());
       setSaveState("saved");
       setPreviewKey((k) => k + 1);
+      setSavedSnapshot(structuredClone(current));
       flashToast(`Client "${current.brand.name}" is now live at /?client=${current.slug}`, "success");
       const list = await fetch("/api/admin/configs").then((r) => r.json());
       setConfigs(list.configs ?? []);
@@ -479,7 +516,28 @@ export default function AdminCMS() {
       flashToast("We couldn't save your changes. Check your connection and try again.", "error");
       setTimeout(() => setSaveState("idle"), 3000);
     }
-  };
+  }, [current, slugError, overKvHard, configBytes, flashToast]);
+
+  // beforeunload guard + Cmd+S shortcut
+  useEffect(() => {
+    const onUnload = (e: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (current && isDirty && saveState !== "saving") handleSave();
+      }
+    };
+    window.addEventListener("beforeunload", onUnload);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("beforeunload", onUnload);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isDirty, current, saveState, handleSave]);
 
   const handleDelete = async () => {
     if (!current) return;
@@ -495,8 +553,24 @@ export default function AdminCMS() {
     }
   };
 
-  const handleNew = () => { setCurrent(makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`)); setActiveTab("client"); };
-  const handlePreset = (p: Preset) => { setCurrent(applyPreset(p)); setActiveTab("client"); };
+  const handleNew = () => confirmSwitch(() => {
+    const next = makeBlankConfig(`client-${Date.now().toString(36).slice(-4)}`);
+    setCurrent(next);
+    setSavedSnapshot(null); // blank is dirty until first save
+    setActiveTab("client");
+  });
+  const handlePreset = (p: Preset) => confirmSwitch(() => {
+    const next = applyPreset(p);
+    setCurrent(next);
+    setSavedSnapshot(null); // preset is dirty until first save
+    setActiveTab("client");
+  });
+  const loadConfig = useCallback((cfg: HotelConfig) => {
+    const normalized = normalizeConfig(structuredClone(cfg));
+    setCurrent(normalized);
+    setSavedSnapshot(structuredClone(normalized));
+    setActiveTab("client");
+  }, []);
 
   const handleOpenKiosk = () => { if (current?.slug) window.open(`/?client=${encodeURIComponent(current.slug)}`, "_blank"); };
   const handleCopyLink = async () => {
@@ -521,7 +595,7 @@ export default function AdminCMS() {
   if (!current) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
-        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => { setCurrent(normalizeConfig(structuredClone(c))); setActiveTab("client"); }} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled />
+        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => confirmSwitch(() => loadConfig(c))} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled dirty={false} configBytes={0} kvSoft={KV_SOFT} kvHard={KV_HARD} />
         <div style={{ flex: 1, overflow: "auto", padding: "40px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ maxWidth: 1000, width: "100%", margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 40, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -541,7 +615,7 @@ export default function AdminCMS() {
                 const roomCount = cfg.rooms?.length ?? 0;
                 const upgradeCount = cfg.upgrades?.length ?? 0;
                 return (
-                <button key={cfg.slug} onClick={() => { setCurrent(normalizeConfig(structuredClone(cfg))); setActiveTab("client"); }} style={{
+                <button key={cfg.slug} onClick={() => { confirmSwitch(() => loadConfig(cfg)); }} style={{
                   display: "flex", flexDirection: "column", textAlign: "left",
                   background: T.surface, border: `1px solid ${T.border}`, borderRadius: 16,
                   overflow: "hidden", cursor: "pointer", padding: 0,
@@ -649,7 +723,7 @@ export default function AdminCMS() {
         saveState={saveState}
         configs={configs}
         currentSlug={c.slug}
-        onSelectClient={(cfg) => { setCurrent(normalizeConfig(structuredClone(cfg))); setActiveTab("client"); }}
+        onSelectClient={(cfg) => { confirmSwitch(() => loadConfig(cfg)); }}
         onSelectPreset={handlePreset}
         onSave={handleSave}
         onDelete={handleDelete}
@@ -657,6 +731,11 @@ export default function AdminCMS() {
         onCopy={handleCopyLink}
         onNew={handleNew}
         onBrandNameChange={(v) => patchBrand("name", v)}
+        dirty={isDirty}
+        configBytes={configBytes}
+        kvSoft={KV_SOFT}
+        kvHard={KV_HARD}
+        saveDisabled={overKvHard || !!slugError}
       />
 
       {/* Tab bar */}
@@ -676,6 +755,7 @@ export default function AdminCMS() {
               }}>
                 <span style={{ fontFamily: "ui-monospace, monospace", fontSize: 10, fontWeight: 700, opacity: 0.6 }}>{s.num}</span>
                 {s.label}
+                {active && isDirty && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#D4960A", flexShrink: 0 }} />}
               </button>
             );
           })}
@@ -694,7 +774,15 @@ export default function AdminCMS() {
                   <Field label="Hotel / Client Name"><input style={input} value={c.brand.name} onChange={(e) => patchBrand("name", e.target.value)} /></Field>
                   <Field label="Tagline"><input style={input} value={c.brand.tagline} onChange={(e) => patchBrand("tagline", e.target.value)} /></Field>
                   <Field label="Website"><input style={input} type="url" placeholder="https://www.hotel.com" value={c.brand.website ?? ""} onChange={(e) => patchBrand("website", e.target.value)} /></Field>
-                  <Field label="Kiosk Slug"><input style={{ ...input, fontFamily: "ui-monospace, monospace" }} placeholder="hotel-slug" value={c.slug} onChange={(e) => patch("slug", slugify(e.target.value))} /></Field>
+                  <Field label="Kiosk Slug">
+                    <input
+                      style={{ ...input, fontFamily: "ui-monospace, monospace", borderColor: slugError ? T.error : T.border }}
+                      placeholder="hotel-slug"
+                      value={c.slug}
+                      onChange={(e) => patch("slug", slugify(e.target.value))}
+                    />
+                    {slugError && <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600 }}>{slugError}</div>}
+                  </Field>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
                   <ImageField label="Logo (light)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact spec={SPEC_LOGO} />
@@ -1266,13 +1354,20 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onBrandNameChange, disabled }: {
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
   onBrandNameChange?: (v: string) => void; disabled?: boolean;
+  dirty?: boolean; configBytes?: number; kvSoft?: number; kvHard?: number; saveDisabled?: boolean;
 }) {
+  const kb = Math.round((configBytes ?? 0) / 1024);
+  const soft = (kvSoft ?? 700 * 1024);
+  const hard = (kvHard ?? 950 * 1024);
+  const bytes = configBytes ?? 0;
+  const chipColor = bytes > hard ? T.error : bytes > soft ? "#D4960A" : T.success;
+  const chipBg = bytes > hard ? `${T.error}12` : bytes > soft ? "#D4960A12" : `${T.success}12`;
   return (
     <div style={{ height: 64, borderBottom: `1px solid ${T.border}`, background: T.surface, display: "flex", alignItems: "center", padding: "0 24px", gap: 16, flexShrink: 0 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 3, flexShrink: 0 }}>
@@ -1286,6 +1381,12 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           <input value={brandName ?? ""} onChange={(e) => onBrandNameChange?.(e.target.value)} placeholder="Hotel name"
             style={{ background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 17, fontWeight: 700, color: T.text, letterSpacing: "-0.01em", minWidth: 0, flex: 1, padding: 0 }} />
+          {dirty && (
+            <div style={{ fontSize: 10, color: "#D4960A", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.8, display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#D4960A" }} />
+              Unsaved changes
+            </div>
+          )}
         </div>
       )}
       {disabled && <div style={{ flex: 1 }} />}
@@ -1293,6 +1394,12 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {!disabled && (
           <>
+            <div
+              title={`${kb} KB used of 1 MB KV limit`}
+              style={{ padding: "5px 10px", borderRadius: 6, background: chipBg, border: `1px solid ${chipColor}33`, color: chipColor, fontSize: 10, fontWeight: 700, fontFamily: "ui-monospace, monospace", letterSpacing: 0.3, flexShrink: 0 }}
+            >
+              {kb} KB
+            </div>
             <SaveStatus state={saveState} />
             <button onClick={onCopy} style={tbBtn}>Copy link</button>
             <button onClick={onOpen} style={{ ...tbBtn, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1300,8 +1407,22 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7M7 7h10v10" /></svg>
             </button>
             <button onClick={onDelete} style={{ ...tbBtn, color: T.error }}>Delete</button>
-            <button onClick={onSave} style={{ padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: T.accent, border: `1px solid ${T.accent}`, color: "#fff", boxShadow: `0 4px 14px ${T.accent}33` }}>
-              {saveState === "saving" ? "Saving…" : "Save"}
+            <button
+              onClick={onSave}
+              disabled={!!saveDisabled}
+              title={saveDisabled ? "Fix errors before saving" : dirty ? "Cmd+S" : "No changes"}
+              style={{
+                padding: "9px 20px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: T.fontBody,
+                cursor: saveDisabled ? "not-allowed" : "pointer",
+                background: saveDisabled ? T.border : T.accent,
+                border: `1px solid ${saveDisabled ? T.border : T.accent}`,
+                color: saveDisabled ? T.textMuted : "#fff",
+                boxShadow: dirty && !saveDisabled ? `0 0 0 3px ${T.accent}22, 0 4px 14px ${T.accent}33` : `0 4px 14px ${T.accent}33`,
+                opacity: !dirty && !saveDisabled ? 0.85 : 1,
+                transition: "all 150ms",
+              }}
+            >
+              {saveState === "saving" ? "Saving…" : dirty ? "Save changes" : "Save"}
             </button>
           </>
         )}
