@@ -31,12 +31,10 @@ Commit: `4416cb2` + follow-ups (`e8f4810`, `18c1b51`, `a54ce94`, `8f7a0ad`)
 
 ---
 
-## Phase 3 — Close the Loop
+## Phase 3 — Close the Loop ✅ (2026-04-14)
 
-Conectar el contenido del CMS a las pantallas del kiosko donde aún no se consume.
-
-1. **Survey renderer en CKO-04** — leer del módulo Survey y renderizar las preguntas configuradas
-2. **Policies PDF viewer en CKI-08** — leer PDF/URL de policies y mostrar en un viewer
+1. **Policies PDF viewer en CKI-08** — `373211f` — renderiza `policies.dataUrl` en un iframe nativo dentro del glass card cuando mimeType/filename es PDF, fallback a `policies.text` y luego al hardcoded
+2. **Survey renderer en CKO-04** — `92ec1fc` — modal dinámico con 4 tipos de pregunta (rating/text/choice/yesno), validación de required, usa `survey.title/subtitle/thankYouMessage`, fallback al modal hardcoded cuando no hay preguntas
 
 ---
 
