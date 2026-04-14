@@ -203,6 +203,32 @@ export default function AdminCMS() {
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
+  // ─── Phase 2: undo / redo ────────────────────────────────────────
+  // Two stacks of HotelConfig snapshots. `historyPast` holds states the
+  // user can return to via Cmd+Z; `historyFuture` holds states they can
+  // return to via Cmd+Shift+Z after an undo. A fresh edit clears future.
+  //
+  // Snapshots are recorded by a debounced effect on `current` — rapid
+  // typing compacts into a single snapshot per 500 ms. `lastSnapshotRef`
+  // tracks the state at the moment of the most recent snapshot so the
+  // diff is between stable states, not every keystroke. `skipSnapshotRef`
+  // is raised during undo/redo to prevent the same effect from re-recording
+  // the replayed state and corrupting the stacks.
+  const HISTORY_LIMIT = 50;
+  const [historyPast, setHistoryPast] = useState<HotelConfig[]>([]);
+  const [historyFuture, setHistoryFuture] = useState<HotelConfig[]>([]);
+  const lastSnapshotRef = useRef<HotelConfig | null>(null);
+  const snapshotTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const skipSnapshotRef = useRef(false);
+
+  const resetHistory = useCallback((baseline: HotelConfig | null) => {
+    setHistoryPast([]);
+    setHistoryFuture([]);
+    if (snapshotTimerRef.current) { clearTimeout(snapshotTimerRef.current); snapshotTimerRef.current = null; }
+    lastSnapshotRef.current = baseline ? structuredClone(baseline) : null;
+    skipSnapshotRef.current = false;
+  }, []);
+
   const flashToast = useCallback((msg: string, tone: "success" | "error" | "info" = "success") => {
     setToast({ msg, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -539,7 +565,92 @@ export default function AdminCMS() {
     }
   }, [current, slugError, KV_SOFT, flashToast]);
 
-  // beforeunload guard + Cmd+S shortcut
+  // Debounced snapshot recorder — runs on every `current` change but
+  // waits 500 ms of quiet before pushing the *previous* state to the
+  // past stack. This compacts rapid typing into one history entry.
+  useEffect(() => {
+    if (!current) return;
+    if (skipSnapshotRef.current) {
+      // Undo/redo just ran — update the baseline to the replayed state
+      // without pushing anything, then clear the flag.
+      lastSnapshotRef.current = structuredClone(current);
+      skipSnapshotRef.current = false;
+      return;
+    }
+    if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current);
+    snapshotTimerRef.current = setTimeout(() => {
+      const prev = lastSnapshotRef.current;
+      if (!prev) {
+        lastSnapshotRef.current = structuredClone(current);
+        return;
+      }
+      let prevJson = "";
+      let currJson = "";
+      try { prevJson = JSON.stringify(prev); currJson = JSON.stringify(current); } catch { return; }
+      if (prevJson === currJson) return;
+      setHistoryPast((past) => {
+        const next = [...past, prev];
+        return next.length > HISTORY_LIMIT ? next.slice(next.length - HISTORY_LIMIT) : next;
+      });
+      setHistoryFuture([]); // a new edit invalidates redo
+      lastSnapshotRef.current = structuredClone(current);
+    }, 500);
+    return () => { if (snapshotTimerRef.current) clearTimeout(snapshotTimerRef.current); };
+  }, [current, HISTORY_LIMIT]);
+
+  const handleUndo = useCallback(() => {
+    if (historyPast.length === 0 || !current) { flashToast("Nothing to undo", "info"); return; }
+    // Flush any pending debounced snapshot so the state the user sees
+    // becomes a real history entry before we replay past it. Without
+    // this, rapid typing followed by an immediate Cmd+Z would lose the
+    // in-flight edits because they were never pushed to past.
+    if (snapshotTimerRef.current) {
+      clearTimeout(snapshotTimerRef.current);
+      snapshotTimerRef.current = null;
+      const prev = lastSnapshotRef.current;
+      let shouldPush = false;
+      if (prev) {
+        try { shouldPush = JSON.stringify(prev) !== JSON.stringify(current); } catch { shouldPush = false; }
+      }
+      if (shouldPush && prev) {
+        setHistoryPast((past) => {
+          const merged = [...past, prev];
+          return merged.length > HISTORY_LIMIT ? merged.slice(merged.length - HISTORY_LIMIT) : merged;
+        });
+        // The pending edit becomes the "future" entry — Cmd+Shift+Z
+        // should return here after undo.
+        lastSnapshotRef.current = structuredClone(current);
+      }
+    }
+    setHistoryPast((past) => {
+      if (past.length === 0) return past;
+      const prev = past[past.length - 1];
+      setHistoryFuture((future) => {
+        const merged = [...future, structuredClone(current)];
+        return merged.length > HISTORY_LIMIT ? merged.slice(merged.length - HISTORY_LIMIT) : merged;
+      });
+      skipSnapshotRef.current = true;
+      setCurrent(structuredClone(prev));
+      return past.slice(0, -1);
+    });
+  }, [historyPast.length, current, flashToast, HISTORY_LIMIT]);
+
+  const handleRedo = useCallback(() => {
+    if (historyFuture.length === 0 || !current) { flashToast("Nothing to redo", "info"); return; }
+    setHistoryFuture((future) => {
+      if (future.length === 0) return future;
+      const next = future[future.length - 1];
+      setHistoryPast((past) => {
+        const merged = [...past, structuredClone(current)];
+        return merged.length > HISTORY_LIMIT ? merged.slice(merged.length - HISTORY_LIMIT) : merged;
+      });
+      skipSnapshotRef.current = true;
+      setCurrent(structuredClone(next));
+      return future.slice(0, -1);
+    });
+  }, [historyFuture.length, current, flashToast, HISTORY_LIMIT]);
+
+  // beforeunload guard + Cmd+S / Cmd+Z / Cmd+Shift+Z
   useEffect(() => {
     const onUnload = (e: BeforeUnloadEvent) => {
       if (!isDirty) return;
@@ -550,6 +661,17 @@ export default function AdminCMS() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         if (current && isDirty && saveState !== "saving") handleSave();
+        return;
+      }
+      // Cmd+Z / Ctrl+Z → undo; Cmd+Shift+Z / Ctrl+Shift+Z → redo.
+      // Always intercepted because inputs/textareas are React-controlled
+      // off the config state, so native input undo wouldn't actually
+      // reach the underlying model anyway.
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) handleRedo();
+        else handleUndo();
+        return;
       }
       // Esc exits preview fullscreen without affecting anything else.
       if (e.key === "Escape" && previewFullscreen) {
@@ -563,7 +685,7 @@ export default function AdminCMS() {
       window.removeEventListener("beforeunload", onUnload);
       window.removeEventListener("keydown", onKey);
     };
-  }, [isDirty, current, saveState, handleSave, previewFullscreen]);
+  }, [isDirty, current, saveState, handleSave, previewFullscreen, handleUndo, handleRedo]);
 
   const handleDelete = async () => {
     if (!current) return;
@@ -584,6 +706,7 @@ export default function AdminCMS() {
     setCurrent(next);
     setSavedSnapshot(null); // blank is dirty until first save
     setActiveTab("client");
+    resetHistory(next);
   });
 
   // Duplicate the current in-memory client (including unsaved edits)
@@ -607,8 +730,9 @@ export default function AdminCMS() {
     setCurrent(copy);
     setSavedSnapshot(null); // copy is dirty until first save
     setActiveTab("client");
+    resetHistory(copy);
     flashToast(`Duplicated as "${copy.brand.name}". Save to persist.`, "info");
-  }, [current, configs, flashToast]);
+  }, [current, configs, flashToast, resetHistory]);
 
   // Export the in-memory client as a pretty-printed JSON file download.
   // Users can re-import these files later to restore a config, or ship
@@ -675,25 +799,28 @@ export default function AdminCMS() {
         setCurrent(normalized);
         setSavedSnapshot(null); // imported clients start dirty
         setActiveTab("client");
+        resetHistory(normalized);
         flashToast(`Imported "${normalized.brand.name}". Save to persist.`, "info");
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Check the file is valid JSON";
       flashToast(`Import failed: ${msg.slice(0, 120)}`, "error");
     }
-  }, [configs, savedSnapshot, confirmSwitch, flashToast]);
+  }, [configs, savedSnapshot, confirmSwitch, flashToast, resetHistory]);
   const handlePreset = (p: Preset) => confirmSwitch(() => {
     const next = applyPreset(p);
     setCurrent(next);
     setSavedSnapshot(null); // preset is dirty until first save
     setActiveTab("client");
+    resetHistory(next);
   });
   const loadConfig = useCallback((cfg: HotelConfig) => {
     const normalized = normalizeConfig(structuredClone(cfg));
     setCurrent(normalized);
     setSavedSnapshot(structuredClone(normalized));
     setActiveTab("client");
-  }, []);
+    resetHistory(normalized);
+  }, [resetHistory]);
 
   const handleOpenKiosk = () => { if (current?.slug) window.open(`/?client=${encodeURIComponent(current.slug)}`, "_blank"); };
   const handleCopyLink = async () => {
@@ -867,6 +994,10 @@ export default function AdminCMS() {
         onDuplicate={handleDuplicate}
         onExportJson={handleExportJson}
         onImportJson={triggerImportJson}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        canUndo={historyPast.length > 0}
+        canRedo={historyFuture.length > 0}
         onBrandNameChange={(v) => patchBrand("name", v)}
         dirty={isDirty}
         configBytes={configBytes}
@@ -1539,7 +1670,7 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson, onUndo, onRedo, canUndo, canRedo, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
@@ -1547,6 +1678,10 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
   onDuplicate?: () => void;
   onExportJson?: () => void;
   onImportJson?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
   onBrandNameChange?: (v: string) => void; disabled?: boolean;
   dirty?: boolean; configBytes?: number; kvSoft?: number; kvHard?: number; saveDisabled?: boolean;
 }) {
@@ -1582,6 +1717,46 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {!disabled && (
           <>
+            {onUndo && onRedo && (
+              <div style={{ display: "flex", gap: 2, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, padding: 2, flexShrink: 0 }}>
+                <button
+                  onClick={onUndo}
+                  disabled={!canUndo}
+                  title="Undo (⌘Z)"
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 28, height: 28, borderRadius: 5, border: "none",
+                    background: "transparent",
+                    color: canUndo ? T.textDim : T.textMuted,
+                    cursor: canUndo ? "pointer" : "not-allowed",
+                    opacity: canUndo ? 1 : 0.4,
+                    transition: "all 120ms",
+                  }}
+                  onMouseEnter={(e) => { if (canUndo) { e.currentTarget.style.background = `${T.accent}14`; e.currentTarget.style.color = T.accent; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = canUndo ? T.textDim : T.textMuted; }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M21 17a9 9 0 00-15-6.7L3 13" /></svg>
+                </button>
+                <button
+                  onClick={onRedo}
+                  disabled={!canRedo}
+                  title="Redo (⌘⇧Z)"
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    width: 28, height: 28, borderRadius: 5, border: "none",
+                    background: "transparent",
+                    color: canRedo ? T.textDim : T.textMuted,
+                    cursor: canRedo ? "pointer" : "not-allowed",
+                    opacity: canRedo ? 1 : 0.4,
+                    transition: "all 120ms",
+                  }}
+                  onMouseEnter={(e) => { if (canRedo) { e.currentTarget.style.background = `${T.accent}14`; e.currentTarget.style.color = T.accent; } }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = canRedo ? T.textDim : T.textMuted; }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6" /><path d="M3 17a9 9 0 0115-6.7L21 13" /></svg>
+                </button>
+              </div>
+            )}
             <div
               title={`${kb} KB used of 1 MB KV limit`}
               style={{ padding: "5px 10px", borderRadius: 6, background: chipBg, border: `1px solid ${chipColor}33`, color: chipColor, fontSize: 10, fontWeight: 700, fontFamily: "ui-monospace, monospace", letterSpacing: 0.3, flexShrink: 0 }}
