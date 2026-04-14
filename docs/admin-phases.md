@@ -38,12 +38,22 @@ Commit: `4416cb2` + follow-ups (`e8f4810`, `18c1b51`, `a54ce94`, `8f7a0ad`)
 
 ---
 
-## Phase 4 — Refactor
+## Phase 4 — Refactor ✅ (2026-04-14)
 
-`src/app/admin/page.tsx` tiene ~3500 LOC. Extraer antes de que sea inmanejable.
+`src/app/admin/page.tsx` pasó de **3788 → 1348 LOC** (-2440, -64%) en 5 tiers + 4 sub-batches.
 
-1. **Extract `ListManager`** — patrón repetido (rooms, upgrades, ads, languages, faqs, surveys) en un componente reutilizable
-2. **Split page.tsx por tab** — un archivo por tab (ClientTab, ColorsTab, FontsTab, ImagesTab, RoomsTab, ...) en `src/app/admin/tabs/`
+- **Tier 1** `14bda03` — `_lib/` helpers (tokens, icons, sections, specs, validators, presets, normalize, compress)
+- **Tier 2** `38672ec` — primitives (Field, ColorField, GradientField, ColorGroup, Toggle, SecretField, SaveStatus, ToastBar, ModuleGlyph)
+- **Tier 3** `feeca00` — cards (SectionHeader, ModuleCard, DroppableImage, GalleryStrip, RoomCard, UpgradeCard)
+- **Tier 4a** `675a78b` — Survey + FAQ tabs + `_lib/styles.ts`
+- **Tier 4b** `afea1ca` — ImageZoomModal, ImageField, HeroExteriorEditor
+- **Tier 4c** `177bd28` — PoliciesTab, FontsTab
+- **Tier 4d** `221e460` — AdsTab + AdCard + ScreenPicker + pattern helpers (la más grande, -508 LOC)
+- **Tier 5** `06dd589` — TopBar, ClientsDropdown, ModuleNav
+
+Resultado: 8 archivos en `src/app/admin/_lib/` + 17 en `src/app/admin/_components/`. AdminCMS en page.tsx ahora es solo state, callbacks y los gates `{activeTab === "X" && <XTab .../>}`.
+
+**Nota:** El item original "Extract ListManager" no se hizo — los patrones repetidos (Reorder.Group + add-card-btn) son cortos. Las cards (RoomCard, UpgradeCard, AdCard) ya están en sus propios archivos, lo cual cubre el 80% de la motivación.
 
 ---
 
