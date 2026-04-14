@@ -18,6 +18,15 @@ import { slugify, isValidColor, isValidGradient } from "./_lib/validators";
 import { type Preset, PRESETS, applyPreset } from "./_lib/presets";
 import { normalizeConfig, makeBlankConfig } from "./_lib/normalize";
 import { compressDataUrl, compressConfigImages } from "./_lib/compress";
+import Field from "./_components/Field";
+import ColorField from "./_components/ColorField";
+import GradientField from "./_components/GradientField";
+import ColorGroup from "./_components/ColorGroup";
+import Toggle from "./_components/Toggle";
+import SecretField from "./_components/SecretField";
+import SaveStatus from "./_components/SaveStatus";
+import ToastBar from "./_components/ToastBar";
+import ModuleGlyph from "./_components/ModuleGlyph";
 
 export default function AdminCMS() {
   const [configs, setConfigs] = useState<HotelConfig[]>([]);
@@ -1391,30 +1400,6 @@ function ModuleCard({ module, onToggle, onToggleDash }: { module: HotelModule; o
   );
 }
 
-function ModuleGlyph({ icon }: { icon: string }) {
-  const G: Record<string, React.ReactNode> = {
-    "log-in": <><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></>,
-    "log-out": <><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></>,
-    "calendar-plus": <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 14v6M9 17h6" /></>,
-    "concierge-bell": <><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 01-3.46 0" /></>,
-    "calendar": <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>,
-    "compass": <><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88" /></>,
-    "map-pin": <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></>,
-    "wifi": <><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0" /><circle cx="12" cy="20" r="1" /></>,
-    "help-circle": <><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></>,
-    "gift": <><polyline points="20 12 20 22 4 22 4 12" /><rect x="2" y="7" width="20" height="5" /><line x1="12" y1="22" x2="12" y2="7" /><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z" /><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z" /></>,
-    "megaphone": <><path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 11-5.8-1.6" /></>,
-    "credit-card": <><rect x="1" y="4" width="22" height="16" rx="2" /><line x1="1" y1="10" x2="23" y2="10" /></>,
-    "clock": <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></>,
-    "sunrise": <><path d="M17 18a5 5 0 00-10 0M12 2v7M4.22 10.22l1.42 1.42M1 18h2M21 18h2M18.36 11.64l1.42-1.42M23 22H1M8 6l4-4 4 4" /></>,
-    "key": <><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></>,
-    "bot": <><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><line x1="8" y1="16" x2="8" y2="16" /><line x1="16" y1="16" x2="16" y2="16" /></>,
-    "globe": <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></>,
-    "clipboard": <><path d="M9 2h6a1 1 0 011 1v2h-8V3a1 1 0 011-1z" /><rect x="4" y="4" width="16" height="18" rx="2" /><path d="M9 13h6M9 17h6M9 9h6" /></>,
-  };
-  return <>{G[icon] ?? <circle cx="12" cy="12" r="10" />}</>;
-}
-
 function DroppableImage({ value: rawValue, onChange, spec = SPEC_HERO, width = 160, height = 100, empty = "+ Drop image" }: { value: string | undefined; onChange: (v: string) => void; spec?: UploadSpec; width?: number; height?: number; empty?: string }) {
   const value = rawValue ?? "";
   const [dragOver, setDragOver] = useState(false);
@@ -1685,16 +1670,6 @@ const tbBtn: React.CSSProperties = {
   background: T.surface, border: `1px solid ${T.border}`, color: T.text,
 };
 
-function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" }) {
-  if (state === "idle") return null;
-  const cfg = {
-    saving: { color: T.textDim, label: "Saving" },
-    saved: { color: T.success, label: "✓ Saved" },
-    error: { color: T.error, label: "✗ Error" },
-  }[state];
-  return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 4 }}>{cfg.label}</div>;
-}
-
 function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson }: {
   configs: HotelConfig[]; currentSlug: string | null; onSelect: (c: HotelConfig) => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
@@ -1866,116 +1841,6 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset
           </button>
         </div>
       )}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>{label}</div>
-      {children}
-    </div>
-  );
-}
-
-function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  const hex = /^#[0-9a-f]{6}$/i.test(value) ? value : "#000000";
-  const valid = isValidColor(value);
-  return (
-    <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${valid ? T.border : T.error}`, borderRadius: 6, padding: 2, minWidth: 0 }}>
-        <input type="color" value={hex} onChange={(e) => onChange(e.target.value)} style={{ width: 22, height: 22, border: "none", background: "transparent", cursor: "pointer", padding: 0, flexShrink: 0 }} />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          title={valid ? "" : "Use #RRGGBB, rgb(), rgba(), hsl(), hsla(), or a named color. Gradients are not supported here."}
-          style={{ flex: 1, minWidth: 0, background: "transparent", border: "none", outline: "none", color: valid ? T.text : T.error, fontFamily: "ui-monospace, monospace", fontSize: 10, padding: "3px 0" }}
-        />
-      </div>
-      {!valid && (
-        <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600, lineHeight: 1.3 }}>
-          Invalid color — use #RRGGBB, rgb(), hsl(), or a named color (no gradients)
-        </div>
-      )}
-    </div>
-  );
-}
-
-/**
- * Free-form input for a CSS gradient string. Validates against
- * isValidGradient (empty allowed; otherwise must start with one of
- * the gradient functions). Renders a live swatch on the left so the
- * user sees the gradient as soon as they paste it in.
- */
-function GradientField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
-  const valid = isValidGradient(value);
-  const trimmed = value.trim();
-  return (
-    <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 3 }}>{label}</div>
-      <div style={{ display: "flex", alignItems: "stretch", gap: 8, background: T.surface, border: `1px solid ${valid ? T.border : T.error}`, borderRadius: 6, padding: 4, minWidth: 0 }}>
-        <div
-          style={{
-            width: 44,
-            minHeight: 26,
-            borderRadius: 5,
-            border: `1px solid ${T.border}`,
-            flexShrink: 0,
-            background: valid && trimmed ? trimmed : "repeating-linear-gradient(45deg, #f0f0eb 0 6px, #fafaf7 6px 12px)",
-          }}
-          title={trimmed || "No gradient set"}
-        />
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder='linear-gradient(90deg, #1288FF 0%, #8B5CF6 100%)'
-          title={valid ? "" : "Must start with linear-gradient, radial-gradient, or conic-gradient"}
-          style={{
-            flex: 1,
-            minWidth: 0,
-            background: "transparent",
-            border: "none",
-            outline: "none",
-            color: valid ? T.text : T.error,
-            fontFamily: "ui-monospace, monospace",
-            fontSize: 10,
-            padding: "4px 4px",
-          }}
-        />
-      </div>
-      {!valid && (
-        <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600, lineHeight: 1.3 }}>
-          Must start with linear-gradient(…), radial-gradient(…), or conic-gradient(…)
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ColorGroup({ title, children, active }: { title: string; children: React.ReactNode; active?: boolean }) {
-  return (
-    <div style={{
-      background: T.surface,
-      border: `1.5px solid ${active ? T.accent : T.border}`,
-      borderRadius: 10,
-      padding: 10,
-      boxShadow: active ? `0 0 0 3px ${T.accent}14` : "none",
-      transition: "all 150ms",
-      position: "relative",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: active ? T.accent : T.textDim, textTransform: "uppercase", letterSpacing: 0.8 }}>{title}</div>
-        {active && (
-          <div style={{ fontSize: 8, fontWeight: 700, color: T.accent, background: `${T.accent}14`, padding: "2px 6px", borderRadius: 4, letterSpacing: 0.5, textTransform: "uppercase" }}>
-            Live in preview
-          </div>
-        )}
-      </div>
-      {children}
     </div>
   );
 }
@@ -2172,48 +2037,6 @@ function ImageZoomModal({ src, label, spec, onClose, onReplace, onRemove }: {
         </div>
       </div>
     </div>
-  );
-}
-
-function SecretField({ label, help, value, onChange }: { label: string; help?: string; value: string; onChange: (v: string) => void }) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 3 }}>
-        <div style={{ fontSize: 9, fontWeight: 600, color: T.textDim, textTransform: "uppercase", letterSpacing: 0.8 }}>{label}</div>
-        {help && <div style={{ fontSize: 9, color: T.textMuted }}>{help}</div>}
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 7, padding: "0 8px 0 10px" }}>
-        <input
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="••••••••••••"
-          autoComplete="off"
-          spellCheck={false}
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: T.text, fontSize: 11, fontFamily: "ui-monospace, monospace", padding: "7px 0", letterSpacing: visible ? 0 : 2 }}
-        />
-        <button
-          type="button"
-          onClick={() => setVisible((v) => !v)}
-          style={{ background: "transparent", border: "none", color: T.textDim, cursor: "pointer", fontSize: 9, fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", padding: "4px 2px" }}
-        >
-          {visible ? "Hide" : "Show"}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function Toggle({ on, onClick }: { on: boolean; onClick: (e: React.MouseEvent) => void }) {
-  return (
-    <button onClick={onClick} style={{
-      width: 34, height: 20, borderRadius: 10, border: "none",
-      background: on ? T.accent : T.borderHi, position: "relative",
-      cursor: "pointer", padding: 0, flexShrink: 0,
-    }}>
-      <div style={{ position: "absolute", top: 2, left: on ? 16 : 2, width: 16, height: 16, borderRadius: "50%", background: "#fff", transition: "left 150ms" }} />
-    </button>
   );
 }
 
@@ -3393,77 +3216,3 @@ function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFra
   );
 }
 
-function ToastBar({ msg, tone = "success" }: { msg: string; tone?: "success" | "error" | "info" | "warning" }) {
-  const AMBER = "#D4960A";
-  const accentColor =
-    tone === "error" ? T.error
-    : tone === "warning" ? AMBER
-    : tone === "info" ? T.accent
-    : T.success;
-  const title =
-    tone === "error" ? "Something went wrong"
-    : tone === "warning" ? "Heads up — sensitive data"
-    : tone === "info" ? "Done"
-    : "Changes saved";
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 1000,
-      display: "flex", alignItems: "center", justifyContent: "center",
-      pointerEvents: "none",
-      background: "rgba(15, 15, 20, 0.28)",
-      backdropFilter: "blur(3px)",
-      WebkitBackdropFilter: "blur(3px)",
-      animation: "toastBackdropIn 180ms ease",
-    }}>
-      <div style={{
-        background: T.surface,
-        border: `1px solid ${T.border}`,
-        borderRadius: 20,
-        padding: "32px 44px 30px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
-        minWidth: 320, maxWidth: 420,
-        boxShadow: "0 24px 80px rgba(0,0,0,0.22), 0 4px 16px rgba(0,0,0,0.08)",
-        animation: "toastCardIn 220ms cubic-bezier(0.22, 1, 0.36, 1)",
-        pointerEvents: "auto",
-      }}>
-        <div style={{
-          width: 68, height: 68, borderRadius: "50%",
-          background: `${accentColor}14`, border: `1.5px solid ${accentColor}38`,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: accentColor,
-        }}>
-          {tone === "error" ? (
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="15" y1="9" x2="9" y2="15" />
-              <line x1="9" y1="9" x2="15" y2="15" />
-            </svg>
-          ) : tone === "warning" ? (
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          ) : (
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          )}
-        </div>
-        <div style={{
-          fontFamily: T.fontDisplay, fontSize: 20, fontWeight: 800,
-          color: T.text, letterSpacing: "-0.01em", textAlign: "center",
-        }}>
-          {title}
-        </div>
-        <div style={{
-          fontSize: 13, color: T.textDim, textAlign: "center",
-          lineHeight: 1.5, maxWidth: 320,
-        }}>
-          {msg}
-        </div>
-      </div>
-    </div>
-  );
-}
