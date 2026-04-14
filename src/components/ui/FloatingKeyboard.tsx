@@ -92,17 +92,28 @@ export default function FloatingKeyboard() {
     };
   }, []);
 
-  // First-open: drop the keyboard near the bottom-center of the viewport.
+  // First-open: drop the keyboard near the bottom-center of the kiosk
+  // surface. We measure offsetParent (which is the transform: scale(0.8)
+  // inner-scale wrapper inside KioskFrame) instead of window.innerWidth
+  // because the keyboard's coordinate space is that wrapper, not the
+  // viewport — the wrapper is 125% × 125% of the visible kiosk frame.
   // Subsequent opens reuse the last drag position so the user's choice
   // survives across fields in the same session.
   useEffect(() => {
     if (!activeInput || position) return;
-    const w = 504;
-    const h = 205;
-    setPosition({
-      x: Math.max(20, Math.round((window.innerWidth - w) / 2)),
-      y: Math.max(20, window.innerHeight - h - 60),
-    });
+    const w = 454;
+    const h = 187;
+    // Defer one tick so containerRef has a parent to measure.
+    const t = setTimeout(() => {
+      const parent = containerRef.current?.offsetParent as HTMLElement | null;
+      const parentW = parent?.clientWidth ?? window.innerWidth;
+      const parentH = parent?.clientHeight ?? window.innerHeight;
+      setPosition({
+        x: Math.max(12, Math.round((parentW - w) / 2)),
+        y: Math.max(12, parentH - h - 40),
+      });
+    }, 0);
+    return () => clearTimeout(t);
   }, [activeInput, position]);
 
   // Insert / delete / space / enter at the current selection. setSelectionRange
@@ -155,10 +166,26 @@ export default function FloatingKeyboard() {
   const onDragPointerMove = useCallback((e: React.PointerEvent) => {
     const s = dragStateRef.current;
     if (!s.active) return;
-    const w = containerRef.current?.offsetWidth ?? 504;
-    const h = containerRef.current?.offsetHeight ?? 205;
-    const nextX = Math.max(8, Math.min(window.innerWidth - w - 8, s.ox + (e.clientX - s.px)));
-    const nextY = Math.max(8, Math.min(window.innerHeight - h - 8, s.oy + (e.clientY - s.py)));
+    const el = containerRef.current;
+    const w = el?.offsetWidth ?? 454;
+    const h = el?.offsetHeight ?? 187;
+    // Use the keyboard's containing block (the inner-scale wrapper)
+    // as the drag bounds, not the viewport — they're different sizes.
+    const parent = el?.offsetParent as HTMLElement | null;
+    const parentW = parent?.clientWidth ?? window.innerWidth;
+    const parentH = parent?.clientHeight ?? window.innerHeight;
+    // Pointer deltas come from window coordinates which are scaled
+    // relative to the parent's transform. Divide by the parent's
+    // visual-to-layout ratio so 1px of pointer move = 1px of layout.
+    // We approximate the ratio by comparing parent.offsetWidth (layout)
+    // to its visible bounding rect (after transform).
+    const rect = parent?.getBoundingClientRect();
+    const ratioX = rect && rect.width > 0 ? parentW / rect.width : 1;
+    const ratioY = rect && rect.height > 0 ? parentH / rect.height : 1;
+    const dx = (e.clientX - s.px) * ratioX;
+    const dy = (e.clientY - s.py) * ratioY;
+    const nextX = Math.max(4, Math.min(parentW - w - 4, s.ox + dx));
+    const nextY = Math.max(4, Math.min(parentH - h - 4, s.oy + dy));
     setPosition({ x: nextX, y: nextY });
   }, []);
 
@@ -207,7 +234,7 @@ export default function FloatingKeyboard() {
         flex,
         background: accent ? "var(--primary, #1288FF)" : "rgba(255,255,255,0.18)",
         color: accent ? "#fff" : "rgba(255,255,255,0.95)",
-        fontSize: 9,
+        fontSize: 8,
         fontWeight: 700,
         letterSpacing: 0.3,
       }}
@@ -223,18 +250,18 @@ export default function FloatingKeyboard() {
         position: "fixed",
         left: position.x,
         top: position.y,
-        width: 504,
+        width: 454,
         background: "rgba(20, 20, 28, 0.94)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
         border: "1px solid rgba(255,255,255,0.16)",
-        borderRadius: 10,
-        boxShadow: "0 24px 70px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)",
+        borderRadius: 9,
+        boxShadow: "0 22px 64px rgba(0,0,0,0.45), 0 4px 14px rgba(0,0,0,0.25)",
         zIndex: 9999,
-        padding: 8,
+        padding: 7,
         display: "flex",
         flexDirection: "column",
-        gap: 5,
+        gap: 4,
         userSelect: "none",
         touchAction: "none",
       }}
@@ -247,14 +274,14 @@ export default function FloatingKeyboard() {
         onPointerCancel={onDragPointerUp}
         style={{
           position: "relative",
-          height: 18,
+          height: 16,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: dragStateRef.current.active ? "grabbing" : "grab",
         }}
       >
-        <div style={{ width: 32, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.28)" }} />
+        <div style={{ width: 28, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.28)" }} />
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={stopFocusLoss(close)}
@@ -263,8 +290,8 @@ export default function FloatingKeyboard() {
             position: "absolute",
             right: 2,
             top: 0,
-            width: 18,
-            height: 18,
+            width: 16,
+            height: 16,
             border: "none",
             background: "rgba(255,255,255,0.12)",
             borderRadius: 4,
@@ -273,7 +300,7 @@ export default function FloatingKeyboard() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: 9,
+            fontSize: 8,
           }}
           aria-label="Close keyboard"
         >
@@ -283,13 +310,13 @@ export default function FloatingKeyboard() {
 
       {layer === "alpha" ? (
         <>
-          <div style={{ display: "flex", gap: 4 }}>
+          <div style={{ display: "flex", gap: 3 }}>
             {ROW1.map((k) => charKey(isShift ? k.toUpperCase() : k))}
           </div>
-          <div style={{ display: "flex", gap: 4, padding: "0 20px" }}>
+          <div style={{ display: "flex", gap: 3, padding: "0 18px" }}>
             {ROW2.map((k) => charKey(isShift ? k.toUpperCase() : k))}
           </div>
-          <div style={{ display: "flex", gap: 4 }}>
+          <div style={{ display: "flex", gap: 3 }}>
             {utilKey(isShift ? "⇧" : "⇧", () => setIsShift((s) => !s), 1.6)}
             {ROW3.map((k) => charKey(isShift ? k.toUpperCase() : k))}
             {utilKey("⌫", () => tap("", "backspace"), 1.6)}
@@ -297,13 +324,13 @@ export default function FloatingKeyboard() {
         </>
       ) : (
         <>
-          <div style={{ display: "flex", gap: 4 }}>
+          <div style={{ display: "flex", gap: 3 }}>
             {NUM_ROW1.map((k) => charKey(k))}
           </div>
-          <div style={{ display: "flex", gap: 4 }}>
+          <div style={{ display: "flex", gap: 3 }}>
             {NUM_ROW2.map((k) => charKey(k))}
           </div>
-          <div style={{ display: "flex", gap: 4, padding: "0 20px" }}>
+          <div style={{ display: "flex", gap: 3, padding: "0 18px" }}>
             {NUM_ROW3.map((k) => charKey(k))}
             {utilKey("⌫", () => tap("", "backspace"), 1.4)}
           </div>
@@ -311,7 +338,7 @@ export default function FloatingKeyboard() {
       )}
 
       {/* Bottom row — layer switch, space, done */}
-      <div style={{ display: "flex", gap: 4 }}>
+      <div style={{ display: "flex", gap: 3 }}>
         {utilKey(layer === "alpha" ? "123" : "ABC", () => setLayer((l) => (l === "alpha" ? "num" : "alpha")), 1.6)}
         <button
           onMouseDown={stopFocusLoss(() => tap("", "space"))}
@@ -319,9 +346,9 @@ export default function FloatingKeyboard() {
           style={{
             ...keyBaseStyle,
             flex: 6,
-            fontSize: 8,
+            fontSize: 7,
             color: "rgba(255,255,255,0.6)",
-            letterSpacing: 0.7,
+            letterSpacing: 0.6,
             textTransform: "uppercase",
           }}
         >
@@ -334,11 +361,11 @@ export default function FloatingKeyboard() {
 }
 
 const keyBaseStyle: React.CSSProperties = {
-  height: 31,
+  height: 28,
   background: "rgba(255,255,255,0.92)",
   border: "1px solid rgba(255,255,255,0.6)",
-  borderRadius: 6,
-  fontSize: 11,
+  borderRadius: 5,
+  fontSize: 10,
   fontWeight: 600,
   fontFamily: "'Inter', sans-serif",
   color: "#1A1A1A",
