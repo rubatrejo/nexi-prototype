@@ -10,6 +10,7 @@ export default function CheckinLookup() {
   const { navigate, goBack } = useKiosk();
   const { t } = useI18n();
   const [method, setMethod] = useState<"confirmation" | "name" | "qr">("confirmation");
+  const [query, setQuery] = useState("");
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
@@ -69,8 +70,11 @@ export default function CheckinLookup() {
             <SearchIcon size={18} color="var(--text-tertiary)" />
             <input
               type="text"
+              data-kiosk-keyboard
+              inputMode="none"
               placeholder={method === "confirmation" ? t("cki.lookup.placeholder.confirmation") : method === "name" ? t("cki.lookup.placeholder.name") : ""}
-              readOnly
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               style={{
                 flex: 1,
                 border: "none",

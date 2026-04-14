@@ -8,6 +8,7 @@ import ErrorModal from "@/components/ui/ErrorModal";
 import AIConcierge from "@/components/ui/AIConcierge";
 import InactivityModal from "@/components/ui/InactivityModal";
 import AdOverlays from "@/components/ui/AdOverlays";
+import FloatingKeyboard from "@/components/ui/FloatingKeyboard";
 import { PoweredByTrueOmni } from "@/components/ui/Icons";
 import BrandLogo from "@/components/ui/BrandLogo";
 
@@ -137,6 +138,7 @@ export default function KioskFrame({ children, onBackToSelection, onGoToROI, emb
           <AIConcierge />
           <InactivityModal />
           <AdOverlays />
+          <FloatingKeyboard />
         </div>
       </div>
 
