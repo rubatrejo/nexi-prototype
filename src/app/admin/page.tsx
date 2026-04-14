@@ -197,7 +197,7 @@ export default function AdminCMS() {
   const [activeTab, setActiveTab] = useState<string>("client");
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [previewKey, setPreviewKey] = useState(0);
-  const [toast, setToast] = useState<{ msg: string; tone: "success" | "error" | "info" } | null>(null);
+  const [toast, setToast] = useState<{ msg: string; tone: "success" | "error" | "info" | "warning" } | null>(null);
   const [previewTheme, setPreviewTheme] = useState<"light" | "dark">("light");
   const [previewFullscreen, setPreviewFullscreen] = useState(false);
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
@@ -229,10 +229,11 @@ export default function AdminCMS() {
     skipSnapshotRef.current = false;
   }, []);
 
-  const flashToast = useCallback((msg: string, tone: "success" | "error" | "info" = "success") => {
+  const flashToast = useCallback((msg: string, tone: "success" | "error" | "info" | "warning" = "success") => {
     setToast({ msg, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2200);
+    // Warnings sit longer so the user actually reads them.
+    toastTimer.current = setTimeout(() => setToast(null), tone === "warning" ? 4500 : 2200);
   }, []);
 
   useEffect(() => {
@@ -751,7 +752,11 @@ export default function AdminCMS() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      flashToast(`Exported "${current.brand.name}" as JSON`, "success");
+      // Warn the user that the file is a full backup — it includes
+      // API credentials (HeyGen, Tavus, D-ID, Resend) and the Wi-Fi
+      // password in plain text. If they're sharing it with a client
+      // or teammate, they should know what's inside.
+      flashToast(`"${current.brand.name}" exported as JSON. This file contains API keys and the Wi-Fi password in plain text — share carefully.`, "warning");
     } catch {
       flashToast("Couldn't export this client to JSON", "error");
     }
@@ -3582,9 +3587,18 @@ function ModuleNav({ iframeRef, modules }: { iframeRef: React.RefObject<HTMLIFra
   );
 }
 
-function ToastBar({ msg, tone = "success" }: { msg: string; tone?: "success" | "error" | "info" }) {
-  const accentColor = tone === "error" ? T.error : tone === "info" ? T.accent : T.success;
-  const title = tone === "error" ? "Something went wrong" : tone === "info" ? "Done" : "Changes saved";
+function ToastBar({ msg, tone = "success" }: { msg: string; tone?: "success" | "error" | "info" | "warning" }) {
+  const AMBER = "#D4960A";
+  const accentColor =
+    tone === "error" ? T.error
+    : tone === "warning" ? AMBER
+    : tone === "info" ? T.accent
+    : T.success;
+  const title =
+    tone === "error" ? "Something went wrong"
+    : tone === "warning" ? "Heads up — sensitive data"
+    : tone === "info" ? "Done"
+    : "Changes saved";
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 1000,
@@ -3617,6 +3631,12 @@ function ToastBar({ msg, tone = "success" }: { msg: string; tone?: "success" | "
               <circle cx="12" cy="12" r="10" />
               <line x1="15" y1="9" x2="9" y2="15" />
               <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          ) : tone === "warning" ? (
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           ) : (
             <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
