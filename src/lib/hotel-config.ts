@@ -100,6 +100,47 @@ export interface AdsConfig {
   rotation: "first" | "random";
 }
 
+export type SurveyQuestionType = "rating" | "text" | "choice" | "yesno";
+
+export interface SurveyQuestion {
+  id: string;
+  type: SurveyQuestionType;
+  text: string;
+  required: boolean;
+  options?: string[];   // only for type === "choice"
+  maxRating?: number;   // only for type === "rating" (default 5)
+}
+
+/**
+ * Guest satisfaction survey shown after checkout (CKO-04 feedback
+ * screen). Managed from the /admin Survey tab when the "survey"
+ * module is enabled.
+ */
+export interface SurveyConfig {
+  title: string;
+  subtitle?: string;
+  questions: SurveyQuestion[];
+  thankYouMessage?: string;
+  showAfterCheckOut: boolean;
+}
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+/**
+ * FAQ content rendered on FAQ-01. Categories are freeform strings —
+ * each item's `category` must match one in `categories` or the item
+ * goes under "General".
+ */
+export interface FaqConfig {
+  categories: string[];
+  items: FaqItem[];
+}
+
 /**
  * Hotel policies document uploaded by the client. Rendered on the
  * check-in signature screen (CKI-08). Either a data URL for a PDF
@@ -325,6 +366,10 @@ export interface HotelConfig {
    * a single default ad matching the old hardcoded popup.
    */
   ads?: AdsConfig;
+  /** Guest survey questions shown on the post-checkout feedback screen. */
+  survey?: SurveyConfig;
+  /** FAQ content rendered on FAQ-01. */
+  faq?: FaqConfig;
 }
 
 // ---------------------------------------------------------------------------
@@ -403,6 +448,7 @@ export const hotelConfig: HotelConfig = {
     { id: "early-checkin",  label: "Early Check-in",  labelKey: "dsh.earlyCheckin",  icon: "sunrise",        entryScreen: "ECI-01",  enabled: true,  color: "var(--amber)"          },
     { id: "ai-avatar",      label: "AI Concierge",    labelKey: "dsh.aiConcierge",   icon: "bot",            entryScreen: "AVT-01",  enabled: true,  color: "var(--primary)"        },
     { id: "languages",      label: "Languages",       labelKey: "dsh.languages",     icon: "globe",          entryScreen: "ONB-02",  enabled: true,  color: "var(--primary)"        },
+    { id: "survey",         label: "Survey",          labelKey: "dsh.survey",        icon: "clipboard",      entryScreen: "CKO-04",  enabled: true,  color: "var(--purple)"         },
   ],
 
   rooms: [
@@ -565,6 +611,29 @@ export const hotelConfig: HotelConfig = {
   customFonts: [],
 
   policies: { text: "" },
+
+  survey: {
+    title: "How was your stay?",
+    subtitle: "Your feedback helps us improve.",
+    thankYouMessage: "Thank you for your feedback!",
+    showAfterCheckOut: true,
+    questions: [
+      { id: "q1", type: "rating", text: "Overall experience", required: true, maxRating: 5 },
+      { id: "q2", type: "rating", text: "Room cleanliness", required: true, maxRating: 5 },
+      { id: "q3", type: "rating", text: "Staff friendliness", required: true, maxRating: 5 },
+      { id: "q4", type: "text", text: "Any comments or suggestions?", required: false },
+    ],
+  },
+
+  faq: {
+    categories: ["General", "Check-in", "Amenities", "Billing"],
+    items: [
+      { id: "f1", category: "General", question: "What time is check-in and check-out?", answer: "Check-in is at 3:00 PM and check-out is at 11:00 AM." },
+      { id: "f2", category: "Amenities", question: "Is Wi-Fi included?", answer: "Yes, free Wi-Fi is available in all rooms and public areas." },
+      { id: "f3", category: "Amenities", question: "Is breakfast included?", answer: "Continental breakfast is included in your rate from 6:30 AM to 10:30 AM." },
+      { id: "f4", category: "Billing", question: "Can I request a late check-out?", answer: "Yes, subject to availability. Use the Late Check-out module on the dashboard." },
+    ],
+  },
 
   ads: {
     items: [

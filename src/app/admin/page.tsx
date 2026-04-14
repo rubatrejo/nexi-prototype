@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Reorder } from "framer-motion";
 import { hotelConfig as defaultConfig } from "@/lib/hotel-config";
-import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset, AdItem, AdsConfig, AdType } from "@/lib/hotel-config";
+import type { HotelConfig, HotelModule, RoomType, UpgradeOption, CustomFont, HeroAsset, AdItem, AdsConfig, AdType, SurveyConfig, SurveyQuestion, SurveyQuestionType, FaqConfig, FaqItem } from "@/lib/hotel-config";
 
 // ─── design tokens (light Nordic, matches kiosk theme) ────────────────
 const T = {
@@ -45,6 +45,8 @@ const ICONS: Record<string, React.ReactNode> = {
   languages: <svg {...sp}><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>,
   policies: <svg {...sp}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>,
   ads: <svg {...sp}><path d="M3 11l18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 11-5.8-1.6" /></svg>,
+  survey: <svg {...sp}><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M9 9h6M9 13h6M9 17h4" /></svg>,
+  faq: <svg {...sp}><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
 };
 
 const ADMIN_LOCALES: { code: string; label: string; name: string; flag: string }[] = [
@@ -70,6 +72,8 @@ const SECTIONS = [
   { key: "languages", num: "11", label: "Languages", title: "Supported Languages", desc: "Pick which locales the language picker exposes on the kiosk." },
   { key: "policies", num: "12", label: "Policies", title: "Hotel Policies", desc: "Upload the PDF or Word document guests sign on check-in, or paste the text inline." },
   { key: "ads", num: "13", label: "Ads", title: "Advertisements", desc: "Manage the promotional popups shown on the dashboard when the Ads module is enabled." },
+  { key: "survey", num: "14", label: "Survey", title: "Guest Survey", desc: "Post-stay feedback questions shown after checkout when the Survey module is enabled." },
+  { key: "faq", num: "15", label: "FAQ", title: "Frequently Asked Questions", desc: "Q&A content rendered on the FAQ screen when the FAQ module is enabled." },
 ];
 
 // ─── presets: signature fields only, rest inherits from defaultConfig ──
@@ -361,6 +365,63 @@ export default function AdminCMS() {
     });
   }, []);
 
+  const DEFAULT_SURVEY: SurveyConfig = { title: "How was your stay?", questions: [], showAfterCheckOut: true };
+  const DEFAULT_FAQ: FaqConfig = { categories: ["General"], items: [] };
+
+  const patchSurvey = useCallback((p: Partial<SurveyConfig>) => {
+    setCurrent((c) => c ? { ...c, survey: { ...(c.survey ?? DEFAULT_SURVEY), ...p } } : c);
+  }, []);
+  const updateSurveyQ = useCallback((i: number, p: Partial<SurveyQuestion>) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.survey ?? DEFAULT_SURVEY;
+      const questions = base.questions.map((q, idx) => idx === i ? { ...q, ...p } : q);
+      return { ...c, survey: { ...base, questions } };
+    });
+  }, []);
+  const addSurveyQ = useCallback(() => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.survey ?? DEFAULT_SURVEY;
+      const q: SurveyQuestion = { id: `q-${Date.now()}`, type: "rating", text: "New question", required: false, maxRating: 5 };
+      return { ...c, survey: { ...base, questions: [...base.questions, q] } };
+    });
+  }, []);
+  const removeSurveyQ = useCallback((i: number) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.survey ?? DEFAULT_SURVEY;
+      return { ...c, survey: { ...base, questions: base.questions.filter((_, idx) => idx !== i) } };
+    });
+  }, []);
+
+  const patchFaq = useCallback((p: Partial<FaqConfig>) => {
+    setCurrent((c) => c ? { ...c, faq: { ...(c.faq ?? DEFAULT_FAQ), ...p } } : c);
+  }, []);
+  const updateFaqItem = useCallback((i: number, p: Partial<FaqItem>) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.faq ?? DEFAULT_FAQ;
+      const items = base.items.map((it, idx) => idx === i ? { ...it, ...p } : it);
+      return { ...c, faq: { ...base, items } };
+    });
+  }, []);
+  const addFaqItem = useCallback(() => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.faq ?? DEFAULT_FAQ;
+      const item: FaqItem = { id: `f-${Date.now()}`, question: "New question", answer: "", category: base.categories[0] ?? "General" };
+      return { ...c, faq: { ...base, items: [...base.items, item] } };
+    });
+  }, []);
+  const removeFaqItem = useCallback((i: number) => {
+    setCurrent((c) => {
+      if (!c) return c;
+      const base = c.faq ?? DEFAULT_FAQ;
+      return { ...c, faq: { ...base, items: base.items.filter((_, idx) => idx !== i) } };
+    });
+  }, []);
+
   const setKioskTheme = useCallback((theme: "light" | "dark") => {
     setPreviewTheme(theme);
     const win = iframeRef.current?.contentWindow;
@@ -554,17 +615,19 @@ export default function AdminCMS() {
   const c = current;
   const languagesModuleOn = c.modules.find((m) => m.id === "languages")?.enabled !== false;
   const adsModuleOn = c.modules.find((m) => m.id === "ads")?.enabled !== false;
+  const surveyModuleOn = c.modules.find((m) => m.id === "survey")?.enabled !== false;
+  const faqModuleOn = c.modules.find((m) => m.id === "faq")?.enabled !== false;
   const visibleSections = SECTIONS.filter((s) => {
     if (s.key === "languages" && !languagesModuleOn) return false;
     if (s.key === "ads" && !adsModuleOn) return false;
+    if (s.key === "survey" && !surveyModuleOn) return false;
+    if (s.key === "faq" && !faqModuleOn) return false;
     return true;
   });
-  if (activeTab === "languages" && !languagesModuleOn) {
-    setTimeout(() => setActiveTab("client"), 0);
-  }
-  if (activeTab === "ads" && !adsModuleOn) {
-    setTimeout(() => setActiveTab("client"), 0);
-  }
+  if (activeTab === "languages" && !languagesModuleOn) setTimeout(() => setActiveTab("client"), 0);
+  if (activeTab === "ads" && !adsModuleOn) setTimeout(() => setActiveTab("client"), 0);
+  if (activeTab === "survey" && !surveyModuleOn) setTimeout(() => setActiveTab("client"), 0);
+  if (activeTab === "faq" && !faqModuleOn) setTimeout(() => setActiveTab("client"), 0);
   const activeSection = visibleSections.find((s) => s.key === activeTab) ?? SECTIONS[0];
 
   return (
@@ -908,6 +971,26 @@ export default function AdminCMS() {
                 onReorder={reorderAds}
               />
             )}
+
+            {activeTab === "survey" && surveyModuleOn && (
+              <SurveyTab
+                survey={c.survey ?? DEFAULT_SURVEY}
+                onPatch={patchSurvey}
+                onUpdateQ={updateSurveyQ}
+                onAddQ={addSurveyQ}
+                onRemoveQ={removeSurveyQ}
+              />
+            )}
+
+            {activeTab === "faq" && faqModuleOn && (
+              <FaqTab
+                faq={c.faq ?? DEFAULT_FAQ}
+                onPatch={patchFaq}
+                onUpdateItem={updateFaqItem}
+                onAdd={addFaqItem}
+                onRemove={removeFaqItem}
+              />
+            )}
           </div>
         </div>
 
@@ -1024,6 +1107,7 @@ function ModuleGlyph({ icon }: { icon: string }) {
     "key": <><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></>,
     "bot": <><rect x="3" y="11" width="18" height="10" rx="2" /><circle cx="12" cy="5" r="2" /><path d="M12 7v4" /><line x1="8" y1="16" x2="8" y2="16" /><line x1="16" y1="16" x2="16" y2="16" /></>,
     "globe": <><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></>,
+    "clipboard": <><path d="M9 2h6a1 1 0 011 1v2h-8V3a1 1 0 011-1z" /><rect x="4" y="4" width="16" height="18" rx="2" /><path d="M9 13h6M9 17h6M9 9h6" /></>,
   };
   return <>{G[icon] ?? <circle cx="12" cy="12" r="10" />}</>;
 }
@@ -1796,6 +1880,186 @@ function HeroExteriorEditor({ imageUrl, asset, onImageChange, onAssetChange, onT
             }}
           />
         </div>
+      )}
+    </div>
+  );
+}
+
+const SURVEY_TYPES: { value: SurveyQuestionType; label: string }[] = [
+  { value: "rating", label: "Rating" },
+  { value: "yesno", label: "Yes / No" },
+  { value: "choice", label: "Multiple choice" },
+  { value: "text", label: "Open text" },
+];
+
+function SurveyTab({ survey, onPatch, onUpdateQ, onAddQ, onRemoveQ }: {
+  survey: SurveyConfig;
+  onPatch: (p: Partial<SurveyConfig>) => void;
+  onUpdateQ: (i: number, p: Partial<SurveyQuestion>) => void;
+  onAddQ: () => void;
+  onRemoveQ: (i: number) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Settings</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+          <Field label="Title"><input style={baseInput} value={survey.title} onChange={(e) => onPatch({ title: e.target.value })} /></Field>
+          <Field label="Subtitle"><input style={baseInput} value={survey.subtitle ?? ""} onChange={(e) => onPatch({ subtitle: e.target.value })} placeholder="Optional" /></Field>
+        </div>
+        <Field label="Thank you message">
+          <input style={baseInput} value={survey.thankYouMessage ?? ""} onChange={(e) => onPatch({ thankYouMessage: e.target.value })} placeholder="Shown after submission" />
+        </Field>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+          <Toggle on={survey.showAfterCheckOut} onClick={(e) => { e.stopPropagation(); onPatch({ showAfterCheckOut: !survey.showAfterCheckOut }); }} />
+          <div style={{ fontSize: 11, color: T.textDim }}>Show on the checkout feedback screen (CKO-04)</div>
+        </div>
+      </div>
+      <div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1 }}>
+            {survey.questions.length} questions
+          </div>
+        </div>
+        {survey.questions.length === 0 ? (
+          <div style={{ padding: 24, textAlign: "center", background: T.surface, border: `1.5px dashed ${T.borderHi}`, borderRadius: 10, color: T.textDim, fontSize: 12 }}>
+            No questions yet.
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {survey.questions.map((q, i) => (
+              <SurveyQuestionCard key={q.id} q={q} index={i} onChange={(p) => onUpdateQ(i, p)} onRemove={() => onRemoveQ(i)} />
+            ))}
+          </div>
+        )}
+        <button onClick={onAddQ} style={addCardBtn}>+ Add question</button>
+      </div>
+    </div>
+  );
+}
+
+function SurveyQuestionCard({ q, index, onChange, onRemove }: { q: SurveyQuestion; index: number; onChange: (p: Partial<SurveyQuestion>) => void; onRemove: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ padding: 12, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, position: "relative", display: "grid", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 5, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, fontFamily: "ui-monospace, monospace", flexShrink: 0 }}>{index + 1}</div>
+        <input
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text, padding: 0, minWidth: 0 }}
+          value={q.text}
+          onChange={(e) => onChange({ text: e.target.value })}
+          placeholder="Question text"
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <Toggle on={q.required} onClick={(e) => { e.stopPropagation(); onChange({ required: !q.required }); }} />
+          <span style={{ fontSize: 9, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5 }}>req</span>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.8 }}>Type</div>
+        {SURVEY_TYPES.map((t) => {
+          const active = q.type === t.value;
+          return (
+            <button
+              key={t.value}
+              onClick={() => onChange({ type: t.value })}
+              style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, fontFamily: T.fontBody, cursor: "pointer", background: active ? T.accent : "transparent", color: active ? "#fff" : T.textDim, border: `1px solid ${active ? T.accent : T.border}` }}
+            >{t.label}</button>
+          );
+        })}
+        {q.type === "rating" && (
+          <>
+            <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.8, marginLeft: 8 }}>Scale</div>
+            <input type="number" min={2} max={10} value={q.maxRating ?? 5} onChange={(e) => onChange({ maxRating: Number(e.target.value) })}
+              style={{ width: 50, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "4px 8px", fontSize: 11, color: T.text, outline: "none" }} />
+          </>
+        )}
+      </div>
+      {q.type === "choice" && (
+        <input
+          style={{ ...baseInput, fontSize: 11 }}
+          value={(q.options ?? []).join(", ")}
+          onChange={(e) => onChange({ options: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+          placeholder="Option 1, Option 2, Option 3"
+        />
+      )}
+      {hover && (
+        <button onClick={onRemove} style={{ position: "absolute", top: 8, right: 8, width: 22, height: 22, borderRadius: 6, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
+      )}
+    </div>
+  );
+}
+
+function FaqTab({ faq, onPatch, onUpdateItem, onAdd, onRemove }: {
+  faq: FaqConfig;
+  onPatch: (p: Partial<FaqConfig>) => void;
+  onUpdateItem: (i: number, p: Partial<FaqItem>) => void;
+  onAdd: () => void;
+  onRemove: (i: number) => void;
+}) {
+  return (
+    <div style={{ display: "grid", gap: 12 }}>
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12 }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Categories</div>
+        <input
+          style={baseInput}
+          value={faq.categories.join(", ")}
+          onChange={(e) => onPatch({ categories: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}
+          placeholder="General, Check-in, Amenities, Billing"
+        />
+        <div style={{ fontSize: 10, color: T.textMuted, marginTop: 4 }}>Comma-separated. Each Q&A picks one of these.</div>
+      </div>
+      <div>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>
+          {faq.items.length} questions
+        </div>
+        {faq.items.length === 0 ? (
+          <div style={{ padding: 24, textAlign: "center", background: T.surface, border: `1.5px dashed ${T.borderHi}`, borderRadius: 10, color: T.textDim, fontSize: 12 }}>
+            No questions yet.
+          </div>
+        ) : (
+          <div style={{ display: "grid", gap: 8 }}>
+            {faq.items.map((item, i) => (
+              <FaqItemCard key={item.id} item={item} index={i} categories={faq.categories} onChange={(p) => onUpdateItem(i, p)} onRemove={() => onRemove(i)} />
+            ))}
+          </div>
+        )}
+        <button onClick={onAdd} style={addCardBtn}>+ Add question</button>
+      </div>
+    </div>
+  );
+}
+
+function FaqItemCard({ item, index, categories, onChange, onRemove }: { item: FaqItem; index: number; categories: string[]; onChange: (p: Partial<FaqItem>) => void; onRemove: () => void }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      style={{ padding: 12, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, position: "relative", display: "grid", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ width: 22, height: 22, borderRadius: 5, background: `${T.accent}14`, color: T.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 800, fontFamily: "ui-monospace, monospace", flexShrink: 0 }}>{index + 1}</div>
+        <input
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontFamily: T.fontDisplay, fontSize: 14, fontWeight: 700, color: T.text, padding: 0, minWidth: 0 }}
+          value={item.question}
+          onChange={(e) => onChange({ question: e.target.value })}
+          placeholder="Question"
+        />
+        <select
+          value={item.category ?? (categories[0] ?? "General")}
+          onChange={(e) => onChange({ category: e.target.value })}
+          style={{ background: T.bg, border: `1px solid ${T.border}`, borderRadius: 6, padding: "5px 8px", fontSize: 11, color: T.text, outline: "none", flexShrink: 0 }}
+        >
+          {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+      </div>
+      <textarea
+        style={{ ...baseInput, minHeight: 60, fontFamily: T.fontBody, resize: "vertical", lineHeight: 1.4 }}
+        value={item.answer}
+        onChange={(e) => onChange({ answer: e.target.value })}
+        placeholder="Answer"
+      />
+      {hover && (
+        <button onClick={onRemove} style={{ position: "absolute", top: 8, right: 8, width: 22, height: 22, borderRadius: 6, background: T.surface, border: `1px solid ${T.border}`, color: T.error, cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
       )}
     </div>
   );
