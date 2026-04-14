@@ -609,6 +609,79 @@ export default function AdminCMS() {
     setActiveTab("client");
     flashToast(`Duplicated as "${copy.brand.name}". Save to persist.`, "info");
   }, [current, configs, flashToast]);
+
+  // Export the in-memory client as a pretty-printed JSON file download.
+  // Users can re-import these files later to restore a config, or ship
+  // them to another TrueOmni environment (staging → prod).
+  const handleExportJson = useCallback(() => {
+    if (!current) return;
+    try {
+      const json = JSON.stringify(current, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.download = `nexi-config-${current.slug}-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      flashToast(`Exported "${current.brand.name}" as JSON`, "success");
+    } catch {
+      flashToast("Couldn't export this client to JSON", "error");
+    }
+  }, [current, flashToast]);
+
+  // File input hidden in the dropdown — we trigger it imperatively
+  // from the Import menu item.
+  const importFileRef = useRef<HTMLInputElement>(null);
+  const triggerImportJson = useCallback(() => {
+    importFileRef.current?.click();
+  }, []);
+  const handleImportJsonFile = useCallback(async (file: File) => {
+    // Basic sanity: must be JSON, under 5 MB (the KV hard limit is 1 MB
+    // but we give headroom for human-edited files that could include
+    // comments or extra whitespace).
+    if (file.size > 5 * 1024 * 1024) {
+      flashToast("Import file is larger than 5 MB", "error");
+      return;
+    }
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text) as Partial<HotelConfig>;
+      // Minimum viable shape: must have brand.name and some slug-ish field.
+      if (!parsed || typeof parsed !== "object" || !parsed.brand || typeof parsed.brand !== "object" || typeof parsed.brand.name !== "string") {
+        flashToast("That JSON doesn't look like a HotelConfig — missing brand.name", "error");
+        return;
+      }
+      // Run normalizeConfig to backfill any missing sections (new modules,
+      // new default fields) so old exported files still work.
+      const normalized = normalizeConfig(parsed as HotelConfig);
+      // Slug collision handling — if the import re-uses an existing slug
+      // that isn't the currently-loaded one, auto-append a suffix.
+      const taken = new Set(configs.map((c) => c.slug));
+      const savedSlug = savedSnapshot?.slug;
+      if (normalized.slug && taken.has(normalized.slug) && normalized.slug !== savedSlug) {
+        const base = `${normalized.slug}-imported`.slice(0, 58);
+        let nextSlug = base;
+        let n = 2;
+        while (taken.has(nextSlug)) { nextSlug = `${base}-${n}`; n++; }
+        normalized.slug = nextSlug;
+      } else if (!normalized.slug) {
+        normalized.slug = `imported-${Date.now().toString(36).slice(-4)}`;
+      }
+      confirmSwitch(() => {
+        setCurrent(normalized);
+        setSavedSnapshot(null); // imported clients start dirty
+        setActiveTab("client");
+        flashToast(`Imported "${normalized.brand.name}". Save to persist.`, "info");
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Check the file is valid JSON";
+      flashToast(`Import failed: ${msg.slice(0, 120)}`, "error");
+    }
+  }, [configs, savedSnapshot, confirmSwitch, flashToast]);
   const handlePreset = (p: Preset) => confirmSwitch(() => {
     const next = applyPreset(p);
     setCurrent(next);
@@ -645,7 +718,7 @@ export default function AdminCMS() {
   if (!current) {
     return (
       <div style={{ minHeight: "100vh", background: T.bg, color: T.text, fontFamily: T.fontBody, display: "flex", flexDirection: "column" }}>
-        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => confirmSwitch(() => loadConfig(c))} onSelectPreset={handlePreset} onNew={handleNew} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled dirty={false} configBytes={0} kvSoft={KV_SOFT} kvHard={KV_HARD} />
+        <TopBar saveState="idle" configs={configs} currentSlug={null} onSelectClient={(c) => confirmSwitch(() => loadConfig(c))} onSelectPreset={handlePreset} onNew={handleNew} onImportJson={triggerImportJson} onSave={() => {}} onDelete={() => {}} onOpen={() => {}} onCopy={() => {}} disabled dirty={false} configBytes={0} kvSoft={KV_SOFT} kvHard={KV_HARD} />
         <div style={{ flex: 1, overflow: "auto", padding: "40px 40px", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ maxWidth: 1000, width: "100%", margin: "0 auto" }}>
             <div style={{ textAlign: "center", marginBottom: 40, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -744,6 +817,17 @@ export default function AdminCMS() {
           </div>
         </div>
         {toast && <ToastBar msg={toast.msg} tone={toast.tone} />}
+        <input
+          ref={importFileRef}
+          type="file"
+          accept="application/json,.json"
+          style={{ display: "none" }}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleImportJsonFile(file);
+            e.target.value = "";
+          }}
+        />
       </div>
     );
   }
@@ -781,6 +865,8 @@ export default function AdminCMS() {
         onCopy={handleCopyLink}
         onNew={handleNew}
         onDuplicate={handleDuplicate}
+        onExportJson={handleExportJson}
+        onImportJson={triggerImportJson}
         onBrandNameChange={(v) => patchBrand("name", v)}
         dirty={isDirty}
         configBytes={configBytes}
@@ -1194,6 +1280,17 @@ export default function AdminCMS() {
       </div>
 
       {toast && <ToastBar msg={toast.msg} tone={toast.tone} />}
+      <input
+        ref={importFileRef}
+        type="file"
+        accept="application/json,.json"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImportJsonFile(file);
+          e.target.value = "";
+        }}
+      />
 
       <style>{`
         input:focus, select:focus { border-color: ${T.accent} !important; }
@@ -1442,12 +1539,14 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
   onDuplicate?: () => void;
+  onExportJson?: () => void;
+  onImportJson?: () => void;
   onBrandNameChange?: (v: string) => void; disabled?: boolean;
   dirty?: boolean; configBytes?: number; kvSoft?: number; kvHard?: number; saveDisabled?: boolean;
 }) {
@@ -1464,7 +1563,7 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
         <img src="/logos/powered-by-trueomni-dark.svg" alt="Powered by TrueOmni" style={{ height: 8, width: "auto", display: "block", opacity: 0.8 }} />
       </div>
 
-      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} onDuplicate={onDuplicate} />
+      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} onDuplicate={onDuplicate} onExportJson={onExportJson} onImportJson={onImportJson} />
 
       {!disabled && (
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
@@ -1534,10 +1633,12 @@ function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" })
   return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 4 }}>{cfg.label}</div>;
 }
 
-function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset, onDuplicate }: {
+function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset, onDuplicate, onExportJson, onImportJson }: {
   configs: HotelConfig[]; currentSlug: string | null; onSelect: (c: HotelConfig) => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
   onDuplicate?: () => void;
+  onExportJson?: () => void;
+  onImportJson?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -1665,6 +1766,30 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
               </div>
               Duplicate current client
+            </button>
+          )}
+          {onExportJson && currentSlug && (
+            <button onClick={() => { onExportJson(); setOpen(false); }} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
+              border: "none", background: "transparent", color: T.text, cursor: "pointer", textAlign: "left",
+              fontFamily: T.fontBody, fontSize: 12, fontWeight: 700, flexShrink: 0,
+            }}>
+              <div style={{ width: 26, height: 26, borderRadius: 6, background: T.surfaceHi, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.border}` }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+              </div>
+              Export as JSON
+            </button>
+          )}
+          {onImportJson && (
+            <button onClick={() => { onImportJson(); setOpen(false); }} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
+              border: "none", background: "transparent", color: T.text, cursor: "pointer", textAlign: "left",
+              fontFamily: T.fontBody, fontSize: 12, fontWeight: 700, flexShrink: 0,
+            }}>
+              <div style={{ width: 26, height: 26, borderRadius: 6, background: T.surfaceHi, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.border}` }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
+              </div>
+              Import from JSON
             </button>
           )}
           <button onClick={() => { onNew(); setOpen(false); }} style={{
