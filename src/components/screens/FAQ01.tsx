@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
+import { useHotel } from "@/lib/theme-provider";
 import GlobalHeader from "@/components/layout/GlobalHeader";
 
-const CATEGORIES = ["General", "Room", "Dining", "Activities", "Policies"];
+const FALLBACK_CATEGORIES = ["General", "Room", "Dining", "Activities", "Policies"];
 
-const FAQS: Record<string, { q: string; a: string }[]> = {
+const FALLBACK_FAQS: Record<string, { q: string; a: string }[]> = {
   General: [
     { q: "What are the check-in and check-out times?", a: "Check-in begins at 3:00 PM and check-out is at 11:00 AM. Early check-in and late check-out may be available upon request, subject to availability. Please contact the front desk for arrangements." },
     { q: "Is breakfast included?", a: "A complimentary continental breakfast is served daily from 6:30 AM to 10:00 AM in the Grand Dining Room. Full breakfast menu available for an additional charge." },
@@ -39,7 +40,26 @@ const FAQS: Record<string, { q: string; a: string }[]> = {
 
 export default function FAQ01() {
   const { goBack, navigate } = useKiosk();
-  const [category, setCategory] = useState("General");
+  const { faq } = useHotel();
+
+  // Build { categories, faqsByCategory } from the hotel config when
+  // available, falling back to the hardcoded content for legacy
+  // configs that never shipped a faq field.
+  const { CATEGORIES, FAQS } = useMemo(() => {
+    if (faq && faq.items && faq.items.length > 0) {
+      const cats = faq.categories && faq.categories.length > 0 ? faq.categories : ["General"];
+      const grouped: Record<string, { q: string; a: string }[]> = {};
+      for (const c of cats) grouped[c] = [];
+      for (const item of faq.items) {
+        const cat = item.category && grouped[item.category] ? item.category : cats[0];
+        grouped[cat].push({ q: item.question, a: item.answer });
+      }
+      return { CATEGORIES: cats, FAQS: grouped };
+    }
+    return { CATEGORIES: FALLBACK_CATEGORIES, FAQS: FALLBACK_FAQS };
+  }, [faq]);
+
+  const [category, setCategory] = useState(CATEGORIES[0] ?? "General");
   const [open, setOpen] = useState<number | null>(0);
 
   const items = FAQS[category] || [];
