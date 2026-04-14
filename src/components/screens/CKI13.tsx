@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
 import GlobalHeader from "@/components/layout/GlobalHeader";
-import BrandLogo from "@/components/ui/BrandLogo";
+import BrandSpinner from "@/components/ui/BrandSpinner";
 
 export default function EncodingKeyCard() {
   const { navigate } = useKiosk();
@@ -26,10 +26,7 @@ export default function EncodingKeyCard() {
       </div>
 
       <div style={{ position: "relative", zIndex: 2, height: "calc(100% - 48px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
-        {/* Spinning brand icon — white-labelled clients show their own mark */}
-        <div style={{ animation: "spin 8s linear infinite" }}>
-          <BrandLogo variant="icon" theme="dark" height={48} color="#fff" />
-        </div>
+        <BrandSpinner size={48} tone="dark" />
 
         <div style={{ textAlign: "center" }}>
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700, color: "#fff" }}>
@@ -46,7 +43,6 @@ export default function EncodingKeyCard() {
         </div>
 
         <style>{`
-          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           @keyframes encodeProgress { from { width: 0%; } to { width: 100%; } }
         `}</style>
       </div>

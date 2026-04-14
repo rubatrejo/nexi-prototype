@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
-import BrandLogo from "@/components/ui/BrandLogo";
+import BrandSpinner from "@/components/ui/BrandSpinner";
 
 export default function ProcessingScanning() {
   const { navigate } = useKiosk();
@@ -16,11 +16,7 @@ export default function ProcessingScanning() {
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg)", gap: 32 }}>
-      {/* Spinning brand icon — uses BrandLogo so white-labelled clients
-          show their own mark instead of the NEXI default. */}
-      <div style={{ animation: "spin 8s linear infinite" }}>
-        <BrandLogo variant="icon" height={64} color="var(--primary)" />
-      </div>
+      <BrandSpinner size={64} tone="light" />
 
       {/* Progress bar */}
       <div style={{ width: 280, height: 4, background: "var(--border)", borderRadius: 2, overflow: "hidden" }}>
@@ -37,7 +33,6 @@ export default function ProcessingScanning() {
       </div>
 
       <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes progressPulse { 0% { width: 20%; } 50% { width: 80%; } 100% { width: 20%; } }
       `}</style>
     </div>

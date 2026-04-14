@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
-import BrandLogo from "@/components/ui/BrandLogo";
+import BrandSpinner from "@/components/ui/BrandSpinner";
 
 export default function DKY02() {
   const { navigate } = useKiosk();
@@ -19,9 +19,7 @@ export default function DKY02() {
       <div className="grain" />
 
       <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
-        <div style={{ animation: "spin 8s linear infinite" }}>
-          <BrandLogo variant="icon" theme="dark" height={48} color="#fff" />
-        </div>
+        <BrandSpinner size={48} tone="dark" />
 
         <div style={{ textAlign: "center" }}>
           <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.5rem", fontWeight: 700, color: "#fff" }}>
@@ -37,7 +35,6 @@ export default function DKY02() {
         </div>
 
         <style>{`
-          @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           @keyframes encodeProgress { from { width: 0%; } to { width: 100%; } }
         `}</style>
       </div>

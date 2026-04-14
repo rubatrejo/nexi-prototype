@@ -1,6 +1,5 @@
 "use client";
 
-import { NexiIcon } from "@/components/ui/Icons";
 import { useHotel } from "@/lib/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { useClock, formatLongDate, formatClock12h } from "@/lib/use-clock";
@@ -29,9 +28,9 @@ export default function GlobalHeader({ variant }: { variant?: "default" | "cinem
         position: "relative",
       }}
     >
-      {/* Left — Hotel Name */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <NexiIcon size={20} color={isCinematic ? "#fff" : undefined} />
+      {/* Left — Hotel Name only (brand icon was removed so white-label
+          clients see their hotel name, not the NEXI mark) */}
+      <div style={{ display: "flex", alignItems: "center" }}>
         <span
           style={{
             fontFamily: "var(--font-display)",

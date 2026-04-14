@@ -1076,11 +1076,12 @@ export default function AdminCMS() {
                     {slugError && <div style={{ fontSize: 9, color: T.error, marginTop: 3, fontWeight: 600 }}>{slugError}</div>}
                   </Field>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12 }}>
                   <ImageField label="Logo (light)" value={c.brand.logo} onChange={(v) => patchBrand("logo", v)} compact spec={SPEC_LOGO} />
                   <ImageField label="Logo (dark)" value={c.brand.logoWhite} onChange={(v) => patchBrand("logoWhite", v)} compact spec={SPEC_LOGO} />
                   <ImageField label="Icon (square)" value={c.brand.icon} onChange={(v) => patchBrand("icon", v)} compact spec={SPEC_ICON} />
                   <ImageField label="Icon (white)" value={c.brand.iconWhite} onChange={(v) => patchBrand("iconWhite", v)} compact spec={SPEC_ICON} />
+                  <ImageField label="Loading Spinner" value={c.brand.spinner ?? ""} onChange={(v) => patchBrand("spinner", v)} compact spec={SPEC_ICON} />
                 </div>
                 <Field label="Important Notes (internal)">
                   <textarea

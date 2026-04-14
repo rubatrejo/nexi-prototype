@@ -21,6 +21,13 @@ export interface HotelBrand {
   iconWhite: string;
   poweredBy: string;   // "Powered by" badge
   poweredByWhite: string;
+  /**
+   * Loading spinner image shown on processing screens (CKI-05, CKI-13,
+   * DKY-02). Optional — when unset, the kiosk falls back to a generic
+   * circular ring spinner that contrasts with the screen background.
+   * Square aspect ratio recommended (PNG/SVG).
+   */
+  spinner?: string;
 }
 
 export interface HotelIntegrations {
