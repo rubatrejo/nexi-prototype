@@ -149,7 +149,19 @@ function normalizeConfig(cfg: HotelConfig): HotelConfig {
     info: { ...d.info, ...(cfg.info ?? {}), wifi: { ...d.info.wifi, ...(cfg.info?.wifi ?? {}) } },
     inactivity: { ...d.inactivity, ...(cfg.inactivity ?? {}) },
     integrations: { ...d.integrations, ...(cfg.integrations ?? {}) },
-    modules: cfg.modules && cfg.modules.length ? cfg.modules : d.modules,
+    modules: (() => {
+      // Merge saved modules over defaults: every module from the
+      // current default list is present (so newly added modules like
+      // Survey show up on legacy configs), saved values like enabled
+      // / dashboardOrder are preserved when the id matches, and order
+      // follows the default array so new modules land in their
+      // intended position.
+      const savedById = new Map((cfg.modules ?? []).map((m) => [m.id, m] as const));
+      return d.modules.map((def) => {
+        const saved = savedById.get(def.id);
+        return saved ? { ...def, ...saved } : def;
+      });
+    })(),
     rooms: cfg.rooms ?? d.rooms,
     upgrades: cfg.upgrades ?? d.upgrades,
     guestDefaults: { ...d.guestDefaults, ...(cfg.guestDefaults ?? {}) },
