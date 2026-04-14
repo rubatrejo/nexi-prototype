@@ -499,24 +499,44 @@ export default function AdminCMS() {
   const handleSave = useCallback(async () => {
     if (!current) return;
     if (slugError) { flashToast(`Slug error: ${slugError}. Fix it in tab 01 Client before saving.`, "error"); return; }
-    if (overKvHard) { flashToast(`Config is ${Math.round(configBytes / 1024)} KB — over the 950 KB safe limit. Remove or compress some uploaded images in tab 04 Images before saving.`, "error"); return; }
     setSaveState("saving");
     try {
-      const res = await fetch("/api/admin/configs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(current) });
-      if (!res.ok) throw new Error(await res.text());
+      // Auto-compress images when the config is heavier than the
+      // safe soft limit. Walks every hero / room / upgrade / ad image
+      // and re-encodes any data URL to 1280 px wide JPEG @ 0.8. This
+      // brings typical 1.5 MB configs back under the 1 MB KV cap
+      // without asking the user to manually re-upload anything.
+      let configToSave = current;
+      const initialBytes = new Blob([JSON.stringify(current)]).size;
+      if (initialBytes > KV_SOFT) {
+        configToSave = await compressConfigImages(current);
+        const compressedBytes = new Blob([JSON.stringify(configToSave)]).size;
+        if (compressedBytes < initialBytes) {
+          // Surface the optimization so the user understands what just
+          // happened, and update in-memory state to keep things in sync.
+          setCurrent(configToSave);
+          flashToast(`Auto-compressed images: ${Math.round(initialBytes / 1024)} KB → ${Math.round(compressedBytes / 1024)} KB`, "info");
+        }
+      }
+      const res = await fetch("/api/admin/configs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(configToSave) });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Save failed");
+      }
       setSaveState("saved");
       setPreviewKey((k) => k + 1);
-      setSavedSnapshot(structuredClone(current));
-      flashToast(`Client "${current.brand.name}" is now live at /?client=${current.slug}`, "success");
+      setSavedSnapshot(structuredClone(configToSave));
+      flashToast(`Client "${configToSave.brand.name}" is now live at /?client=${configToSave.slug}`, "success");
       const list = await fetch("/api/admin/configs").then((r) => r.json());
       setConfigs(list.configs ?? []);
       setTimeout(() => setSaveState("idle"), 2000);
-    } catch {
+    } catch (err) {
       setSaveState("error");
-      flashToast("We couldn't save your changes. Check your connection and try again.", "error");
-      setTimeout(() => setSaveState("idle"), 3000);
+      const reason = err instanceof Error && err.message ? err.message.slice(0, 160) : "Check your connection and try again.";
+      flashToast(`We couldn't save your changes. ${reason}`, "error");
+      setTimeout(() => setSaveState("idle"), 4000);
     }
-  }, [current, slugError, overKvHard, configBytes, flashToast]);
+  }, [current, slugError, KV_SOFT, flashToast]);
 
   // beforeunload guard + Cmd+S shortcut
   useEffect(() => {
@@ -1578,6 +1598,97 @@ function ColorGroup({ title, children, active }: { title: string; children: Reac
     </div>
   );
 }
+
+/**
+ * Recompress a data URL image to a smaller JPEG.
+ * Used by the "auto-compress on save" path so configs don't blow past
+ * Upstash's 1 MB per-value cap when the user uploads high-res photos.
+ * Falls back to the original string if anything fails (non-data URL,
+ * canvas tainted, etc.) so compression never loses data.
+ */
+async function compressDataUrl(dataUrl: string, maxWidth = 1280, quality = 0.8): Promise<string> {
+  if (!dataUrl.startsWith("data:image/")) return dataUrl;
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const el = new Image();
+      el.onload = () => resolve(el);
+      el.onerror = reject;
+      el.src = dataUrl;
+    });
+    const scale = Math.min(1, maxWidth / img.naturalWidth);
+    const w = Math.round(img.naturalWidth * scale);
+    const h = Math.round(img.naturalHeight * scale);
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return dataUrl;
+    ctx.drawImage(img, 0, 0, w, h);
+    const next = canvas.toDataURL("image/jpeg", quality);
+    // Only adopt if the recompressed version is actually smaller.
+    return next.length < dataUrl.length ? next : dataUrl;
+  } catch {
+    return dataUrl;
+  }
+}
+
+/**
+ * Walk a HotelConfig and recompress every large data-URL image in
+ * known slots: hero images, rooms (main + gallery), upgrades (main +
+ * gallery), ads, and custom-font sources are left alone. Logo / icon
+ * fields are preserved at higher quality since they're typically
+ * already small SVGs. Returns a new config.
+ */
+async function compressConfigImages(cfg: HotelConfig): Promise<HotelConfig> {
+  const next = structuredClone(cfg);
+  const keys: (keyof HotelImages)[] = [
+    "heroExterior", "heroLobby", "heroPool", "heroSpa", "heroRestaurant",
+    "heroWelcome", "heroSuccess", "heroKey", "heroNight", "heroBooking", "heroLoading", "heroEvents",
+  ];
+  for (const k of keys) {
+    const v = (next.images as Record<string, unknown>)[k];
+    if (typeof v === "string") (next.images as Record<string, unknown>)[k] = await compressDataUrl(v);
+  }
+  // Rooms: main image + gallery
+  if (next.rooms) {
+    for (const room of next.rooms) {
+      if (room.image) room.image = await compressDataUrl(room.image);
+      if (room.gallery) {
+        for (let i = 0; i < room.gallery.length; i++) {
+          room.gallery[i] = await compressDataUrl(room.gallery[i]);
+        }
+      }
+    }
+  }
+  // Upgrades: main + gallery
+  if (next.upgrades) {
+    for (const up of next.upgrades) {
+      if (up.image) up.image = await compressDataUrl(up.image);
+      if (up.gallery) {
+        for (let i = 0; i < up.gallery.length; i++) {
+          up.gallery[i] = await compressDataUrl(up.gallery[i]);
+        }
+      }
+    }
+  }
+  // Ads: main image
+  if (next.ads?.items) {
+    for (const ad of next.ads.items) {
+      if (ad.image) ad.image = await compressDataUrl(ad.image);
+    }
+  }
+  // Hero exterior slideshow / video poster
+  if (next.images.heroExteriorAsset?.kind === "slideshow") {
+    const imgs = next.images.heroExteriorAsset.images;
+    for (let i = 0; i < imgs.length; i++) imgs[i] = await compressDataUrl(imgs[i]);
+  }
+  return next;
+}
+
+// `HotelImages` is needed as a type for the compressConfigImages walker.
+// Import it lazily here — it comes from the same hotel-config module
+// as HotelConfig.
+type HotelImages = HotelConfig["images"];
 
 function readFileAsDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
