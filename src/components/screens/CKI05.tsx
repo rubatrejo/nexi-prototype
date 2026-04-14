@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
-import { NexiIcon } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function ProcessingScanning() {
   const { navigate } = useKiosk();
@@ -16,9 +16,10 @@ export default function ProcessingScanning() {
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--bg)", gap: 32 }}>
-      {/* Spinning NEXI logo */}
+      {/* Spinning brand icon — uses BrandLogo so white-labelled clients
+          show their own mark instead of the NEXI default. */}
       <div style={{ animation: "spin 8s linear infinite" }}>
-        <NexiIcon size={64} color="var(--primary)" />
+        <BrandLogo variant="icon" height={64} color="var(--primary)" />
       </div>
 
       {/* Progress bar */}

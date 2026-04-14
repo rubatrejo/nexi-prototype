@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
 import { useI18n } from "@/lib/i18n";
 import GlobalHeader from "@/components/layout/GlobalHeader";
-import { NexiIcon } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function EncodingKeyCard() {
   const { navigate } = useKiosk();
@@ -26,9 +26,9 @@ export default function EncodingKeyCard() {
       </div>
 
       <div style={{ position: "relative", zIndex: 2, height: "calc(100% - 48px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
-        {/* Spinning NEXI logo */}
+        {/* Spinning brand icon — white-labelled clients show their own mark */}
         <div style={{ animation: "spin 8s linear infinite" }}>
-          <NexiIcon size={48} color="#fff" />
+          <BrandLogo variant="icon" theme="dark" height={48} color="#fff" />
         </div>
 
         <div style={{ textAlign: "center" }}>

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useKiosk } from "@/lib/kiosk-context";
-import { NexiIcon } from "@/components/ui/Icons";
+import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function DKY02() {
   const { navigate } = useKiosk();
@@ -20,7 +20,7 @@ export default function DKY02() {
 
       <div style={{ position: "absolute", inset: 0, zIndex: 2, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
         <div style={{ animation: "spin 8s linear infinite" }}>
-          <NexiIcon size={48} color="#fff" />
+          <BrandLogo variant="icon" theme="dark" height={48} color="#fff" />
         </div>
 
         <div style={{ textAlign: "center" }}>
