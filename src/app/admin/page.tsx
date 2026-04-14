@@ -585,6 +585,30 @@ export default function AdminCMS() {
     setSavedSnapshot(null); // blank is dirty until first save
     setActiveTab("client");
   });
+
+  // Duplicate the current in-memory client (including unsaved edits)
+  // as a new draft. Generates a non-colliding "{slug}-copy" variant
+  // and suffixes the brand name. Starts dirty so the user has to Save
+  // before it lands in KV. No confirmSwitch because nothing is lost —
+  // the copy carries the current state forward verbatim.
+  const handleDuplicate = useCallback(() => {
+    if (!current) return;
+    const base = `${current.slug}-copy`.replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 58) || "client-copy";
+    const taken = new Set(configs.map((c) => c.slug));
+    let nextSlug = base;
+    let n = 2;
+    while (taken.has(nextSlug)) {
+      nextSlug = `${base}-${n}`;
+      n++;
+    }
+    const copy = structuredClone(current);
+    copy.slug = nextSlug;
+    copy.brand = { ...copy.brand, name: `${current.brand.name} (Copy)` };
+    setCurrent(copy);
+    setSavedSnapshot(null); // copy is dirty until first save
+    setActiveTab("client");
+    flashToast(`Duplicated as "${copy.brand.name}". Save to persist.`, "info");
+  }, [current, configs, flashToast]);
   const handlePreset = (p: Preset) => confirmSwitch(() => {
     const next = applyPreset(p);
     setCurrent(next);
@@ -756,6 +780,7 @@ export default function AdminCMS() {
         onOpen={handleOpenKiosk}
         onCopy={handleCopyLink}
         onNew={handleNew}
+        onDuplicate={handleDuplicate}
         onBrandNameChange={(v) => patchBrand("name", v)}
         dirty={isDirty}
         configBytes={configBytes}
@@ -1417,11 +1442,12 @@ function UpgradeCard({ upgrade, onChange, onRemove }: { upgrade: UpgradeOption; 
   );
 }
 
-function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
+function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, onSave, onDelete, onOpen, onCopy, onNew, onSelectPreset, onDuplicate, onBrandNameChange, disabled, dirty, configBytes, kvSoft, kvHard, saveDisabled }: {
   brandName?: string; saveState: "idle" | "saving" | "saved" | "error";
   configs: HotelConfig[]; currentSlug: string | null; onSelectClient: (c: HotelConfig) => void;
   onSave: () => void; onDelete: () => void; onOpen: () => void; onCopy: () => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
+  onDuplicate?: () => void;
   onBrandNameChange?: (v: string) => void; disabled?: boolean;
   dirty?: boolean; configBytes?: number; kvSoft?: number; kvHard?: number; saveDisabled?: boolean;
 }) {
@@ -1438,7 +1464,7 @@ function TopBar({ brandName, saveState, configs, currentSlug, onSelectClient, on
         <img src="/logos/powered-by-trueomni-dark.svg" alt="Powered by TrueOmni" style={{ height: 8, width: "auto", display: "block", opacity: 0.8 }} />
       </div>
 
-      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} />
+      <ClientsDropdown configs={configs} currentSlug={currentSlug} onSelect={onSelectClient} onNew={onNew} onSelectPreset={onSelectPreset} onDuplicate={onDuplicate} />
 
       {!disabled && (
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
@@ -1508,9 +1534,10 @@ function SaveStatus({ state }: { state: "idle" | "saving" | "saved" | "error" })
   return <div style={{ fontSize: 11, color: cfg.color, fontWeight: 600, letterSpacing: 0.5, marginRight: 4 }}>{cfg.label}</div>;
 }
 
-function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset }: {
+function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset, onDuplicate }: {
   configs: HotelConfig[]; currentSlug: string | null; onSelect: (c: HotelConfig) => void; onNew: () => void;
   onSelectPreset?: (p: Preset) => void;
+  onDuplicate?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -1628,6 +1655,18 @@ function ClientsDropdown({ configs, currentSlug, onSelect, onNew, onSelectPreset
           </div>
 
           <div style={{ height: 1, background: T.border, margin: "6px 4px", flexShrink: 0 }} />
+          {onDuplicate && currentSlug && (
+            <button onClick={() => { onDuplicate(); setOpen(false); }} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
+              border: "none", background: "transparent", color: T.text, cursor: "pointer", textAlign: "left",
+              fontFamily: T.fontBody, fontSize: 12, fontWeight: 700, flexShrink: 0,
+            }}>
+              <div style={{ width: 26, height: 26, borderRadius: 6, background: T.surfaceHi, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${T.border}` }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" /></svg>
+              </div>
+              Duplicate current client
+            </button>
+          )}
           <button onClick={() => { onNew(); setOpen(false); }} style={{
             display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 10px", borderRadius: 7,
             border: "none", background: "transparent", color: T.accent, cursor: "pointer", textAlign: "left",
