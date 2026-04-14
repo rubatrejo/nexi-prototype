@@ -1374,7 +1374,14 @@ export default function AdminCMS() {
           ),
         }}>
           <ModuleNav iframeRef={iframeRef} modules={c.modules} />
-          <div style={{ flex: 1, position: "relative", padding: previewFullscreen ? "28px 56px 36px" : "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0, background: T.surface }}>
+          {/* containerType size lets us compute the largest 16:9 box that
+              fits inside this panel using cqw / cqh units. This is the
+              only reliable way to keep the iframe exactly 16:9 in both
+              normal and fullscreen modes — KioskFrame in embed mode
+              has aspectRatio: auto so it inherits whatever dimensions
+              the iframe gives it, which means any admin-side ratio
+              drift distorts the kiosk inside. */}
+          <div style={{ flex: 1, position: "relative", padding: previewFullscreen ? "28px 56px 36px" : "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0, background: T.surface, containerType: "size" }}>
             <button
               onClick={() => setPreviewFullscreen((v) => !v)}
               title={previewFullscreen ? "Exit fullscreen (Esc)" : "Expand preview to fullscreen"}
@@ -1403,7 +1410,16 @@ export default function AdminCMS() {
                 </>
               )}
             </button>
-            <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.surface, display: "flex" }}>
+            <div style={{
+              // width = min(container width, container height × 16/9).
+              // That gives the largest 16:9 rect that fits regardless of
+              // container proportions. aspectRatio seals the ratio so
+              // height follows width exactly.
+              width: "min(100cqw, calc(100cqh * 16 / 9))",
+              aspectRatio: "16 / 9",
+              background: T.surface,
+              display: "flex",
+            }}>
               <iframe ref={iframeRef} key={previewKey} src={previewUrl} onLoad={handleIframeLoad} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.surface }} title="Kiosk preview" />
             </div>
           </div>
