@@ -199,6 +199,7 @@ export default function AdminCMS() {
   const [previewKey, setPreviewKey] = useState(0);
   const [toast, setToast] = useState<{ msg: string; tone: "success" | "error" | "info" } | null>(null);
   const [previewTheme, setPreviewTheme] = useState<"light" | "dark">("light");
+  const [previewFullscreen, setPreviewFullscreen] = useState(false);
   const toastTimer = useRef<NodeJS.Timeout | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -550,6 +551,11 @@ export default function AdminCMS() {
         e.preventDefault();
         if (current && isDirty && saveState !== "saving") handleSave();
       }
+      // Esc exits preview fullscreen without affecting anything else.
+      if (e.key === "Escape" && previewFullscreen) {
+        e.preventDefault();
+        setPreviewFullscreen(false);
+      }
     };
     window.addEventListener("beforeunload", onUnload);
     window.addEventListener("keydown", onKey);
@@ -557,7 +563,7 @@ export default function AdminCMS() {
       window.removeEventListener("beforeunload", onUnload);
       window.removeEventListener("keydown", onKey);
     };
-  }, [isDirty, current, saveState, handleSave]);
+  }, [isDirty, current, saveState, handleSave, previewFullscreen]);
 
   const handleDelete = async () => {
     if (!current) return;
@@ -1114,10 +1120,47 @@ export default function AdminCMS() {
           </div>
         </div>
 
-        {/* Preview panel — bottom 50%, left nav + iframe 16:9 with breathing room */}
-        <div style={{ flex: "0 0 50%", borderTop: `1px solid ${T.border}`, background: T.surface, minHeight: 0, overflow: "hidden", display: "flex", gap: 0 }}>
+        {/* Preview panel — bottom 50%, left nav + iframe 16:9 with breathing room.
+            Goes fullscreen when previewFullscreen is true: position fixed over the
+            entire viewport so the iframe has maximum real estate. ModuleNav stays
+            visible as the left rail, and a close button lands in the top-right. */}
+        <div style={{
+          borderTop: `1px solid ${T.border}`, background: T.surface, display: "flex", gap: 0,
+          ...(previewFullscreen
+            ? { position: "fixed", inset: 0, zIndex: 200, height: "100vh", width: "100vw", minHeight: 0, overflow: "hidden" }
+            : { flex: "0 0 50%", minHeight: 0, overflow: "hidden" }
+          ),
+        }}>
           <ModuleNav iframeRef={iframeRef} modules={c.modules} />
-          <div style={{ flex: 1, padding: "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0, background: T.surface }}>
+          <div style={{ flex: 1, position: "relative", padding: previewFullscreen ? "28px 56px 36px" : "34px 58px 38px", display: "flex", alignItems: "center", justifyContent: "center", minHeight: 0, minWidth: 0, background: T.surface }}>
+            <button
+              onClick={() => setPreviewFullscreen((v) => !v)}
+              title={previewFullscreen ? "Exit fullscreen (Esc)" : "Expand preview to fullscreen"}
+              style={{
+                position: "absolute", top: 14, right: 14, zIndex: 2,
+                display: "flex", alignItems: "center", gap: 6,
+                padding: "7px 11px", borderRadius: 7,
+                background: T.surface, border: `1px solid ${T.border}`,
+                color: T.textDim, cursor: "pointer",
+                fontFamily: T.fontBody, fontSize: 10, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                transition: "all 120ms",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = T.accent; e.currentTarget.style.borderColor = T.accent; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = T.textDim; e.currentTarget.style.borderColor = T.border; }}
+            >
+              {previewFullscreen ? (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v4a1 1 0 01-1 1H3M21 8h-4a1 1 0 01-1-1V3M3 16h4a1 1 0 011 1v4M16 21v-4a1 1 0 011-1h4" /></svg>
+                  Exit
+                </>
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg>
+                  Fullscreen
+                </>
+              )}
+            </button>
             <div style={{ height: "100%", aspectRatio: "16/9", maxWidth: "100%", background: T.surface, display: "flex" }}>
               <iframe ref={iframeRef} key={previewKey} src={previewUrl} onLoad={handleIframeLoad} style={{ width: "100%", height: "100%", border: "none", display: "block", background: T.surface }} title="Kiosk preview" />
             </div>
