@@ -13,7 +13,7 @@ export type UploadSpec = {
   ratio?: string;
 };
 
-const KB = 1024;
+export const KB = 1024;
 
 export const SPEC_LOGO: UploadSpec = { accept: "image/svg+xml,image/png", formats: "SVG · PNG (transparent)", warnBytes: 40 * KB, maxBytes: 200 * KB };
 export const SPEC_ICON: UploadSpec = { accept: "image/svg+xml,image/png", formats: "SVG · PNG", warnBytes: 20 * KB, maxBytes: 100 * KB, ratio: "1:1 square" };
