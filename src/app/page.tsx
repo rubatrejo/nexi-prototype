@@ -61,6 +61,10 @@ export default function Home() {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("embed") === "1") setEmbedMode(true);
+    // Portfolio / shareable standalone entry: skip onboarding, land on IDL-01.
+    if (params.get("autostart") === "1") {
+      setStep(5);
+    }
     const slug = params.get("client");
     if (!slug) return;
     setClientSlug(slug);
